@@ -21,15 +21,14 @@ if (toggle && nav) {
 const header = document.querySelector(".site-header");
 const onScroll = () => {
   if (!header) return;
-  header.classList.toggle("is-scrolled", window.scrollY > 8);
+  header.classList.toggle("is-scrolled", window.scrollY > 80);
 };
 onScroll();
 window.addEventListener("scroll", onScroll, { passive: true });
 
 const today = new Date().getDay();
-const card = document.querySelector(`.day[data-day="${today}"]`);
-if (card) {
-  card.classList.add("is-today");
-  const badge = card.querySelector(".today-badge");
+document.querySelectorAll(`[data-day="${today}"]`).forEach((cell) => {
+  cell.classList.add("is-today");
+  const badge = cell.querySelector(".today-badge");
   if (badge) badge.hidden = false;
-}
+});

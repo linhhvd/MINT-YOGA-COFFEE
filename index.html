@@ -43,40 +43,35 @@
 
   <main id="noi-dung">
     <section class="hero" id="home">
-      <div class="wrap hero__grid">
-        <div>
-          <p class="eyebrow">Phòng tập yoga · Tân Phú</p>
-          <h1>Thêm sức khỏe,<br><em>mãi tươi trẻ.</em></h1>
-          <p class="lede">Mint Yoga &amp; Coffee. Lịch học rõ trong tuần, hai cô hướng dẫn, một địa chỉ ở Phú Thạnh.</p>
-          <div class="hero__actions">
-            <a class="btn btn--solid" href="#lich-hoc">Xem lịch học</a>
-            <a class="btn btn--ghost" href="#lien-lac">Nhắn phòng tập</a>
-          </div>
-        </div>
-        <aside class="hero-card">
-          <p>
-            <strong>11 Lê Sao</strong>
-            <span>Phường Phú Thạnh, Quận Tân Phú, TP. Hồ Chí Minh</span>
-          </p>
-          <p>
-            <strong>098 123 8486</strong>
-            <span>Thuy Tien Vo Nguyen · điện thoại / Zalo</span>
-          </p>
-        </aside>
+      <div class="hero__media">
+        <img src="img/hero.jpg" alt="Phòng tập yên, thảm xanh và ánh sáng buổi sớm">
       </div>
+      <div class="wrap hero__copy">
+        <p class="eyebrow">Phòng tập yoga · Tân Phú</p>
+        <h1>Thêm sức khỏe,<br><em>mãi tươi trẻ.</em></h1>
+        <p class="lede">Mint Yoga &amp; Coffee. Hai lớp trong tuần, một địa chỉ ở Phú Thạnh.</p>
+        <div class="hero__actions">
+          <a class="btn btn--solid" href="#lich-hoc">Xem lịch học</a>
+          <a class="btn btn--ghost" href="#lien-lac">Nhắn phòng tập</a>
+        </div>
+      </div>
+      <div class="wrap hero__facts">
+        <p><small>Địa chỉ</small><strong>11 Lê Sao, Phú Thạnh</strong></p>
+        <p><small>Gọi hoặc Zalo</small><strong>098 123 8486</strong></p>
+        <p><small>Trong tuần</small><strong>Sáng · Chiều · Tối</strong></p>
+      </div>
+      <p class="wrap hero__note">Hình minh họa. Ảnh phòng thật sẽ thay khi có.</p>
     </section>
 
-    <section class="section section--deep" id="gioi-thieu">
-      <div class="wrap">
-        <div class="section__head">
-          <h2>Về chúng tôi</h2>
-          <p>Phòng tập tại Quận Tân Phú. Lớp do Ms. Thủy Tiên và Ms. Phụng Trương hướng dẫn.</p>
-        </div>
-        <div class="about">
-          <div class="about__copy">
-            <p>Mint Yoga &amp; Coffee ở 11 Lê Sao, Phường Phú Thạnh. Trong tuần có Yoga 1 (sáng và tối) và Yoga 2 (chiều).</p>
-            <p>Muốn xem không gian lớp, mở video giới thiệu phòng tập bên cạnh.</p>
-          </div>
+    <section class="section studio" id="gioi-thieu">
+      <div class="wrap studio__grid">
+        <figure class="studio__photo">
+          <img src="img/still.jpg" alt="Khăn tập xanh, lá bạc hà và tách cà phê">
+        </figure>
+        <div class="studio__panel">
+          <p class="eyebrow">Về chúng tôi</p>
+          <h2>Một lớp nhỏ ở Tân Phú.</h2>
+          <p>Mint Yoga &amp; Coffee ở 11 Lê Sao, Phường Phú Thạnh. Yoga 1 học sáng và tối. Yoga 2 học chiều. Ms. Thủy Tiên và Ms. Phụng Trương hướng dẫn.</p>
           <div class="video">
             <iframe
               src="https://www.youtube.com/embed/fkyo1cWbCYQ"
@@ -95,88 +90,53 @@
           <h2>Lịch học</h2>
           <p>Thứ 7 và Chủ nhật nghỉ cả hai lớp. Thứ 4 chỉ có Yoga 2.</p>
         </div>
-        <div class="days">
-          <article class="day" data-day="1">
-            <h3>Thứ 2 <span class="today-badge" hidden>Hôm nay</span></h3>
-            <div class="slot">
-              <span class="slot__name">Yoga 1</span>
-              <p>7:15–8:15<br>Ms. Thủy Tiên</p>
-              <p>18:00–19:00<br>Ms. Thủy Tiên</p>
-            </div>
-            <div class="slot">
-              <span class="slot__name">Yoga 2</span>
-              <p>16:45–17:45<br>Ms. Phụng Trương</p>
-            </div>
-          </article>
-          <article class="day" data-day="2">
-            <h3>Thứ 3 <span class="today-badge" hidden>Hôm nay</span></h3>
-            <div class="slot">
-              <span class="slot__name">Yoga 1</span>
-              <p>7:15–8:15<br>Ms. Thủy Tiên</p>
-              <p>18:00–19:00<br>Ms. Phụng Trương</p>
-            </div>
-            <div class="slot">
-              <span class="slot__name">Yoga 2</span>
-              <p>16:45–17:45<br>Ms. Phụng Trương</p>
-            </div>
-          </article>
-          <article class="day" data-day="3">
-            <h3>Thứ 4 <span class="today-badge" hidden>Hôm nay</span></h3>
-            <div class="slot">
-              <span class="slot__name">Yoga 1</span>
-              <p class="off">Nghỉ</p>
-            </div>
-            <div class="slot">
-              <span class="slot__name">Yoga 2</span>
-              <p>16:45–17:45<br>Ms. Phụng Trương</p>
-            </div>
-          </article>
-          <article class="day" data-day="4">
-            <h3>Thứ 5 <span class="today-badge" hidden>Hôm nay</span></h3>
-            <div class="slot">
-              <span class="slot__name">Yoga 1</span>
-              <p>7:15–8:15<br>Ms. Thủy Tiên</p>
-              <p>18:00–19:00<br>Ms. Phụng Trương</p>
-            </div>
-            <div class="slot">
-              <span class="slot__name">Yoga 2</span>
-              <p>16:45–17:45<br>Ms. Phụng Trương</p>
-            </div>
-          </article>
-          <article class="day" data-day="5">
-            <h3>Thứ 6 <span class="today-badge" hidden>Hôm nay</span></h3>
-            <div class="slot">
-              <span class="slot__name">Yoga 1</span>
-              <p>7:15–8:15<br>Ms. Thủy Tiên</p>
-              <p>18:00–19:00<br>Ms. Thủy Tiên</p>
-            </div>
-            <div class="slot">
-              <span class="slot__name">Yoga 2</span>
-              <p>16:45–17:45<br>Ms. Phụng Trương</p>
-            </div>
-          </article>
-          <article class="day" data-day="6">
-            <h3>Thứ 7 <span class="today-badge" hidden>Hôm nay</span></h3>
-            <div class="slot">
-              <span class="slot__name">Yoga 1</span>
-              <p class="off">Nghỉ</p>
-            </div>
-            <div class="slot">
-              <span class="slot__name">Yoga 2</span>
-              <p class="off">Nghỉ</p>
-            </div>
-          </article>
-          <article class="day" data-day="0">
-            <h3>Chủ nhật <span class="today-badge" hidden>Hôm nay</span></h3>
-            <div class="slot">
-              <span class="slot__name">Yoga 1</span>
-              <p class="off">Nghỉ</p>
-            </div>
-            <div class="slot">
-              <span class="slot__name">Yoga 2</span>
-              <p class="off">Nghỉ</p>
-            </div>
-          </article>
+        <div class="board">
+          <table class="timetable">
+            <thead>
+              <tr>
+                <th scope="col"></th>
+                <th scope="col" data-day="1">Thứ 2 <span class="today-badge" hidden>Hôm nay</span></th>
+                <th scope="col" data-day="2">Thứ 3 <span class="today-badge" hidden>Hôm nay</span></th>
+                <th scope="col" data-day="3">Thứ 4 <span class="today-badge" hidden>Hôm nay</span></th>
+                <th scope="col" data-day="4">Thứ 5 <span class="today-badge" hidden>Hôm nay</span></th>
+                <th scope="col" data-day="5">Thứ 6 <span class="today-badge" hidden>Hôm nay</span></th>
+                <th scope="col" data-day="6">Thứ 7 <span class="today-badge" hidden>Hôm nay</span></th>
+                <th scope="col" data-day="0">CN <span class="today-badge" hidden>Hôm nay</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Sáng<small>Yoga 1</small></th>
+                <td data-day="1">7:15–8:15<br>Ms. Thủy Tiên</td>
+                <td data-day="2">7:15–8:15<br>Ms. Thủy Tiên</td>
+                <td data-day="3" class="off">Nghỉ</td>
+                <td data-day="4">7:15–8:15<br>Ms. Thủy Tiên</td>
+                <td data-day="5">7:15–8:15<br>Ms. Thủy Tiên</td>
+                <td data-day="6" class="off">Nghỉ</td>
+                <td data-day="0" class="off">Nghỉ</td>
+              </tr>
+              <tr>
+                <th scope="row">Chiều<small>Yoga 2</small></th>
+                <td data-day="1">16:45–17:45<br>Ms. Phụng Trương</td>
+                <td data-day="2">16:45–17:45<br>Ms. Phụng Trương</td>
+                <td data-day="3">16:45–17:45<br>Ms. Phụng Trương</td>
+                <td data-day="4">16:45–17:45<br>Ms. Phụng Trương</td>
+                <td data-day="5">16:45–17:45<br>Ms. Phụng Trương</td>
+                <td data-day="6" class="off">Nghỉ</td>
+                <td data-day="0" class="off">Nghỉ</td>
+              </tr>
+              <tr>
+                <th scope="row">Tối<small>Yoga 1</small></th>
+                <td data-day="1">18:00–19:00<br>Ms. Thủy Tiên</td>
+                <td data-day="2">18:00–19:00<br>Ms. Phụng Trương</td>
+                <td data-day="3" class="off">Nghỉ</td>
+                <td data-day="4">18:00–19:00<br>Ms. Phụng Trương</td>
+                <td data-day="5">18:00–19:00<br>Ms. Thủy Tiên</td>
+                <td data-day="6" class="off">Nghỉ</td>
+                <td data-day="0" class="off">Nghỉ</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <p class="legend">
           <span><i class="dot dot--tien"></i>Ms. Thủy Tiên</span>
@@ -191,8 +151,8 @@
           <h2>Thông báo</h2>
           <p>Hiện chưa có thông báo mới. Các thẻ bên dưới là thông báo đã đăng năm 2024–2025.</p>
         </div>
-        <div class="cards">
-          <article class="card">
+        <div class="news">
+          <article class="card card--lead">
             <time datetime="2024-12">Cuối 2024 – đầu 2025</time>
             <h3>Nghỉ Noel, Tết Dương lịch và Tết Âm lịch</h3>
             <ul>
@@ -200,6 +160,7 @@
               <li>Tết Âm lịch: nghỉ từ thứ Năm 23/01/2025 đến hết thứ Tư 05/02/2025. Học lại thứ Năm 06/02/2025.</li>
             </ul>
           </article>
+          <div class="news__rest">
           <article class="card">
             <time datetime="2024-12">Cuối năm 2024</time>
             <h3>Quà tặng thay lời cảm ơn</h3>
@@ -223,6 +184,7 @@
               <li>30/4 và 1/5: nghỉ từ thứ Hai 29/4 đến hết thứ Năm 02/5. Học lại thứ Sáu 03/5.</li>
             </ul>
           </article>
+          </div>
         </div>
       </div>
     </section>
@@ -233,13 +195,14 @@
           <h2>Bài viết</h2>
           <p>Ghi chép ngắn về cách tập, lấy từ các bài phòng tập đã đăng.</p>
         </div>
-        <div class="essays">
-          <article class="essay" id="yin-yoga">
+        <div class="essays essays--split">
+          <article class="essay essay--feature" id="yin-yoga">
             <h3>Yin Yoga</h3>
             <p>Không phải là yoga trị liệu. Phần tác động “Yin” ẩn sâu hơn của dây chằng, khớp nối, gân, mạng lưới mạc cơ, xương. Yin yoga được thiết kế đặc biệt để tái lập không gian và sức mạnh của khớp. Đó là trạng thái chúng ta dùng tư thế để hướng vào và cảm nhận cảm giác tự sâu thẳm bên trong cơ thể.</p>
             <p>Trong thực hành Yin yoga, bạn không cần tập quá nhiều tư thế. Động tác sẽ phát huy tác dụng khi bạn cảm nhận được cơ thể căng giãn, bóp lại hoặc vặn xoắn ở mức độ chấp nhận được, giữ nguyên trạng thái này từ 1 phút, 2 phút, 5 phút thậm chí 20 phút, miễn là không cảm thấy đau đớn. Nếu cảm giác đau đớn, nóng ran, cơ thể như sắp bị xé toang thì đó là dấu hiệu chúng ta phải dừng lại. Mô yin không đàn hồi, chúng cố định nhưng chúng cần có áp lực và nghỉ ngơi.</p>
             <p>Điều lưu ý đặc biệt là trẻ em không cần tập Yin yoga vì cơ chế sinh lý thời thơ ấu là vui chơi, vận động toàn vẹn nên việc ngồi yên quá lâu hay chiêm ngẫm triết lý là điều quá sớm cho hành trình cả đời người khi họ vẫn còn đang độ tuổi trẻ con.</p>
           </article>
+          <div class="essays__side">
           <article class="essay" id="hoi-tho">
             <h3>Hơi thở</h3>
             <p>Một trong những hoạt động để duy trì sự sống là hít thở. Lắng nghe hơi thở mà không can thiệp vào, chỉ nhận biết và rồi phép màu sẽ dần hiện ra: cơ thể tự điều chỉnh lại hơi thở về trạng thái tự nhiên, chậm, nhẹ, mịn.</p>
@@ -251,6 +214,7 @@
             <p>Khi tập Yoga, phần lớn thời gian bạn để cho cơ thể trải nghiệm các tư thế trên thảm nhưng cũng có lúc bạn cần ngồi yên. Điều đó không có nghĩa là bạn đang ở chế độ tắt, mà cho thấy biên độ vật lý của cơ thể đã ở mức cao cần được thư giãn. Khi đó tinh thần vẫn đang hoạt động nên việc ngồi yên để hít thở, quản lý cảm xúc có nghĩa rằng bạn vẫn đang luyện tập. Đó gọi là thiền định.</p>
             <p>Thân và tâm về được trạng thái tái hợp nhất, cân bằng, cho thấy bạn có sự chọn lựa đúng về Yoga. Việc còn lại là duy trì và không nên từ bỏ dễ dàng.</p>
           </article>
+          </div>
         </div>
         <p class="missing">Ba bài đang ở dạng ảnh, sẽ thêm khi có bản chữ: Điểm tập trung nhìn (Drishti), Lời tri ân cuối năm 2024, Liên kết với cơ thể khi tập luyện Yoga.</p>
       </div>
@@ -270,11 +234,13 @@
       </div>
     </section>
 
-    <section class="section" id="lien-lac">
-      <div class="wrap">
-        <div class="section__head">
-          <h2>Liên lạc</h2>
-          <p>Gọi, nhắn Zalo hoặc mở Messenger. Địa chỉ lớp ở dưới.</p>
+    <section class="section contact-band" id="lien-lac">
+      <div class="wrap contact-band__grid">
+        <div>
+          <p class="eyebrow">Liên lạc</p>
+          <h2>Gọi Mint.</h2>
+          <a class="phone-xl" href="tel:+84981238486">098 123 8486</a>
+          <p>Thuy Tien Vo Nguyen · điện thoại và Zalo. Lớp ở 11 Lê Sao, Phú Thạnh, Tân Phú.</p>
         </div>
         <div class="contact-grid">
           <div class="contact-list">
