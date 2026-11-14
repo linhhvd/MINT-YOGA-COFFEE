@@ -880,6 +880,12 @@ h3 {
   color: rgba(246, 241, 230, 0.86);
 }
 
+.lich-status {
+  margin: 0;
+  padding: 1.2rem 1rem;
+  color: var(--muted);
+}
+
 .board {
   overflow-x: auto;
   border-radius: 1.2rem;

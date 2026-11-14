@@ -19,14 +19,14 @@ Mở http://127.0.0.1:5500/
 
 - `index.html` — toàn bộ nội dung
 - `css/styles.css` — giao diện
-- `js/main.js` — menu, highlight ngày hôm nay
+- `js/main.js` — menu, lịch đọc từ Google Sheet `Lịch học`
 - `favicon.svg` — icon lá
 
 ## Quyết định
 
 - Không bịa bài viết. Chỉ đưa chữ đã đọc được trên site cũ. Ba bài dạng ảnh (Drishti, lời tri ân, liên kết cơ thể) được ghi tên, chưa chép nội dung.
 - Thông báo 2024–2025 để trong mục lưu trữ. Phần đang hiện trên site cũ không có thông báo mới.
-- Lịch học theo hai bảng Yoga 1 và Yoga 2 trên trang Lịch học.
+- Lịch học lấy từ Google Sheet. Chỉ Ms. Thủy Tiên. Không ghi Yoga 1 hay Yoga 2.
 
 ## Xuất bản (chưa xong)
 

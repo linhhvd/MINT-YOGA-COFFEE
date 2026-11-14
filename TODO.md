@@ -13,7 +13,7 @@
 
 ## Chưa quyết
 
-- Đã đổi bố cục local: hero full màn, menu trong suốt, khối giới thiệu ảnh + nền tối, lịch dạng bảng. Chưa đẩy GitHub.
+- Lịch đọc Google Sheet `Lịch học` (id 1PceP2P5Wn-tNfeclBWP4mtQiAwzYrWHz6fDRYCfftXo). CSV công khai đã trả 200. mintyogacoffee.com vẫn là Google Sites cho đến khi đổi DNS GoDaddy.
 
 ## Không đụng
 
