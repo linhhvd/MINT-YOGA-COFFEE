@@ -834,23 +834,34 @@ h3 {
   place-items: center;
   width: var(--bot-size);
   height: var(--bot-size);
+  min-width: 0;
+  min-height: 0;
   padding: 0;
   border: 0;
   background: transparent;
   cursor: pointer;
-  flex: none;
+  flex: 0 0 auto;
   transition: width 0.6s ease, height 0.6s ease, transform 0.2s ease;
 }
 
 .reach__bot-face {
   position: relative;
+  width: auto;
   height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  min-width: 0;
+  min-height: 0;
   aspect-ratio: 671 / 821;
 }
 
 .reach__bot-face img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
+  min-width: 0;
+  min-height: 0;
   object-fit: contain;
   display: block;
 }
@@ -917,6 +928,8 @@ h3 {
 .reach__mid.is-small .reach__bot {
   width: var(--icon);
   height: var(--icon);
+  max-width: var(--icon);
+  max-height: var(--icon);
 }
 
 .site-footer {
