@@ -18,6 +18,17 @@ if (toggle && nav) {
   });
 }
 
+document.querySelectorAll(".icon-btn[data-url]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const url = button.dataset.url;
+    if (url.startsWith("tel:")) {
+      window.location.href = url;
+      return;
+    }
+    window.open(url, "_blank", "noopener");
+  });
+});
+
 const header = document.querySelector(".site-header");
 const onScroll = () => {
   if (!header) return;
@@ -145,6 +156,7 @@ function renderSchedule(rows) {
     item.cells.forEach((value, index) => {
       if (!headers[index]) return;
       const td = document.createElement("td");
+      td.dataset.day = headers[index];
       const shown = showCell(value);
       td.textContent = shown;
       if (shown === "Nghỉ") td.className = "off";
@@ -157,7 +169,24 @@ function renderSchedule(rows) {
   table.replaceChildren(head, body);
   table.hidden = false;
   if (status) status.hidden = true;
-  if (notes) notes.textContent = noteLines.join(" · ");
+  if (notes) {
+    notes.replaceChildren();
+    noteLines.forEach((line) => {
+      const p = document.createElement("p");
+      line.split(/(\d+g\d+)/).forEach((part) => {
+        if (!part) return;
+        if (/^\d+g\d+$/.test(part)) {
+          const time = document.createElement("span");
+          time.className = "time";
+          time.textContent = part;
+          p.append(time);
+        } else {
+          p.append(document.createTextNode(part));
+        }
+      });
+      notes.append(p);
+    });
+  }
 }
 
 async function loadSchedule() {

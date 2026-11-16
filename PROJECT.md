@@ -20,13 +20,19 @@ Mở http://127.0.0.1:5500/
 - `index.html` — toàn bộ nội dung
 - `css/styles.css` — giao diện
 - `js/main.js` — menu, lịch đọc từ Google Sheet `Lịch học`
-- `favicon.svg` — icon lá
+- `js/bot.js` — Mint bot. Sheet hỏi đáp cố định: dòng 2 là prompt và các cột thông tin (chung, đối tượng học viên), dòng 4–10 là lịch tập, từ dòng 13 trở xuống là hỏi đáp.
+- `bot/Code.gs` — Apps Script gọi `gemini-3.1-flash-lite`. Hai khóa `GEMINI_API_KEY_1` và `GEMINI_API_KEY_2` xoay tua trong Script properties, không đưa vào repo.
+- `img/logo-mint.png`, `img/logo-white.png` — logo phòng tập, cắt từ thư mục `Logo`
+- `img/mint-bot.png` — robot xanh, nền trong suốt, nút giữa mục liên lạc
+- `img/favicon.png` — icon tab
 
 ## Quyết định
 
 - Không bịa bài viết. Chỉ đưa chữ đã đọc được trên site cũ. Ba bài dạng ảnh (Drishti, lời tri ân, liên kết cơ thể) được ghi tên, chưa chép nội dung.
 - Thông báo 2024–2025 để trong mục lưu trữ. Phần đang hiện trên site cũ không có thông báo mới.
 - Lịch học lấy từ Google Sheet. Chỉ Ms. Thủy Tiên. Không ghi Yoga 1 hay Yoga 2.
+- Giao diện luôn dùng được trên máy tính, điện thoại và máy tính bảng. Máy tính bảng gồm cả iPad, dọc và ngang. Từ 921px menu là hàng chữ. Đến 920px dùng nút Menu, lịch học xếp theo ngày.
+- Mục liên lạc: nút tròn hai bên, Mint bot ở giữa, không vòng tròn, chớp mắt định kỳ. Đỉnh robot ngang đỉnh nút điện thoại. Ô “Chat với Mint Bot” nằm ngay dưới, hở thêm vài pixel, bề ngang vừa chữ, bấm được như robot. Khi nở, ô chat rộng gấp đôi (dừng trước nút hai bên nếu màn hẹp); trên điện thoại ô chat rộng hết màn hình. Robot thu nhỏ vào chỗ chữ MINT BOT. Bấm ra ngoài ô đang mở thì thu lại. Máy tính và iPad: ô xanh đóng bằng 3/4 chiều cao cũ, mở bằng 5/4; khoảng cách dọc các nút tròn cố định. Mọi cỡ màn hình, khi ô xanh nở thì trang cuộn lên cùng lúc để mép dưới luôn sát đáy màn hình (điện thoại: hàng nút tròn; máy tính và iPad: footer), rồi ô chat mới nở. Khi đóng: ô chat thu trước, rồi ô xanh thấp dần trong lúc trang cuộn về chỗ cũ. Điện thoại: đóng giữ chiều cao cũ; mở thì ô xanh cao bằng màn hình trừ header. Sáu nút tròn một hàng dưới ô xanh. Địa chỉ và Chị Thủy Tiên nằm ở footer.
 
 ## Xuất bản (chưa xong)
 

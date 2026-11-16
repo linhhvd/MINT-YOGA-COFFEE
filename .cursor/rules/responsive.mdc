@@ -1,0 +1,14 @@
+---
+description: Trang luôn thân thiện với máy tính, điện thoại và máy tính bảng
+alwaysApply: true
+---
+
+# Ba kích thước màn hình
+
+Mọi thay đổi giao diện phải dùng được trên máy tính, điện thoại và máy tính bảng. Máy tính bảng gồm cả iPad, cả chiều dọc và chiều ngang. Không sửa một kích thước rồi để kích thước kia vỡ.
+
+- Máy tính, từ 921px: menu là hàng chữ.
+- Điện thoại và iPad dọc, đến 920px: nút Menu, khối không tràn ngang, chữ và nút đủ lớn để bấm.
+- iPad ngang: cột và lịch vẫn đọc được, không đè lên nhau.
+
+Sau khi sửa HTML, CSS hoặc layout, kiểm tra khoảng 390px (điện thoại), 820px (iPad dọc), 1024px (iPad ngang) và 1280px (máy tính). Trang không kéo ngang. Slogan trong header vẫn đọc được.
