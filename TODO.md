@@ -4,12 +4,13 @@
 
 - [x] Dựng source trang tĩnh
 - [x] Kiểm tra trên trình duyệt (desktop 1280 và điện thoại)
-- [x] Đẩy GitHub và bật GitHub Pages — https://github.com/linhhvd/MINT-YOGA-COFFEE (build xong)
-- [ ] Trỏ mintyogacoffee.com khỏi Google Sites — cần sửa DNS trên GoDaddy
+- [x] Đẩy GitHub và bật GitHub Pages — https://linhhvd.github.io/MINT-YOGA-COFFEE/
+- [x] Gỡ custom domain để xem bản GitHub; khách vẫn vào Google Sites
+- [ ] Trỏ mintyogacoffee.com khỏi Google Sites — cần sửa DNS trên GoDaddy, rồi mới gắn lại `CNAME`
 
 ## Blocker
 
-- DNS tên miền ở GoDaddy (`ns35/ns36.domaincontrol.com`). `www` đang CNAME tới `ghs.googlehosted.com`.
+- DNS tên miền ở GoDaddy (`ns35/ns36.domaincontrol.com`). `www` đang CNAME tới `ghs.googlehosted.com`. Chưa gắn lại custom domain trên Pages.
 
 ## Chưa quyết
 
