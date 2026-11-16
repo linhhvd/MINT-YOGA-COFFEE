@@ -645,22 +645,21 @@ h3 {
   gap: 1rem;
 }
 
-.essay {
-  background: var(--paper);
-  border-radius: 1.2rem;
-  padding: 1.4rem 1.5rem 1.5rem;
-}
-
-.essay h3 {
-  font-family: var(--serif);
-  font-size: 2rem;
-  font-weight: 560;
-  letter-spacing: -0.03em;
-}
-
-.essay p + p,
-.essay blockquote {
+.essay__text p + p,
+.essay__text p + blockquote,
+.essay__text blockquote + p {
   margin-top: 0.8rem;
+}
+
+.essay__text + .essay__photo {
+  margin-top: 1rem;
+}
+
+.essay__photo {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.4;
 }
 
 .essay blockquote {
@@ -1683,7 +1682,8 @@ h3 {
   }
 
   .studio__grid,
-  .news {
+  .news,
+  .essays--split {
     grid-template-columns: 1fr;
   }
 

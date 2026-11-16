@@ -36,54 +36,55 @@ const onScroll = () => {
 onScroll();
 window.addEventListener("scroll", onScroll, { passive: true });
 
-const news = document.querySelector("#thong-bao .news");
-const newsNarrow = window.matchMedia("(max-width: 920px)");
+function bindAccordion(root, restSelector) {
+  if (!root) return;
+  const narrow = window.matchMedia("(max-width: 920px)");
 
-function setNewsCard(card, open) {
-  card.classList.toggle("is-open", open);
-  const button = card.querySelector(".card__toggle");
-  const body = card.querySelector(".card__body");
-  if (button) button.setAttribute("aria-expanded", String(open));
-  if (body) body.hidden = !open;
-}
-
-function layoutNews() {
-  if (!news) return;
-  const lead = news.querySelector(".card--lead");
-  const rest = [...news.querySelectorAll(".news__rest .card")];
-  const leadButton = lead.querySelector(".card__toggle");
-  if (newsNarrow.matches) {
-    leadButton.tabIndex = 0;
-    const open = [...news.querySelectorAll(".card")].filter((card) => card.classList.contains("is-open"));
-    if (open.length > 1) {
-      const keep = open.find((card) => !card.classList.contains("card--lead")) || open[0];
-      news.querySelectorAll(".card").forEach((card) => setNewsCard(card, card === keep));
-    }
-    return;
+  function setCard(card, open) {
+    card.classList.toggle("is-open", open);
+    const button = card.querySelector(".card__toggle");
+    const body = card.querySelector(".card__body");
+    if (button) button.setAttribute("aria-expanded", String(open));
+    if (body) body.hidden = !open;
   }
-  leadButton.tabIndex = -1;
-  setNewsCard(lead, true);
-  const openRest = rest.filter((card) => card.classList.contains("is-open"));
-  rest.forEach((card) => setNewsCard(card, openRest.length > 0 && card === openRest[0]));
-}
 
-if (news) {
-  news.addEventListener("click", (event) => {
+  function layout() {
+    const lead = root.querySelector(".card--lead");
+    const rest = [...root.querySelectorAll(restSelector)];
+    const leadButton = lead && lead.querySelector(".card__toggle");
+    if (!lead || !leadButton) return;
+    if (narrow.matches) {
+      leadButton.tabIndex = 0;
+      const open = [...root.querySelectorAll(".card")].filter((card) => card.classList.contains("is-open"));
+      if (open.length > 1) {
+        const keep = open.find((card) => !card.classList.contains("card--lead")) || open[0];
+        root.querySelectorAll(".card").forEach((card) => setCard(card, card === keep));
+      }
+      return;
+    }
+    leadButton.tabIndex = -1;
+    setCard(lead, true);
+    const openRest = rest.filter((card) => card.classList.contains("is-open"));
+    rest.forEach((card) => setCard(card, openRest.length > 0 && card === openRest[0]));
+  }
+
+  root.addEventListener("click", (event) => {
     const card = event.target.closest(".card");
     if (!card || !event.target.closest(".card__toggle")) return;
-    if (!newsNarrow.matches && card.classList.contains("card--lead")) return;
+    if (!narrow.matches && card.classList.contains("card--lead")) return;
     const willOpen = !card.classList.contains("is-open");
-    const group = newsNarrow.matches
-      ? [...news.querySelectorAll(".card")]
-      : [...news.querySelectorAll(".news__rest .card")];
+    const group = narrow.matches ? [...root.querySelectorAll(".card")] : [...root.querySelectorAll(restSelector)];
     group.forEach((other) => {
-      if (other !== card) setNewsCard(other, false);
+      if (other !== card) setCard(other, false);
     });
-    setNewsCard(card, willOpen);
+    setCard(card, willOpen);
   });
-  layoutNews();
-  newsNarrow.addEventListener("change", layoutNews);
+  layout();
+  narrow.addEventListener("change", layout);
 }
+
+bindAccordion(document.querySelector("#thong-bao .news"), ".news__rest .card");
+bindAccordion(document.querySelector("#bai-viet .essays"), ".essays__side .card");
 
 const SHEET_CSV =
   "https://docs.google.com/spreadsheets/d/1PceP2P5Wn-tNfeclBWP4mtQiAwzYrWHz6fDRYCfftXo/export?format=csv";
