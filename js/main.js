@@ -36,6 +36,55 @@ const onScroll = () => {
 onScroll();
 window.addEventListener("scroll", onScroll, { passive: true });
 
+const news = document.querySelector("#thong-bao .news");
+const newsNarrow = window.matchMedia("(max-width: 920px)");
+
+function setNewsCard(card, open) {
+  card.classList.toggle("is-open", open);
+  const button = card.querySelector(".card__toggle");
+  const body = card.querySelector(".card__body");
+  if (button) button.setAttribute("aria-expanded", String(open));
+  if (body) body.hidden = !open;
+}
+
+function layoutNews() {
+  if (!news) return;
+  const lead = news.querySelector(".card--lead");
+  const rest = [...news.querySelectorAll(".news__rest .card")];
+  const leadButton = lead.querySelector(".card__toggle");
+  if (newsNarrow.matches) {
+    leadButton.tabIndex = 0;
+    const open = [...news.querySelectorAll(".card")].filter((card) => card.classList.contains("is-open"));
+    if (open.length > 1) {
+      const keep = open.find((card) => !card.classList.contains("card--lead")) || open[0];
+      news.querySelectorAll(".card").forEach((card) => setNewsCard(card, card === keep));
+    }
+    return;
+  }
+  leadButton.tabIndex = -1;
+  setNewsCard(lead, true);
+  const openRest = rest.filter((card) => card.classList.contains("is-open"));
+  rest.forEach((card) => setNewsCard(card, openRest.length > 0 && card === openRest[0]));
+}
+
+if (news) {
+  news.addEventListener("click", (event) => {
+    const card = event.target.closest(".card");
+    if (!card || !event.target.closest(".card__toggle")) return;
+    if (!newsNarrow.matches && card.classList.contains("card--lead")) return;
+    const willOpen = !card.classList.contains("is-open");
+    const group = newsNarrow.matches
+      ? [...news.querySelectorAll(".card")]
+      : [...news.querySelectorAll(".news__rest .card")];
+    group.forEach((other) => {
+      if (other !== card) setNewsCard(other, false);
+    });
+    setNewsCard(card, willOpen);
+  });
+  layoutNews();
+  newsNarrow.addEventListener("change", layoutNews);
+}
+
 const SHEET_CSV =
   "https://docs.google.com/spreadsheets/d/1PceP2P5Wn-tNfeclBWP4mtQiAwzYrWHz6fDRYCfftXo/export?format=csv";
 
