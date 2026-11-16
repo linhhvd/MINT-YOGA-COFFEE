@@ -23,7 +23,7 @@ Mở http://127.0.0.1:5500/
 - `js/bot.js` — Mint bot. Sheet hỏi đáp cố định: dòng 2 là prompt và các cột thông tin (chung, đối tượng học viên), dòng 4–10 là lịch tập, từ dòng 13 trở xuống là hỏi đáp.
 - `bot/Code.gs` — Apps Script gọi `gemini-3.1-flash-lite`. Hai khóa `GEMINI_API_KEY_1` và `GEMINI_API_KEY_2` xoay tua trong Script properties, không đưa vào repo.
 - `img/logo-mint.png`, `img/logo-white.png` — logo phòng tập, cắt từ thư mục `Logo`
-- `img/mint-bot.png` — robot xanh, nền trong suốt, nút giữa mục liên lạc
+- `img/mint-bot.png` — robot xanh, lá mint trên đầu thay búi tóc, nền trong suốt, nút giữa mục liên lạc
 - `img/favicon.png` — icon tab
 
 ## Quyết định
