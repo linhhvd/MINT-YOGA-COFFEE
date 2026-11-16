@@ -289,6 +289,12 @@ function setupBotToggle() {
     toggle.click();
   });
 
+  panel.querySelector(".mint-bot__close")?.addEventListener("click", (event) => {
+    event.stopPropagation();
+    if (!open || busy) return;
+    toggle.click();
+  });
+
   toggle.addEventListener("click", async () => {
     if (busy) return;
     busy = true;
