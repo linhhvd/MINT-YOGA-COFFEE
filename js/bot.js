@@ -239,9 +239,10 @@ function setupBotToggle() {
       const headerH = document.querySelector(".site-header").offsetHeight;
       const iconH = icon.getBoundingClientRect().height;
       const bandBox = band.getBoundingClientRect();
+      const fontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
       openW = bandBox.width;
       openLeft = bandBox.left - reachBox.left;
-      openH = Math.max(0, screenH - headerH - bandPad - iconH - 8);
+      openH = Math.max(0, screenH - headerH - bandPad - iconH - 1.75 * fontSize);
     } else {
       const fontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
       const currentW = measureReach("--chat-w");
