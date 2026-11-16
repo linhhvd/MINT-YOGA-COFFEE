@@ -1302,6 +1302,10 @@ h3 {
     padding-bottom: 1.5rem;
   }
 
+  .contact-band.is-tall .icon-btn {
+    display: none;
+  }
+
   .contact-band .reach {
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));

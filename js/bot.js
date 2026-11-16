@@ -237,14 +237,16 @@ function setupBotToggle() {
       const screenH = probe.offsetHeight;
       probe.remove();
       const headerH = document.querySelector(".site-header").offsetHeight;
-      const iconH = icon.getBoundingClientRect().height;
       const bandBox = band.getBoundingClientRect();
       const fontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
       const bottomPad = 1.5 * fontSize;
       const topPad = Number.parseFloat(bandStyle.paddingTop) || 0;
+      const fullH = Math.max(0, screenH - headerH - topPad - bottomPad);
       openW = bandBox.width;
       openLeft = bandBox.left - reachBox.left;
-      openH = Math.max(0, screenH - headerH - topPad - bottomPad - iconH - 1.75 * fontSize);
+      openH = band.classList.contains("is-tall") && reach.clientHeight > 0
+        ? reach.clientHeight
+        : fullH;
     } else {
       const fontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
       const currentW = measureReach("--chat-w");
@@ -298,17 +300,20 @@ function setupBotToggle() {
       returnScroll = scroller.scrollTop;
       const from = band.offsetHeight;
       const to = bandHeight(true);
-      const startBottom = anchorBottom();
+      const startBottom = phoneLayout()
+        ? band.getBoundingClientRect().bottom
+        : anchorBottom();
       const viewport = window.visualViewport;
       const visibleBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
-      const fontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-      const toolbarGap = phoneLayout() ? 1.5 * fontSize : 0;
-      const viewH = visibleBottom - toolbarGap;
+      const edge = () => (phoneLayout()
+        ? band.getBoundingClientRect().bottom
+        : anchorBottom());
       band.classList.add("is-tall");
       await trackBand(band, from, to, (progress) => {
-        const desired = startBottom + (viewH - startBottom) * progress;
-        scroller.scrollTop += anchorBottom() - desired;
+        const desired = startBottom + (visibleBottom - startBottom) * progress;
+        scroller.scrollTop += edge() - desired;
       });
+      layoutBot();
       mid.classList.add("is-small", "is-left");
       panel.classList.add("is-open");
       chat.inert = false;
