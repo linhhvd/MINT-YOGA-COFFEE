@@ -29,7 +29,7 @@ Mở http://127.0.0.1:5500/
 ## Quyết định
 
 - Không bịa bài viết. Chỉ đưa chữ đã đọc được trên site cũ. Ba bài dạng ảnh (Drishti, lời tri ân, liên kết cơ thể) chưa đưa lên trang.
-- Thông báo 2024–2025 để trong mục lưu trữ.
+- Thông báo 2024–2025 để trong mục lưu trữ. Đến 920px một cột: thông báo mới nhất mở sẵn, các tin cũ thu gọn, cùng lúc chỉ một card mở. Từ 921px hai cột: tin mới nhất ở cột trái, luôn mở; cột phải thu gọn, cùng lúc chỉ một card mở.
 - Lịch học lấy từ Google Sheet. Chỉ Ms. Thủy Tiên. Không ghi Yoga 1 hay Yoga 2.
 - Giao diện luôn dùng được trên máy tính, điện thoại và máy tính bảng. Máy tính bảng gồm cả iPad, dọc và ngang. Từ 921px menu là hàng chữ. Đến 920px nút ba gạch ngang, bấm thì thành dấu X và mở menu. Lịch học xếp theo ngày.
 - Về chúng tôi: thư cô Thủy Tiên và video. Đến 920px (điện thoại, iPad dọc) xếp dọc, thư trên video dưới. Từ 921px (máy tính, iPad ngang) xếp ngang.

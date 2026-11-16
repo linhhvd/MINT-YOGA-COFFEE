@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600&family=Fraunces:ital,opsz,wght@0,9..144,560;1,9..144,500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=about">
+  <link rel="stylesheet" href="css/styles.css?v=news">
 </head>
 <body>
   <a class="skip" href="#noi-dung">Tới nội dung</a>
@@ -101,38 +101,73 @@
           <h2>Thông báo</h2>
         </div>
         <div class="news">
-          <article class="card card--lead">
-            <time datetime="2024-12">Cuối 2024 – đầu 2025</time>
-            <h3>Nghỉ Noel, Tết Dương lịch và Tết Âm lịch</h3>
-            <ul>
-              <li>Nghỉ từ thứ Ba 24/12/2024 đến hết thứ Tư 01/01/2025. Học lại thứ Năm 02/01/2025.</li>
-              <li>Tết Âm lịch: nghỉ từ thứ Năm 23/01/2025 đến hết thứ Tư 05/02/2025. Học lại thứ Năm 06/02/2025.</li>
-            </ul>
+          <article class="card card--lead is-open">
+            <h3>
+              <button class="card__toggle" type="button" aria-expanded="true" aria-controls="tb-noel">
+                <time datetime="2024-12">Cuối 2024 – đầu 2025</time>
+                <span class="card__name">Nghỉ Noel, Tết Dương lịch và Tết Âm lịch</span>
+                <span class="card__mark" aria-hidden="true"></span>
+              </button>
+            </h3>
+            <div class="card__body" id="tb-noel">
+              <ul>
+                <li>Nghỉ từ thứ Ba 24/12/2024 đến hết thứ Tư 01/01/2025. Học lại thứ Năm 02/01/2025.</li>
+                <li>Tết Âm lịch: nghỉ từ thứ Năm 23/01/2025 đến hết thứ Tư 05/02/2025. Học lại thứ Năm 06/02/2025.</li>
+              </ul>
+            </div>
           </article>
           <div class="news__rest">
-          <article class="card">
-            <time datetime="2024-12">Cuối năm 2024</time>
-            <h3>Quà tặng thay lời cảm ơn</h3>
-            <p>Mint gửi món quà nhỏ nhân mùa lễ cuối năm 2024 và Xuân Ất Tỵ 2025, chúc học viên niềm vui, bình an, sức khỏe và vững tâm trên hành trình tập Yoga. Namaste.</p>
-          </article>
-          <article class="card">
-            <time datetime="2024-06">Tháng 6/2024</time>
-            <h3>Lịch nghỉ hè</h3>
-            <p>Nghỉ từ thứ Bảy 22/6 đến Chủ nhật 30/6/2024. Hoạt động bình thường lại vào thứ Hai 01/7. Namaste.</p>
-          </article>
-          <article class="card">
-            <time datetime="2024-04">Tháng 4/2024</time>
-            <h3>Lời tháng tư</h3>
-            <p>Mint cảm ơn học viên đã đến, đi và trở về, và đã rủ thêm bạn mới cùng tập. Cuối thư là phiếu quà tặng cảm ơn những người đã gắn bó.</p>
-          </article>
-          <article class="card">
-            <time datetime="2024-04">Tháng 4/2024</time>
-            <h3>Ngày nghỉ lễ</h3>
-            <ul>
-              <li>Giỗ Tổ Hùng Vương: nghỉ thứ Năm 18/4/2024. Học lại thứ Sáu 19/4.</li>
-              <li>30/4 và 1/5: nghỉ từ thứ Hai 29/4 đến hết thứ Năm 02/5. Học lại thứ Sáu 03/5.</li>
-            </ul>
-          </article>
+            <article class="card">
+              <h3>
+                <button class="card__toggle" type="button" aria-expanded="false" aria-controls="tb-qua">
+                  <time datetime="2024-12">Cuối năm 2024</time>
+                  <span class="card__name">Quà tặng thay lời cảm ơn</span>
+                  <span class="card__mark" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="card__body" id="tb-qua" hidden>
+                <p>Mint gửi món quà nhỏ nhân mùa lễ cuối năm 2024 và Xuân Ất Tỵ 2025, chúc học viên niềm vui, bình an, sức khỏe và vững tâm trên hành trình tập Yoga. Namaste.</p>
+              </div>
+            </article>
+            <article class="card">
+              <h3>
+                <button class="card__toggle" type="button" aria-expanded="false" aria-controls="tb-he">
+                  <time datetime="2024-06">Tháng 6/2024</time>
+                  <span class="card__name">Lịch nghỉ hè</span>
+                  <span class="card__mark" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="card__body" id="tb-he" hidden>
+                <p>Nghỉ từ thứ Bảy 22/6 đến Chủ nhật 30/6/2024. Hoạt động bình thường lại vào thứ Hai 01/7. Namaste.</p>
+              </div>
+            </article>
+            <article class="card">
+              <h3>
+                <button class="card__toggle" type="button" aria-expanded="false" aria-controls="tb-tu">
+                  <time datetime="2024-04">Tháng 4/2024</time>
+                  <span class="card__name">Lời tháng tư</span>
+                  <span class="card__mark" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="card__body" id="tb-tu" hidden>
+                <p>Mint cảm ơn học viên đã đến, đi và trở về, và đã rủ thêm bạn mới cùng tập. Cuối thư là phiếu quà tặng cảm ơn những người đã gắn bó.</p>
+              </div>
+            </article>
+            <article class="card">
+              <h3>
+                <button class="card__toggle" type="button" aria-expanded="false" aria-controls="tb-le">
+                  <time datetime="2024-04">Tháng 4/2024</time>
+                  <span class="card__name">Ngày nghỉ lễ</span>
+                  <span class="card__mark" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="card__body" id="tb-le" hidden>
+                <ul>
+                  <li>Giỗ Tổ Hùng Vương: nghỉ thứ Năm 18/4/2024. Học lại thứ Sáu 19/4.</li>
+                  <li>30/4 và 1/5: nghỉ từ thứ Hai 29/4 đến hết thứ Năm 02/5. Học lại thứ Sáu 03/5.</li>
+                </ul>
+              </div>
+            </article>
           </div>
         </div>
       </div>
@@ -245,7 +280,7 @@
     <a class="btn btn--solid" href="tel:+84981238486">Gọi</a>
     <a class="btn btn--ghost" href="https://m.me/108281021105168">Messenger</a>
   </div>
-  <script src="js/main.js?v=menu-icon"></script>
+  <script src="js/main.js?v=news"></script>
   <script src="js/bot.js?v=scroll-pin"></script>
 </body>
 </html>
