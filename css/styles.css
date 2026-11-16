@@ -1299,6 +1299,7 @@ h3 {
 
   .contact-band.is-tall {
     height: calc(100svh - var(--header));
+    padding-bottom: 1.5rem;
   }
 
   .contact-band .reach {
