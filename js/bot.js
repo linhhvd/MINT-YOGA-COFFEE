@@ -240,9 +240,11 @@ function setupBotToggle() {
       const iconH = icon.getBoundingClientRect().height;
       const bandBox = band.getBoundingClientRect();
       const fontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      const bottomPad = 1.5 * fontSize;
+      const topPad = Number.parseFloat(bandStyle.paddingTop) || 0;
       openW = bandBox.width;
       openLeft = bandBox.left - reachBox.left;
-      openH = Math.max(0, screenH - headerH - bandPad - iconH - 1.75 * fontSize);
+      openH = Math.max(0, screenH - headerH - topPad - bottomPad - iconH - 1.75 * fontSize);
     } else {
       const fontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
       const currentW = measureReach("--chat-w");
@@ -297,7 +299,11 @@ function setupBotToggle() {
       const from = band.offsetHeight;
       const to = bandHeight(true);
       const startBottom = anchorBottom();
-      const viewH = window.innerHeight;
+      const viewport = window.visualViewport;
+      const visibleBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
+      const fontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      const toolbarGap = phoneLayout() ? 1.5 * fontSize : 0;
+      const viewH = visibleBottom - toolbarGap;
       band.classList.add("is-tall");
       await trackBand(band, from, to, (progress) => {
         const desired = startBottom + (viewH - startBottom) * progress;
