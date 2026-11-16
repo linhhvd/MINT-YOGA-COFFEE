@@ -6,7 +6,6 @@ if (toggle && nav) {
     nav.classList.toggle("is-open", open);
     toggle.setAttribute("aria-expanded", String(open));
     toggle.setAttribute("aria-label", open ? "Đóng menu" : "Mở menu");
-    toggle.textContent = open ? "Đóng" : "Menu";
   };
 
   toggle.addEventListener("click", () => {
