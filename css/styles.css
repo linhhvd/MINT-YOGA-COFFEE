@@ -1388,6 +1388,40 @@ h3 {
   border-radius: 1.2rem;
 }
 
+.mint-bot__close {
+  display: none;
+}
+
+.mint-bot.is-open .mint-bot__close {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  z-index: 3;
+  top: 0.7rem;
+  right: 0.7rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--teal);
+  color: #f7fffd;
+  cursor: pointer;
+}
+
+.mint-bot__close::before {
+  content: "";
+  width: 0.8rem;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+}
+
+.mint-bot__close:focus-visible {
+  outline: 2px solid #b7e4da;
+  outline-offset: 3px;
+}
+
 .mint-bot:not(.is-open) {
   cursor: pointer;
 }
