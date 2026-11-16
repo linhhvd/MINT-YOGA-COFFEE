@@ -268,8 +268,7 @@ h3 {
 }
 
 .hero h1,
-.hero .lede,
-.hero__note {
+.hero .lede {
   color: #f6f1e6;
 }
 
@@ -285,13 +284,6 @@ h3 {
   color: #f6f1e6;
   border-color: rgba(246, 241, 230, 0.55);
   background: rgba(255, 255, 255, 0.08);
-}
-
-.hero__note {
-  margin-top: 1.4rem;
-  font-size: 0.82rem;
-  letter-spacing: 0.04em;
-  color: rgba(246, 241, 230, 0.72);
 }
 
 .eyebrow {
@@ -623,11 +615,6 @@ h3 {
   font-family: var(--serif);
   font-size: 1.35rem;
   line-height: 1.35;
-}
-
-.missing {
-  margin-top: 1rem;
-  color: var(--muted);
 }
 
 .event-banner {
@@ -1050,8 +1037,7 @@ h3 {
 }
 
 .hero__copy,
-.hero__facts,
-.hero__note {
+.hero__facts {
   position: relative;
   z-index: 1;
 }
