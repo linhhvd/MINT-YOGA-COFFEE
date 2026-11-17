@@ -1516,9 +1516,11 @@ h3 {
 .mint-bot {
   --chat-open-pad-x: 1.15rem;
   --chat-open-pad-top: 0.55rem;
+  /* 0.945 ≈ mép chân trong ảnh mint-bot.png; chạm sát dòng Chat. */
+  --bot-label-gap: calc(var(--bot-size) * -0.055);
   position: absolute;
   z-index: 1;
-  top: calc(var(--bot-size) + 0.8rem);
+  top: calc(var(--bot-size) + var(--bot-label-gap));
   left: var(--chat-left, 50%);
   width: var(--chat-closed-w, max-content);
   height: var(--chat-closed, auto);
@@ -1528,7 +1530,7 @@ h3 {
   background: transparent;
   color: #f6f1e6;
   border-radius: 0.75rem;
-  padding: 0.2rem 0.35rem;
+  padding: 0 0.35rem 0.2rem;
   overflow: hidden;
   transition:
     top 0.6s ease,
