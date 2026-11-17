@@ -836,14 +836,15 @@ h3 {
   border: 0;
   padding: 0;
   font: inherit;
+  text-decoration: none;
+  color: #115e59;
   cursor: pointer;
   border-radius: 50%;
   background: #f3efe6;
-  color: #115e59;
 }
 
 .icon-btn::after {
-  content: attr(data-url);
+  content: attr(aria-label);
   position: absolute;
   top: 50%;
   z-index: 3;
@@ -880,9 +881,11 @@ h3 {
   overflow-wrap: normal;
 }
 
-.icon-btn:hover::after,
-.icon-btn:focus-visible::after {
-  opacity: 1;
+@media (hover: hover) and (pointer: fine) {
+  .icon-btn:hover::after,
+  .icon-btn:focus-visible::after {
+    opacity: 1;
+  }
 }
 
 .icon-btn img {

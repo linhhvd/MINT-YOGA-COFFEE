@@ -17,17 +17,6 @@ if (toggle && nav) {
   });
 }
 
-document.querySelectorAll(".icon-btn[data-url]").forEach((button) => {
-  button.addEventListener("click", () => {
-    const url = button.dataset.url;
-    if (url.startsWith("tel:")) {
-      window.location.href = url;
-      return;
-    }
-    window.open(url, "_blank", "noopener");
-  });
-});
-
 const header = document.querySelector(".site-header");
 const heroSlogan = document.querySelector(".hero__slogan");
 const headerSlogan = document.querySelector(".brand__slogan");
