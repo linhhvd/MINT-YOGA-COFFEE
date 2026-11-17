@@ -1145,8 +1145,9 @@ h3 {
     min-width: 0;
     width: max-content;
     white-space: nowrap;
-    /* JS fitHeaderSlogan() chỉnh theo khoảng logo–menu; clamp là nền. */
-    font-size: clamp(0.72rem, 4.6vw, 1.15rem);
+    font-weight: 400;
+    /* JS fitHeaderSlogan() chỉnh theo khoảng logo–menu; clamp là nền (nhỏ hơn trước). */
+    font-size: clamp(0.68rem, 4vw, 1rem);
     line-height: 1.2;
     letter-spacing: -0.03em;
   }
