@@ -1350,7 +1350,8 @@ h3 {
   color: rgba(246, 241, 230, 0.86);
 }
 
-.lich-status {
+.lich-status,
+.news-status {
   margin: 0;
   padding: 1.2rem 1rem;
   color: var(--muted);
