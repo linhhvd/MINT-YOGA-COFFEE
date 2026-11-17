@@ -1220,6 +1220,11 @@ h3 {
     gap: 0.35rem;
   }
 
+  .site-footer {
+    /* Khớp chiều cao header khi đã cuộn + slogan dock. */
+    height: 4.15rem;
+  }
+
   .footer-logo {
     /* Bằng logo header khi compact/cuộn trên điện thoại. */
     height: 2.5rem;
