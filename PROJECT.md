@@ -24,7 +24,7 @@ Mở http://127.0.0.1:5500/
 - `data/Lịch học.csv` — bảng lịch học trên trang và cho Mint bot
 - `data/Prompt Min Bot.txt` — prompt và thông tin phòng tập gửi cho Gemini
 - `bot/Code.gs` — Apps Script gọi `gemini-3.1-flash-lite`, đọc hai file trên từ GitHub Pages. Hai khóa `GEMINI_API_KEY_1` và `GEMINI_API_KEY_2` xoay tua trong Script properties, không đưa vào repo.
-- `img/logo-teal.png` — logo phòng tập màu `#0D9488` dùng ở header và footer. `img/logo-mint.png`, `img/logo-white.png` giữ trong repo.
+- `img/logo-white.png` — logo trắng trên header khi đầu trang. `img/logo-teal.png` — logo `#0D9488` khi header cuộn/thu gọn và ở footer. `img/logo-mint.png` giữ trong repo.
 - `img/mint-bot.png` — robot xanh lá mint, lá có cuống ở trên đầu, lắc sau mỗi lần chớp mắt, nền trong suốt, nút giữa mục liên lạc
 - `img/favicon.png` — icon tab
 

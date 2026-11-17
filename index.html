@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600&family=Fraunces:ital,opsz,wght@0,9..144,560;1,9..144,500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=lead-collapse">
+  <link rel="stylesheet" href="css/styles.css?v=send-btn">
 </head>
 <body>
   <a class="skip" href="#noi-dung">Tới nội dung</a>
@@ -19,7 +19,8 @@
     <div class="wrap">
       <div class="brand-lockup">
         <a class="brand" href="#home">
-          <img class="brand__logo" src="img/logo-teal.png" alt="Mint Yoga &amp; Coffee">
+          <img class="brand__logo brand__logo--light" src="img/logo-white.png" alt="Mint Yoga &amp; Coffee">
+          <img class="brand__logo brand__logo--teal" src="img/logo-teal.png" alt="">
         </a>
         <h1 class="brand__slogan">Thêm sức khỏe, mãi tươi trẻ<br>cùng Mint Yoga &amp; Coffee.</h1>
       </div>
@@ -311,8 +312,12 @@
                 <div class="mint-bot__log" id="mint-bot-log" aria-live="polite"></div>
                 <form class="mint-bot__form" id="mint-bot-form">
                   <label class="sr-only" for="mint-bot-input">Câu hỏi cho Mint bot</label>
-                  <input id="mint-bot-input" name="q" autocomplete="off" placeholder="Hỏi địa chỉ, giờ học, giáo viên…">
-                  <button type="submit">Gửi</button>
+                  <div class="mint-bot__compose">
+                    <input id="mint-bot-input" name="q" autocomplete="off" placeholder="Hỏi địa chỉ, giờ học, giáo viên…">
+                    <button class="mint-bot__send" type="submit" aria-label="Gửi">
+                      <span class="mint-bot__send-mark" aria-hidden="true"></span>
+                    </button>
+                  </div>
                 </form>
               </div>
             </div>
