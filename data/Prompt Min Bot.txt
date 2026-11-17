@@ -25,11 +25,11 @@ Lớp sáng:7g15 đến 8g15
 Lớp chiều:17g45 đến 18g45		
 
 5. Học phí
-Học phí theo hình thức mua phiếu tập.
-Có 3 loại phiếu:
-- Phiếu 25 buổi có giá là 1.250.000 đồng, thời hạn 1.5 tháng
-- Phiếu 15 buổi có giá là 825.000 đồng, thời hạn 1 tháng
-- Phiếu 10 buổi có giá là 600.000 đồng, thời hạn 1 tháng
+Học phí theo hình thức mua gói tập.
+Có 3 loại gói:
+- Gói 25 buổi có giá là 1.250.000 đồng, thời hạn 1.5 tháng
+- Gói 15 buổi có giá là 825.000 đồng, thời hạn 1 tháng
+- Gói 10 buổi có giá là 600.000 đồng, thời hạn 1 tháng
 Tùy theo như cầu tập ít hay nhiều mà học viên có thể lựa chọn cho tiết kiệm và phù hợp với mình.
 
 6. Chương trình học thử
