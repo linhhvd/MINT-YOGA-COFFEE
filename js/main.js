@@ -141,10 +141,12 @@ function bindAccordion(root, restSelector) {
   narrow.addEventListener("change", layout);
 }
 
-bindAccordion(document.querySelector("#thong-bao .news"), ".news__rest .card");
 bindAccordion(document.querySelector("#bai-viet .essays"), ".essays__side .card");
 
 const SCHEDULE_FILE = "data/Lịch học.csv";
+const NEWS_DIR = "data/thông báo";
+const NEWS_API =
+  "https://api.github.com/repos/linhhvd/MINT-YOGA-COFFEE/contents/data/th%C3%B4ng%20b%C3%A1o?ref=main";
 
 function parseCsv(text) {
   const rows = [];
@@ -322,3 +324,204 @@ async function loadSchedule() {
 }
 
 loadSchedule();
+loadNews();
+
+function parseNewsText(text) {
+  const normalized = String(text || "").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
+  const lines = normalized.split("\n");
+  const title = (lines[0] || "").trim();
+  const body = lines.slice(1).join("\n").trim();
+  return { title, body };
+}
+
+function appendNewsBody(container, body) {
+  if (!body) return;
+  const lines = body.split("\n").map((line) => line.trimEnd());
+  const blocks = [];
+  let list = null;
+  let para = [];
+
+  const flushPara = () => {
+    if (!para.length) return;
+    blocks.push({ type: "p", text: para.join("\n").trim() });
+    para = [];
+  };
+  const flushList = () => {
+    if (!list || !list.length) {
+      list = null;
+      return;
+    }
+    blocks.push({ type: "ul", items: list });
+    list = null;
+  };
+
+  lines.forEach((line) => {
+    const trimmed = line.trim();
+    const bullet = trimmed.match(/^[-•*]\s+(.+)$/);
+    if (bullet) {
+      flushPara();
+      if (!list) list = [];
+      list.push(bullet[1].trim());
+      return;
+    }
+    flushList();
+    if (!trimmed) {
+      flushPara();
+      return;
+    }
+    para.push(trimmed);
+  });
+  flushPara();
+  flushList();
+
+  if (!blocks.length) {
+    const p = document.createElement("p");
+    p.textContent = body;
+    container.append(p);
+    return;
+  }
+
+  blocks.forEach((block) => {
+    if (block.type === "ul") {
+      const ul = document.createElement("ul");
+      block.items.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        ul.append(li);
+      });
+      container.append(ul);
+      return;
+    }
+    const p = document.createElement("p");
+    p.textContent = block.text;
+    container.append(p);
+  });
+}
+
+function newsSlug(name, index) {
+  const base = String(name || "")
+    .replace(/\.txt$/i, "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  return `tb-${base || index}`;
+}
+
+async function listNewsFiles() {
+  try {
+    const response = await fetch(NEWS_API, {
+      headers: { Accept: "application/vnd.github+json" },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        return data
+          .filter(
+            (item) =>
+              item &&
+              item.type === "file" &&
+              typeof item.name === "string" &&
+              /\.txt$/i.test(item.name) &&
+              item.name !== "_list.txt"
+          )
+          .map((item) => item.name);
+      }
+    }
+  } catch (error) {
+    /* dùng _list.txt */
+  }
+
+  const response = await fetch(`${encodeURI(`${NEWS_DIR}/_list.txt`)}?t=${Date.now()}`);
+  if (!response.ok) throw new Error(String(response.status));
+  return (await response.text())
+    .replace(/^\uFEFF/, "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((name) => name && /\.txt$/i.test(name) && name !== "_list.txt");
+}
+
+function sortNewsNames(names) {
+  return [...names].sort((a, b) => b.localeCompare(a, "vi", { numeric: true, sensitivity: "base" }));
+}
+
+function renderNews(items) {
+  const root = document.querySelector("#news-root");
+  if (!root) return;
+
+  if (!items.length) {
+    root.replaceChildren();
+    const status = document.createElement("p");
+    status.className = "news-status";
+    status.id = "thong-bao-status";
+    status.textContent = "Chưa có thông báo.";
+    root.append(status);
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  const lead = items[0];
+  const rest = items.slice(1);
+
+  const leadCard = document.createElement("article");
+  leadCard.className = "card card--lead is-open";
+  const leadId = newsSlug(lead.name, 0);
+  leadCard.innerHTML = `
+    <h3>
+      <button class="card__toggle" type="button" aria-expanded="true" aria-controls="${leadId}">
+        <span class="card__name"></span>
+        <span class="card__mark" aria-hidden="true"></span>
+      </button>
+    </h3>
+    <div class="card__body" id="${leadId}"></div>
+  `;
+  leadCard.querySelector(".card__name").textContent = lead.title || lead.name;
+  appendNewsBody(leadCard.querySelector(".card__body"), lead.body);
+  fragment.append(leadCard);
+
+  if (rest.length) {
+    const restWrap = document.createElement("div");
+    restWrap.className = "news__rest";
+    rest.forEach((item, index) => {
+      const card = document.createElement("article");
+      card.className = "card";
+      const id = newsSlug(item.name, index + 1);
+      card.innerHTML = `
+        <h3>
+          <button class="card__toggle" type="button" aria-expanded="false" aria-controls="${id}">
+            <span class="card__name"></span>
+            <span class="card__mark" aria-hidden="true"></span>
+          </button>
+        </h3>
+        <div class="card__body" id="${id}" hidden></div>
+      `;
+      card.querySelector(".card__name").textContent = item.title || item.name;
+      appendNewsBody(card.querySelector(".card__body"), item.body);
+      restWrap.append(card);
+    });
+    fragment.append(restWrap);
+  }
+
+  root.replaceChildren(fragment);
+  bindAccordion(root, ".news__rest .card");
+}
+
+async function loadNews() {
+  const status = document.querySelector("#thong-bao-status");
+  try {
+    const names = sortNewsNames(await listNewsFiles());
+    const items = [];
+    for (const name of names) {
+      const response = await fetch(`${encodeURI(`${NEWS_DIR}/${name}`)}?t=${Date.now()}`);
+      if (!response.ok) continue;
+      const parsed = parseNewsText(await response.text());
+      if (!parsed.title && !parsed.body) continue;
+      items.push({ name, title: parsed.title, body: parsed.body });
+    }
+    renderNews(items);
+  } catch (error) {
+    if (status) status.textContent = "Chưa tải được thông báo.";
+  }
+}
