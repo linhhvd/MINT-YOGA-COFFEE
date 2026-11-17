@@ -1031,7 +1031,8 @@ h3 {
 }
 
 .footer-logo {
-  height: 4.85rem;
+  /* Bằng logo header khi đã cuộn (desktop = .brand__logo). */
+  height: 5.1rem;
   width: auto;
   flex: none;
 }
@@ -1220,7 +1221,8 @@ h3 {
   }
 
   .footer-logo {
-    height: 3.3rem;
+    /* Bằng logo header khi compact/cuộn trên điện thoại. */
+    height: 2.5rem;
   }
 
   .footer-note {
