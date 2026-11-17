@@ -89,8 +89,7 @@ function bindAccordion(root, restSelector) {
 bindAccordion(document.querySelector("#thong-bao .news"), ".news__rest .card");
 bindAccordion(document.querySelector("#bai-viet .essays"), ".essays__side .card");
 
-const SHEET_CSV =
-  "https://docs.google.com/spreadsheets/d/1PceP2P5Wn-tNfeclBWP4mtQiAwzYrWHz6fDRYCfftXo/export?format=csv";
+const SCHEDULE_FILE = "data/Lịch học.csv";
 
 function parseCsv(text) {
   const rows = [];
@@ -158,6 +157,20 @@ function applyToday(cell, days) {
   if (badge) badge.hidden = false;
 }
 
+function isScheduleClassRow(cells) {
+  return cells.some((cell) => /^off$/i.test(cell) || /\bms\./i.test(cell));
+}
+
+function scheduleNoteLines(label, cells) {
+  const parts = [label, ...cells].filter(Boolean);
+  const lines = [];
+  for (let i = 0; i < parts.length; i += 2) {
+    if (parts[i + 1]) lines.push(`${parts[i]}: ${parts[i + 1]}`);
+    else lines.push(parts[i]);
+  }
+  return lines;
+}
+
 function renderSchedule(rows) {
   const table = document.querySelector("#lich-table");
   const status = document.querySelector("#lich-status");
@@ -171,10 +184,9 @@ function renderSchedule(rows) {
   rows.slice(1).forEach((line) => {
     const label = (line[0] || "").trim();
     const cells = headers.map((_, index) => (line[index + 1] || "").trim());
-    const filled = cells.filter(Boolean);
     if (!label) return;
-    if (filled.length <= 1) {
-      if (filled[0]) noteLines.push(`${label}: ${filled[0]}`);
+    if (!isScheduleClassRow(cells)) {
+      noteLines.push(...scheduleNoteLines(label, cells));
       return;
     }
     bodyRows.push({ label, cells });
@@ -244,12 +256,12 @@ function renderSchedule(rows) {
 async function loadSchedule() {
   const status = document.querySelector("#lich-status");
   try {
-    const response = await fetch(`${SHEET_CSV}&t=${Date.now()}`);
+    const response = await fetch(`${encodeURI(SCHEDULE_FILE)}?t=${Date.now()}`);
     if (!response.ok) throw new Error(String(response.status));
     renderSchedule(parseCsv(await response.text()));
   } catch (error) {
     if (status) {
-      status.textContent = "Chưa tải được lịch. Hãy chia sẻ Google Sheet cho mọi người có đường liên kết.";
+      status.textContent = "Chưa tải được lịch học.";
     }
   }
 }
