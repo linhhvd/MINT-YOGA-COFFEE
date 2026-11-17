@@ -632,6 +632,11 @@ h3 {
 }
 
 @media (min-width: 921px) {
+  .card--lead,
+  .essay--feature {
+    min-height: 100%;
+  }
+
   .card--lead .card__toggle {
     cursor: default;
   }
@@ -1285,11 +1290,6 @@ h3 {
 .essays__side {
   display: grid;
   gap: 0.8rem;
-}
-
-.card--lead,
-.essay--feature {
-  min-height: 100%;
 }
 
 .card--lead h3,
