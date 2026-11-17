@@ -21,6 +21,54 @@ const header = document.querySelector(".site-header");
 const heroSlogan = document.querySelector(".hero__slogan");
 const headerSlogan = document.querySelector(".brand__slogan");
 const phoneHeader = window.matchMedia("(max-width: 760px)");
+
+function measureSloganLines(el, fontSizePx) {
+  const cs = getComputedStyle(el);
+  const parts = el.innerHTML.split(/<br\s*\/?>/i);
+  let max = 0;
+  for (const part of parts) {
+    const span = document.createElement("span");
+    span.style.cssText = [
+      "position:absolute",
+      "visibility:hidden",
+      "white-space:nowrap",
+      `font-family:${cs.fontFamily}`,
+      `font-weight:${cs.fontWeight}`,
+      `font-style:${cs.fontStyle}`,
+      `letter-spacing:${cs.letterSpacing}`,
+      `font-size:${fontSizePx}px`,
+    ].join(";");
+    span.innerHTML = part;
+    document.body.appendChild(span);
+    max = Math.max(max, span.getBoundingClientRect().width);
+    span.remove();
+  }
+  return max || 1;
+}
+
+function fitHeaderSlogan() {
+  if (!header || !headerSlogan) return;
+  if (!phoneHeader.matches || !header.classList.contains("is-slogan-docked")) {
+    headerSlogan.style.fontSize = "";
+    return;
+  }
+  const logo = header.querySelector(".brand__logo--teal") || header.querySelector(".brand__logo");
+  const menu = header.querySelector(".nav-toggle");
+  const lockup = header.querySelector(".brand-lockup");
+  if (!logo || !menu || !lockup) return;
+
+  const gap = parseFloat(getComputedStyle(lockup).gap) || 0;
+  const avail =
+    menu.getBoundingClientRect().left - logo.getBoundingClientRect().right - gap - 10;
+  if (avail < 48) return;
+
+  const ref = 12;
+  const lineW = measureSloganLines(headerSlogan, ref);
+  // Hệ số an toàn tránh tràn do làm tròn / optical sizing của Fraunces.
+  const fitted = Math.min(Math.max((avail / lineW) * ref * 0.96, 11), 26);
+  headerSlogan.style.fontSize = `${fitted.toFixed(2)}px`;
+}
+
 const onScroll = () => {
   if (!header) return;
   const phone = phoneHeader.matches;
@@ -36,11 +84,15 @@ const onScroll = () => {
   if (heroSlogan) heroSlogan.classList.toggle("is-docked", docked);
   // Bản trong header chỉ là bản nhìn; h1 thật nằm ở hero.
   if (headerSlogan) headerSlogan.setAttribute("aria-hidden", "true");
+  fitHeaderSlogan();
 };
 onScroll();
 window.addEventListener("scroll", onScroll, { passive: true });
 window.addEventListener("resize", onScroll);
 phoneHeader.addEventListener("change", onScroll);
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(() => fitHeaderSlogan());
+}
 
 function bindAccordion(root, restSelector) {
   if (!root) return;
