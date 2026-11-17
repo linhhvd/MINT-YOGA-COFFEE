@@ -1677,17 +1677,21 @@ h3 {
 }
 
 .mint-bot__form {
-  display: flex;
-  gap: 0.5rem;
   margin-top: 0.7rem;
 }
 
+.mint-bot__compose {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .mint-bot__form input {
-  flex: 1;
+  width: 100%;
   min-width: 0;
   border: 1px solid var(--line);
   border-radius: 999px;
-  padding: 0.7rem 1rem;
+  padding: 0.7rem 2.75rem 0.7rem 1rem;
   font: inherit;
   background: #fff;
   color: var(--ink);
@@ -1699,15 +1703,35 @@ h3 {
   box-shadow: inset 0 0 0 1.5px #4eb4e0;
 }
 
-.mint-bot__form button {
+.mint-bot__send {
+  position: absolute;
+  right: 0.35rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
   border: 0;
-  border-radius: 999px;
+  border-radius: 50%;
   background: var(--teal);
   color: #f7fffd;
-  padding: 0.7rem 1.15rem;
-  font: inherit;
-  font-weight: 600;
   cursor: pointer;
+}
+
+.mint-bot__send:focus-visible {
+  outline: 2px solid #4eb4e0;
+  outline-offset: 2px;
+}
+
+.mint-bot__send-mark {
+  display: block;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-left: 2px solid currentColor;
+  border-top: 2px solid currentColor;
+  transform: translateY(0.12rem) rotate(45deg);
 }
 
 @media (max-width: 920px) {
