@@ -1109,6 +1109,27 @@ h3 {
     font-size: 0.84rem;
   }
 
+  .site-header,
+  .site-header .brand__logo {
+    transition: height 0.2s ease;
+  }
+
+  .site-header.is-compact {
+    height: 3.4rem;
+  }
+
+  .site-header.is-compact .brand__slogan {
+    display: none;
+  }
+
+  .site-header.is-compact .brand__logo {
+    height: 2.5rem;
+  }
+
+  .site-header.is-compact .site-nav {
+    top: 100%;
+  }
+
   .day {
     grid-template-columns: 1fr;
     gap: 0;
@@ -1631,6 +1652,8 @@ h3 {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .site-header,
+  .site-header .brand__logo,
   .reach__bot,
   .reach__bot-blink,
   .reach__bot-leaf,
