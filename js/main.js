@@ -18,14 +18,28 @@ if (toggle && nav) {
 }
 
 const header = document.querySelector(".site-header");
+const heroSlogan = document.querySelector(".hero__slogan");
+const headerSlogan = document.querySelector(".brand__slogan");
 const phoneHeader = window.matchMedia("(max-width: 760px)");
 const onScroll = () => {
   if (!header) return;
+  const phone = phoneHeader.matches;
   header.classList.toggle("is-scrolled", window.scrollY > 80);
-  header.classList.toggle("is-compact", phoneHeader.matches && window.scrollY > 24);
+  header.classList.toggle("is-compact", phone && window.scrollY > 24);
+
+  let docked = false;
+  if (phone && heroSlogan) {
+    const headerBottom = header.getBoundingClientRect().bottom;
+    docked = heroSlogan.getBoundingClientRect().top <= headerBottom + 2;
+  }
+  header.classList.toggle("is-slogan-docked", docked);
+  if (heroSlogan) heroSlogan.classList.toggle("is-docked", docked);
+  // Bản trong header chỉ là bản nhìn; h1 thật nằm ở hero.
+  if (headerSlogan) headerSlogan.setAttribute("aria-hidden", "true");
 };
 onScroll();
 window.addEventListener("scroll", onScroll, { passive: true });
+window.addEventListener("resize", onScroll);
 phoneHeader.addEventListener("change", onScroll);
 
 function bindAccordion(root, restSelector) {
