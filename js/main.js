@@ -20,10 +20,7 @@ if (toggle && nav) {
 document.querySelectorAll(".icon-btn[data-url]").forEach((button) => {
   button.addEventListener("click", () => {
     const url = button.dataset.url;
-    if (url.startsWith("tel:")) {
-      window.location.href = url;
-      return;
-    }
+    if (!url || url.startsWith("tel:")) return;
     window.open(url, "_blank", "noopener");
   });
 });
