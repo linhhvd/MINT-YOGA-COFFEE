@@ -1436,6 +1436,8 @@ h3 {
 }
 
 .mint-bot {
+  --chat-open-pad-x: 1.15rem;
+  --chat-open-pad-top: 0.55rem;
   position: absolute;
   z-index: 1;
   top: calc(var(--bot-size) + 0.8rem);
@@ -1470,7 +1472,7 @@ h3 {
   background: #f3efe6;
   color: var(--ink);
   border-radius: 1.2rem;
-  padding: 0.55rem 1.15rem 1.6rem;
+  padding: var(--chat-open-pad-top) var(--chat-open-pad-x) 1.6rem;
 }
 
 .mint-bot__close {
