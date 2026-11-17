@@ -14,7 +14,7 @@
 
 ## Chưa quyết
 
-- Lịch đọc Google Sheet `Lịch học` (id 1PceP2P5Wn-tNfeclBWP4mtQiAwzYrWHz6fDRYCfftXo). CSV công khai đã trả 200. mintyogacoffee.com vẫn là Google Sites cho đến khi đổi DNS GoDaddy.
+- Lịch đọc `data/Lịch học.csv`. Mint bot đọc `data/Prompt Min Bot.txt` và `data/Lịch học.csv`. mintyogacoffee.com vẫn là Google Sites cho đến khi đổi DNS GoDaddy.
 - Mint bot đã đọc thêm cột Đối tượng học viên. Cần dán `bot/Code.gs` mới và Deploy lại. Thêm câu hỏi ở dưới dòng 12, không chèn lên trên.
 
 ## Không đụng
