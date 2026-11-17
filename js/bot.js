@@ -3,7 +3,7 @@ const BOT_URL =
 const BOT_FALLBACK =
   "Em chưa có thông tin này. Anh/chị vui lòng nhắn Zalo, Messenger, hoặc gọi trực tiếp Ms.Thủy Tiên theo số 098 123 8486 để được tư vấn thêm.";
 const BOT_GREETING =
-  "Em là Mint Bot. Anh/chị cho em hỏi mình là anh hay chị, và tên là gì để em tiện xưng hô ạ.";
+  "Em chào anh/chị. Em là Mint Bot của Mint. Em giúp được gì cho anh/chị ạ.";
 
 const botLog = document.querySelector("#mint-bot-log");
 const botForm = document.querySelector("#mint-bot-form");

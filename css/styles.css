@@ -1693,7 +1693,7 @@ h3 {
   min-width: 0;
   border: 1px solid var(--line);
   border-radius: 999px;
-  padding: 0.7rem 2.75rem 0.7rem 1rem;
+  padding: 0.7rem 3rem 0.7rem 1rem;
   font: inherit;
   background: #fff;
   color: var(--ink);
@@ -1707,7 +1707,7 @@ h3 {
 
 .mint-bot__send {
   position: absolute;
-  right: 0.35rem;
+  right: 0.62rem;
   top: 50%;
   transform: translateY(-50%);
   display: grid;
