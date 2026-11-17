@@ -1428,6 +1428,33 @@ h3 {
   gap: 0.8rem;
 }
 
+.news:not(.is-expanded) .news__card--more {
+  display: none;
+}
+
+.news__more {
+  grid-column: 1 / -1;
+  margin: 0.2rem 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--teal);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.news__more:hover,
+.news__more:focus-visible {
+  text-decoration: underline;
+}
+
+.news__more:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 3px;
+}
+
 .card--lead h3,
 .essay--feature h3 {
   font-size: clamp(2rem, 4vw, 3rem);

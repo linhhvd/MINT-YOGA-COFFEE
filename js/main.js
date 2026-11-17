@@ -447,6 +447,16 @@ function sortNewsNames(names) {
   return [...names].sort((a, b) => b.localeCompare(a, "vi", { numeric: true, sensitivity: "base" }));
 }
 
+const NEWS_VISIBLE = 5;
+
+function collapseNewsCard(card) {
+  card.classList.remove("is-open");
+  const button = card.querySelector(".card__toggle");
+  const body = card.querySelector(".card__body");
+  if (button) button.setAttribute("aria-expanded", "false");
+  if (body) body.hidden = true;
+}
+
 function renderNews(items) {
   const root = document.querySelector("#news-root");
   if (!root) return;
@@ -464,6 +474,7 @@ function renderNews(items) {
   const fragment = document.createDocumentFragment();
   const lead = items[0];
   const rest = items.slice(1);
+  const hasMore = items.length > NEWS_VISIBLE;
 
   const leadCard = document.createElement("article");
   leadCard.className = "card card--lead is-open";
@@ -485,9 +496,11 @@ function renderNews(items) {
     const restWrap = document.createElement("div");
     restWrap.className = "news__rest";
     rest.forEach((item, index) => {
+      const cardIndex = index + 1;
       const card = document.createElement("article");
       card.className = "card";
-      const id = newsSlug(item.name, index + 1);
+      if (cardIndex >= NEWS_VISIBLE) card.classList.add("news__card--more");
+      const id = newsSlug(item.name, cardIndex);
       card.innerHTML = `
         <h3>
           <button class="card__toggle" type="button" aria-expanded="false" aria-controls="${id}">
@@ -504,6 +517,25 @@ function renderNews(items) {
     fragment.append(restWrap);
   }
 
+  if (hasMore) {
+    const more = document.createElement("button");
+    more.type = "button";
+    more.className = "news__more";
+    more.textContent = "Xem thông báo cũ hơn..";
+    more.setAttribute("aria-expanded", "false");
+    more.addEventListener("click", () => {
+      const expanded = !root.classList.contains("is-expanded");
+      root.classList.toggle("is-expanded", expanded);
+      more.textContent = expanded ? "Thu gọn" : "Xem thông báo cũ hơn..";
+      more.setAttribute("aria-expanded", String(expanded));
+      if (!expanded) {
+        root.querySelectorAll(".news__card--more").forEach(collapseNewsCard);
+      }
+    });
+    fragment.append(more);
+  }
+
+  root.classList.remove("is-expanded");
   root.replaceChildren(fragment);
   bindAccordion(root, ".news__rest .card");
 }
