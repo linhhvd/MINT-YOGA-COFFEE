@@ -64,8 +64,8 @@ function fitHeaderSlogan() {
 
   const ref = 12;
   const lineW = measureSloganLines(headerSlogan, ref);
-  // Hệ số an toàn tránh tràn do làm tròn / optical sizing của Fraunces.
-  const fitted = Math.min(Math.max((avail / lineW) * ref * 0.96, 11), 26);
+  // Nhỏ hơn một chút so với full-fit; vẫn không xuống thêm hàng.
+  const fitted = Math.min(Math.max((avail / lineW) * ref * 0.86, 10.5), 20);
   headerSlogan.style.fontSize = `${fitted.toFixed(2)}px`;
 }
 
