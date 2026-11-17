@@ -1,18 +1,14 @@
-const QA_SHEET_CSV =
-  "https://docs.google.com/spreadsheets/d/1Z85DpxEDYBx210U-r9gOefe5X7uNl0HwUlpZJoCWgR4/export?format=csv";
-const QA_FILE = "data/hoi-dap.csv";
-const SCHEDULE_CSV =
-  "https://docs.google.com/spreadsheets/d/1PceP2P5Wn-tNfeclBWP4mtQiAwzYrWHz6fDRYCfftXo/export?format=csv";
 const BOT_URL =
   "https://script.google.com/macros/s/AKfycbzhMVrgs5JHt3MgU4C7QCCSqCUZsvlXgqVRnFbNgUXv1FprDRn5CpaQP9sM1XxryF7W/exec";
 const BOT_FALLBACK =
-  "Mình chưa có thông tin này. Bạn nhắn Zalo, Messenger, hoặc gọi trực tiếp Ms. Thủy Tiên theo số 098 123 8486.";
+  "Em chưa có thông tin này. Anh/chị vui lòng nhắn Zalo, Messenger, hoặc gọi trực tiếp Ms.Thủy Tiên theo số 098 123 8486 để được tư vấn thêm.";
+const BOT_GREETING =
+  "Em là Mint Bot. Anh/chị cho em hỏi mình là anh hay chị, và tên là gì để em tiện xưng hô ạ.";
 
 const botLog = document.querySelector("#mint-bot-log");
 const botForm = document.querySelector("#mint-bot-form");
 const botInput = document.querySelector("#mint-bot-input");
 
-let qaRows = [];
 let scheduleRows = [];
 const session = [];
 
@@ -45,18 +41,19 @@ function addMessage(text, role) {
   botLog.scrollTop = firstOnly ? 0 : botLog.scrollHeight;
 }
 
-async function loadCsvFrom(urls) {
-  for (const url of urls) {
-    try {
-      const response = await fetch(`${url}${url.includes("?") ? "&" : "?"}t=${Date.now()}`);
-      if (!response.ok) continue;
-      const rows = parseCsv(await response.text());
-      if (rows.length > 1) return rows;
-    } catch (error) {
-      /* thử nguồn sau */
-    }
+async function loadTextFile(path) {
+  const response = await fetch(`${encodeURI(path)}?t=${Date.now()}`);
+  if (!response.ok) throw new Error(String(response.status));
+  return response.text();
+}
+
+async function loadScheduleRows() {
+  try {
+    const rows = parseCsv(await loadTextFile(SCHEDULE_FILE));
+    return rows.length > 1 ? rows : [];
+  } catch (error) {
+    return [];
   }
-  return [];
 }
 
 function isScheduleQuestion(folded) {
@@ -65,15 +62,15 @@ function isScheduleQuestion(folded) {
 }
 
 function formatSchedule(rows) {
+  if (!rows.length) return BOT_FALLBACK;
   const headers = rows[0].slice(1).map((cell) => cell.trim());
   const lines = ["Lịch đang niêm yết:"];
   rows.slice(1).forEach((line) => {
     const label = (line[0] || "").trim();
     const cells = headers.map((_, index) => (line[index + 1] || "").trim());
-    const filled = cells.filter(Boolean);
-    if (!label || !filled.length) return;
-    if (filled.length <= 1) {
-      lines.push(`${label}: ${filled[0]}`);
+    if (!label) return;
+    if (!isScheduleClassRow(cells)) {
+      lines.push(...scheduleNoteLines(label, cells));
       return;
     }
     const bits = headers
@@ -86,25 +83,8 @@ function formatSchedule(rows) {
 
 function answerFromKnowledge(question) {
   const folded = foldText(question);
-  if (/^(chao|xin chao|hello|hi|hey)\b/.test(folded)) {
-    return "Mint bot đây. Bạn hỏi địa chỉ, giờ học, hoặc cách liên lạc với phòng tập.";
-  }
+  if (/^(chao|xin chao|hello|hi|hey)\b/.test(folded)) return BOT_GREETING;
   if (isScheduleQuestion(folded) && scheduleRows.length) return formatSchedule(scheduleRows);
-
-  let best = null;
-  let bestScore = 0;
-  qaRows.slice(1).forEach((row) => {
-    const keywords = foldText(row[2] || "")
-      .split("|")
-      .map((item) => item.trim())
-      .filter((item) => item.length > 2);
-    const score = keywords.reduce((total, word) => (folded.includes(word) ? total + word.length : total), 0);
-    if (score > bestScore) {
-      bestScore = score;
-      best = row;
-    }
-  });
-  if (best && bestScore >= 4) return best[1];
   return BOT_FALLBACK;
 }
 
@@ -121,17 +101,25 @@ function botRequestUrl(question) {
 }
 
 async function askBot(question) {
-  if (!BOT_URL) return answerFromKnowledge(question);
+  if (!BOT_URL) {
+    const answer = answerFromKnowledge(question);
+    session.push({ role: "user", text: question });
+    session.push({ role: "bot", text: answer });
+    return answer;
+  }
   try {
     const response = await fetch(botRequestUrl(question));
     if (!response.ok) throw new Error(String(response.status));
     const data = await response.json();
-    const answer = (data.answer || "").trim().replace(/^Đáp:\s*/i, "");
+    const answer = (data.answer || "").trim().replace(/^Đáp:\s*/i, "") || answerFromKnowledge(question);
     session.push({ role: "user", text: question });
-    session.push({ role: "bot", text: answer || BOT_FALLBACK });
-    return answer || BOT_FALLBACK;
+    session.push({ role: "bot", text: answer });
+    return answer;
   } catch (error) {
-    return BOT_FALLBACK;
+    const answer = answerFromKnowledge(question);
+    session.push({ role: "user", text: question });
+    session.push({ role: "bot", text: answer });
+    return answer;
   }
 }
 
@@ -355,13 +343,9 @@ function setupBotToggle() {
 async function bootBot() {
   setupBotToggle();
   if (!botLog || !botForm || !botInput) return;
-  [qaRows, scheduleRows] = await Promise.all([
-    loadCsvFrom([QA_SHEET_CSV, QA_FILE]),
-    loadCsvFrom([SCHEDULE_CSV])
-  ]);
-  const greeting = "Mint bot đây. Bạn hỏi địa chỉ, giờ học, hoặc cách liên lạc với phòng tập.";
-  session.push({ role: "bot", text: greeting });
-  addMessage(greeting, "bot");
+  scheduleRows = await loadScheduleRows();
+  session.push({ role: "bot", text: BOT_GREETING });
+  addMessage(BOT_GREETING, "bot");
 
   botForm.addEventListener("submit", async (event) => {
     event.preventDefault();

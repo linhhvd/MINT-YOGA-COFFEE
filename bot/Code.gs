@@ -6,11 +6,18 @@
  *    Mỗi câu hỏi dùng một khóa, khóa kia dành cho lượt sau. Gặp RPM thì đổi khóa còn lại.
  * 3. Deploy → Web app → Execute as: Me, Who has access: Anyone.
  * 4. Dán URL web app vào BOT_URL trong js/bot.js.
+ *
+ * Nguồn kiến thức chỉ lấy từ repo GitHub Pages:
+ * - data/Prompt Min Bot.txt
+ * - data/Lịch học.csv
  */
-const QA_SHEET_ID = "1Z85DpxEDYBx210U-r9gOefe5X7uNl0HwUlpZJoCWgR4";
+const PROMPT_URL =
+  "https://linhhvd.github.io/MINT-YOGA-COFFEE/data/Prompt%20Min%20Bot.txt";
+const SCHEDULE_URL =
+  "https://linhhvd.github.io/MINT-YOGA-COFFEE/data/L%E1%BB%8Bch%20h%E1%BB%8Dc.csv";
 const MODEL = "gemini-3.1-flash-lite";
 const FALLBACK =
-  "Mình chưa có thông tin này. Bạn nhắn Zalo, Messenger, hoặc gọi trực tiếp Ms. Thủy Tiên theo số 098 123 8486.";
+  "Em chưa có thông tin này. Anh/chị vui lòng nhắn Zalo, Messenger, hoặc gọi trực tiếp Ms.Thủy Tiên theo số 098 123 8486 để được tư vấn thêm.";
 
 function doGet(e) {
   const question = String((e && e.parameter && e.parameter.q) || "").trim().slice(0, 500);
@@ -121,22 +128,19 @@ function askGemini(question, history) {
   const keys = geminiKeysInOrder();
   if (!keys.length) return FALLBACK;
 
-  const sheet = loadSheetParts();
+  const knowledge = loadRepoKnowledge();
   const historyText = (history || [])
     .map(function (turn) {
       return (turn.role === "user" ? "Khách" : "Mint bot") + ": " + turn.text;
     })
     .join("\n");
   const prompt = [
-    sheet.prompt ||
-      "Bạn là Mint bot của phòng tập Mint Yoga & Coffee. Chỉ trả lời về phòng tập, dựa trên mẫu hỏi đáp và lịch học. Không bịa. Nếu không có thông tin, nói đúng câu: " +
+    knowledge.prompt ||
+      "Bạn là Mint Bot của phòng tập Mint Yoga & Coffee. Chỉ trả lời dựa trên thông tin được cung cấp. Không bịa. Nếu không có thông tin, nói đúng câu: " +
       FALLBACK,
     "",
-    "MẪU HỎI ĐÁP:",
-    sheet.qa || "(chưa có)",
-    "",
-    "LỊCH TẬP:",
-    sheet.schedule || "(chưa tải được)",
+    "LỊCH HỌC MỚI NHẤT (file Lịch học.csv, ưu tiên hơn bảng lịch trong mục 4 nếu khác nhau):",
+    knowledge.schedule || "(chưa tải được)",
     "",
     "LỊCH SỬ PHIÊN NÀY:",
     historyText || "(chưa có)",
@@ -164,43 +168,45 @@ function askGemini(question, history) {
   return FALLBACK;
 }
 
-function sheetCell(values, row, col) {
-  return String((values[row] && values[row][col]) || "").trim();
+function fetchText(url) {
+  const response = UrlFetchApp.fetch(url, {
+    muteHttpExceptions: true,
+    followRedirects: true
+  });
+  if (response.getResponseCode() < 200 || response.getResponseCode() >= 300) {
+    throw new Error("fetch " + response.getResponseCode());
+  }
+  return response.getContentText();
 }
 
-function loadSheetParts() {
-  const values = SpreadsheetApp.openById(QA_SHEET_ID).getSheets()[0].getDataRange().getValues();
-  const promptParts = [sheetCell(values, 1, 0)];
-  const infoWidth = Math.max(
-    values[0] ? values[0].length : 0,
-    values[1] ? values[1].length : 0
-  );
-  for (var col = 1; col < infoWidth; col += 1) {
-    const block = [sheetCell(values, 0, col), sheetCell(values, 1, col)].filter(Boolean).join("\n");
-    if (block) promptParts.push(block);
-  }
-  const prompt = promptParts.filter(Boolean).join("\n\n");
+function cachedText(key, url) {
+  const cache = CacheService.getScriptCache();
+  const hit = cache.get(key);
+  if (hit) return hit;
+  const text = fetchText(url);
+  cache.put(key, text, 300);
+  return text;
+}
 
-  const scheduleLines = [
-    [sheetCell(values, 3, 0), sheetCell(values, 3, 1), sheetCell(values, 3, 2)].filter(Boolean).join(" | ")
-  ];
-  for (var day = 4; day <= 9; day += 1) {
-    const name = sheetCell(values, day, 0);
-    if (!name) continue;
-    scheduleLines.push(name + ": " + sheetCell(values, day, 1) + " / " + sheetCell(values, day, 2));
-  }
+function formatScheduleCsv(text) {
+  const lines = String(text || "")
+    .replace(/^\uFEFF/, "")
+    .split(/\r\n|\n|\r/)
+    .map(function (line) {
+      return line.trim();
+    })
+    .filter(Boolean);
+  if (!lines.length) return "";
+  return lines.join("\n");
+}
 
-  const qaLines = [];
-  for (var row = 12; row < values.length; row += 1) {
-    const question = sheetCell(values, row, 0);
-    const answer = sheetCell(values, row, 1);
-    if (!question || !answer) continue;
-    qaLines.push("Hỏi: " + question + "\nĐáp: " + answer);
+function loadRepoKnowledge() {
+  try {
+    return {
+      prompt: cachedText("mint_prompt", PROMPT_URL).trim(),
+      schedule: formatScheduleCsv(cachedText("mint_schedule", SCHEDULE_URL))
+    };
+  } catch (error) {
+    return { prompt: "", schedule: "" };
   }
-
-  return {
-    prompt: prompt,
-    qa: qaLines.join("\n\n"),
-    schedule: scheduleLines.join("\n")
-  };
 }

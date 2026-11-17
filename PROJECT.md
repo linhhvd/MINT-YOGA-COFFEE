@@ -19,9 +19,11 @@ Mở http://127.0.0.1:5500/
 
 - `index.html` — toàn bộ nội dung
 - `css/styles.css` — giao diện
-- `js/main.js` — menu, lịch đọc từ Google Sheet `Lịch học`
-- `js/bot.js` — Mint bot. Sheet hỏi đáp cố định: dòng 2 là prompt và các cột thông tin (chung, đối tượng học viên), dòng 4–10 là lịch tập, từ dòng 13 trở xuống là hỏi đáp.
-- `bot/Code.gs` — Apps Script gọi `gemini-3.1-flash-lite`. Hai khóa `GEMINI_API_KEY_1` và `GEMINI_API_KEY_2` xoay tua trong Script properties, không đưa vào repo.
+- `js/main.js` — menu, lịch đọc từ `data/Lịch học.csv`
+- `js/bot.js` — Mint bot. Lịch lấy từ `data/Lịch học.csv`. Prompt Gemini lấy từ `data/Prompt Min Bot.txt` qua Apps Script.
+- `data/Lịch học.csv` — bảng lịch học trên trang và cho Mint bot
+- `data/Prompt Min Bot.txt` — prompt và thông tin phòng tập gửi cho Gemini
+- `bot/Code.gs` — Apps Script gọi `gemini-3.1-flash-lite`, đọc hai file trên từ GitHub Pages. Hai khóa `GEMINI_API_KEY_1` và `GEMINI_API_KEY_2` xoay tua trong Script properties, không đưa vào repo.
 - `img/logo-mint.png`, `img/logo-white.png` — logo phòng tập, cắt từ thư mục `Logo`
 - `img/mint-bot.png` — robot xanh lá mint, lá có cuống ở trên đầu, lắc sau mỗi lần chớp mắt, nền trong suốt, nút giữa mục liên lạc
 - `img/favicon.png` — icon tab
@@ -31,7 +33,7 @@ Mở http://127.0.0.1:5500/
 - Không bịa bài viết. Chỉ đưa chữ đã đọc được trên site cũ. Ba bài dạng ảnh (Drishti, lời tri ân, liên kết cơ thể) chưa đưa lên trang.
 - Thông báo 2024–2025 để trong mục lưu trữ. Đến 920px một cột: thông báo mới nhất mở sẵn, các tin cũ thu gọn, cùng lúc chỉ một card mở. Từ 921px hai cột: tin mới nhất ở cột trái, luôn mở; cột phải thu gọn, cùng lúc chỉ một card mở.
 - Bài viết đóng mở và xếp cột giống Thông báo. Mỗi bài có phần chữ và phần ảnh; bài có thể chỉ có một trong hai. Chưa có ảnh thì hiện dòng “photo”.
-- Lịch học lấy từ Google Sheet. Chỉ Ms. Thủy Tiên. Không ghi Yoga 1 hay Yoga 2.
+- Lịch học lấy từ `data/Lịch học.csv`. Chỉ Ms. Thủy Tiên. Không ghi Yoga 1 hay Yoga 2. Mint bot chỉ dùng `data/Prompt Min Bot.txt` và `data/Lịch học.csv`, không đọc Google Sheet.
 - Giao diện luôn dùng được trên máy tính, điện thoại và máy tính bảng. Máy tính bảng gồm cả iPad, dọc và ngang. Từ 921px menu là hàng chữ. Đến 920px nút ba gạch ngang, bấm thì thành dấu X và mở menu. Lịch học xếp theo ngày.
 - Về chúng tôi: thư cô Thủy Tiên và video. Đến 920px (điện thoại, iPad dọc) xếp dọc, thư trên video dưới. Từ 921px (máy tính, iPad ngang) xếp ngang.
 - Hoạt động nằm sau Về chúng tôi. Điện thoại một cột. iPad dọc hai cột. Từ 921px ba cột. Ảnh thường nằm trong khung ngang 3:2. Ảnh dọc để riêng một hàng, rộng bằng một cột, thấy trọn người. Ảnh đang chèn là ảnh thử.
