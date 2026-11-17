@@ -29,12 +29,15 @@ document.querySelectorAll(".icon-btn[data-url]").forEach((button) => {
 });
 
 const header = document.querySelector(".site-header");
+const phoneHeader = window.matchMedia("(max-width: 760px)");
 const onScroll = () => {
   if (!header) return;
   header.classList.toggle("is-scrolled", window.scrollY > 80);
+  header.classList.toggle("is-compact", phoneHeader.matches && window.scrollY > 24);
 };
 onScroll();
 window.addEventListener("scroll", onScroll, { passive: true });
+phoneHeader.addEventListener("change", onScroll);
 
 function bindAccordion(root, restSelector) {
   if (!root) return;
