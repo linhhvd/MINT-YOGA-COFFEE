@@ -788,6 +788,8 @@ h3 {
   --icon: 3.35rem;
   --side-gap: 0.7rem;
   --bot-size: 8.5rem;
+  --bot-foot: 0.945;
+  --chat-label-half: 0.62rem;
   --chat-w: min(28rem, calc(100% - 3 * var(--icon) - 3 * var(--side-gap)));
   --chat-open-max: calc(100% - 2 * var(--icon) - 2 * var(--side-gap));
   position: relative;
@@ -806,12 +808,13 @@ h3 {
   z-index: 2;
   display: flex;
   transform: translate(calc(-50% + var(--bot-shift)), var(--bot-shift-y));
-  transition: --bot-shift 0.6s ease, --bot-shift-y 0.6s ease;
+  transition: --bot-shift 0.6s ease, --bot-shift-y 0.6s ease, top 0.6s ease;
 }
 
 .reach__mid.is-left {
   --bot-shift: var(--bot-shift-to, 0px);
   --bot-shift-y: var(--bot-shift-y-to, 0px);
+  top: 0;
 }
 
 .reach__side {
@@ -1448,6 +1451,15 @@ h3 {
   align-items: stretch;
 }
 
+/* Chữ Chat căn giữa dọc ô xanh; bot đứng sát phía trên chữ. */
+.contact-band .reach__mid:not(.is-left) {
+  top: calc(50% - var(--chat-label-half) - var(--bot-size) * var(--bot-foot));
+}
+
+.contact-band .mint-bot:not(.is-open) {
+  top: calc(50% - var(--chat-label-half));
+}
+
 @media (max-width: 760px) {
   .contact-band {
     height: 17.05rem;
@@ -1516,11 +1528,9 @@ h3 {
 .mint-bot {
   --chat-open-pad-x: 1.15rem;
   --chat-open-pad-top: 0.55rem;
-  /* 0.945 ≈ mép chân trong ảnh mint-bot.png; chạm sát dòng Chat. */
-  --bot-label-gap: calc(var(--bot-size) * -0.055);
   position: absolute;
   z-index: 1;
-  top: calc(var(--bot-size) + var(--bot-label-gap));
+  top: calc(var(--bot-size) * var(--bot-foot, 0.945));
   left: var(--chat-left, 50%);
   width: var(--chat-closed-w, max-content);
   height: var(--chat-closed, auto);
