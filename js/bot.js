@@ -205,16 +205,29 @@ function setupBotToggle() {
 
   const layoutBot = () => {
     const reachW = reach.clientWidth;
-    const iconW = icon.getBoundingClientRect().width;
     const style = getComputedStyle(panel);
     const padLeft = Number.parseFloat(style.paddingLeft) || 0;
     const padRight = Number.parseFloat(style.paddingRight) || 0;
-    const padTop = Number.parseFloat(style.paddingTop) || 0;
     const phone = window.matchMedia("(max-width: 760px)").matches;
     const band = reach.closest(".contact-band");
     const bandStyle = getComputedStyle(band);
     const bandPad = (Number.parseFloat(bandStyle.paddingTop) || 0) + (Number.parseFloat(bandStyle.paddingBottom) || 0);
     const reachBox = reach.getBoundingClientRect();
+    const fontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    const remToPx = (cssStyle, prop, fallbackRem) => {
+      const raw = cssStyle.getPropertyValue(prop).trim();
+      const n = Number.parseFloat(raw);
+      if (!Number.isFinite(n)) return fallbackRem * fontSize;
+      return /rem$/i.test(raw) ? n * fontSize : n;
+    };
+    // Khớp --chat-open-pad-* với .mint-bot.is-open để mép bot ngang mép bubble.
+    const openPadLeft = remToPx(style, "--chat-open-pad-x", 1.15);
+    const openPadTop = remToPx(style, "--chat-open-pad-top", 0.55);
+    // Side icons ẩn khi chat full-height trên điện thoại → dùng --icon.
+    const measuredIcon = icon.getBoundingClientRect().width;
+    const iconW = measuredIcon > 0
+      ? measuredIcon
+      : remToPx(getComputedStyle(reach), "--icon", phone ? 2.45 : 3.35);
     let openW;
     let openLeft;
     let openH;
@@ -226,7 +239,6 @@ function setupBotToggle() {
       probe.remove();
       const headerH = document.querySelector(".site-header").offsetHeight;
       const bandBox = band.getBoundingClientRect();
-      const fontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
       const bottomPad = 1.5 * fontSize;
       const topPad = Number.parseFloat(bandStyle.paddingTop) || 0;
       const fullH = Math.max(0, screenH - headerH - topPad - bottomPad);
@@ -236,16 +248,15 @@ function setupBotToggle() {
         ? reach.clientHeight
         : fullH;
     } else {
-      const fontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
       const currentW = measureReach("--chat-w");
       const openMax = measureReach("--chat-open-max");
       openW = Math.min(currentW * 2, openMax);
       openLeft = Math.max(0, (reachW - openW) / 2);
       openH = 20.45 * 1.25 * fontSize - bandPad;
     }
-    const shift = openLeft + padLeft - reachW / 2 + iconW / 2;
+    const shift = openLeft + openPadLeft - reachW / 2 + iconW / 2;
     mid.style.setProperty("--bot-shift-to", `${shift}px`);
-    mid.style.setProperty("--bot-shift-y-to", `${padTop}px`);
+    mid.style.setProperty("--bot-shift-y-to", `${openPadTop}px`);
     panel.style.setProperty("--chat-open", `${Math.round(openH)}px`);
     panel.style.setProperty("--chat-open-w", `${Math.round(openW)}px`);
     panel.style.setProperty("--chat-open-left", `${Math.round(openLeft)}px`);
