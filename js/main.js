@@ -64,8 +64,8 @@ function fitHeaderSlogan() {
 
   const ref = 12;
   const lineW = measureSloganLines(headerSlogan, ref);
-  // Nhỏ hơn một chút so với full-fit; vẫn không xuống thêm hàng.
-  const fitted = Math.min(Math.max((avail / lineW) * ref * 0.86, 10.5), 20);
+  // Nhỏ hơn nữa so với full-fit; vẫn không xuống thêm hàng.
+  const fitted = Math.min(Math.max((avail / lineW) * ref * 0.78, 10), 17.5);
   headerSlogan.style.fontSize = `${fitted.toFixed(2)}px`;
 }
 
