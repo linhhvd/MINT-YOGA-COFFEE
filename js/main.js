@@ -57,15 +57,15 @@ function fitHeaderSlogan() {
   const lockup = header.querySelector(".brand-lockup");
   if (!logo || !menu || !lockup) return;
 
-  const gap = parseFloat(getComputedStyle(lockup).gap) || 0;
+  // Khoảng trống giữa mép phải logo và mép trái nút menu (slogan canh giữa).
   const avail =
-    menu.getBoundingClientRect().left - logo.getBoundingClientRect().right - gap - 10;
+    menu.getBoundingClientRect().left - logo.getBoundingClientRect().right - 12;
   if (avail < 48) return;
 
   const ref = 12;
   const lineW = measureSloganLines(headerSlogan, ref);
-  // Nhỏ hơn nữa so với full-fit; vẫn không xuống thêm hàng.
-  const fitted = Math.min(Math.max((avail / lineW) * ref * 0.78, 10), 17.5);
+  // Vừa khoảng logo–menu; vẫn đúng 2 dòng, không tràn.
+  const fitted = Math.min(Math.max((avail / lineW) * ref * 0.92, 10), 17.5);
   headerSlogan.style.fontSize = `${fitted.toFixed(2)}px`;
 }
 
