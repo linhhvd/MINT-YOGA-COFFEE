@@ -745,6 +745,14 @@ function closeEssayOverlay() {
   window.scrollTo(0, state.returnScroll);
 }
 
+// Click/tap header (logo, slogan, menu, nav) cũng đóng overlay.
+if (header) {
+  header.addEventListener("click", () => {
+    if (!essayOverlayState || essayOverlayState.overlay.hidden) return;
+    closeEssayOverlay();
+  });
+}
+
 function renderEssaySection(section, items) {
   const root = document.querySelector(section.rootSelector);
   if (!root) return;
