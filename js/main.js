@@ -92,11 +92,61 @@ const onScroll = () => {
 };
 onScroll();
 window.addEventListener("scroll", onScroll, { passive: true });
-window.addEventListener("resize", onScroll);
 phoneHeader.addEventListener("change", onScroll);
 if (document.fonts && document.fonts.ready) {
   document.fonts.ready.then(() => fitHeaderSlogan());
 }
+
+let essayOverlayState = null;
+
+/** Chiều cao viewport thật (tránh 100vh tràn khi thanh URL mobile / xoay). */
+function viewportHeight() {
+  const vv = window.visualViewport;
+  if (vv && Number.isFinite(vv.height) && vv.height > 0) return vv.height;
+  return window.innerHeight || document.documentElement.clientHeight || 0;
+}
+
+function placeEssayOverlay() {
+  const state = essayOverlayState;
+  if (!state || !state.overlay || state.overlay.hidden) return;
+
+  const headerEl = document.querySelector(".site-header");
+  const top = headerEl ? Math.max(0, Math.ceil(headerEl.getBoundingClientRect().height)) : 0;
+  const height = Math.max(0, Math.round(viewportHeight() - top));
+
+  state.overlay.style.top = `${top}px`;
+  state.overlay.style.bottom = "auto";
+  state.overlay.style.height = `${height}px`;
+  state.overlay.style.setProperty("--essay-overlay-top", `${top}px`);
+  state.overlay.style.setProperty("--essay-overlay-height", `${height}px`);
+  state.overlay.style.setProperty("--essay-overlay-bottom", "0px");
+}
+
+/** Tính lại header, slogan, overlay và báo UI khác (bot…) sau resize/xoay. */
+function refreshViewportUi() {
+  document.documentElement.style.setProperty("--app-height", `${Math.round(viewportHeight())}px`);
+  onScroll();
+  placeEssayOverlay();
+  window.dispatchEvent(new Event("viewport-refresh"));
+}
+
+let viewportRefreshTimer = 0;
+function scheduleViewportRefresh() {
+  window.clearTimeout(viewportRefreshTimer);
+  viewportRefreshTimer = window.setTimeout(() => {
+    refreshViewportUi();
+    // Lần 2 sau khi trình duyệt ổn định orientation / thanh URL.
+    window.setTimeout(refreshViewportUi, 280);
+  }, 40);
+}
+
+window.addEventListener("resize", scheduleViewportRefresh);
+window.addEventListener("orientationchange", scheduleViewportRefresh);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", scheduleViewportRefresh);
+  window.visualViewport.addEventListener("scroll", scheduleViewportRefresh);
+}
+refreshViewportUi();
 
 function bindAccordion(root, restSelector) {
   if (!root) return;
@@ -597,16 +647,6 @@ function applyEssayThumbOrient(card, img) {
   else img.addEventListener("load", setOrient, { once: true });
 }
 
-let essayOverlayState = null;
-
-function essayChromeInsets() {
-  const header = document.querySelector(".site-header");
-  return {
-    top: header ? Math.ceil(header.getBoundingClientRect().height) : 0,
-    bottom: 0,
-  };
-}
-
 function ensureEssayOverlay() {
   if (essayOverlayState) return essayOverlayState;
 
@@ -649,14 +689,6 @@ function ensureEssayOverlay() {
   return essayOverlayState;
 }
 
-function placeEssayOverlay() {
-  const state = essayOverlayState;
-  if (!state || state.overlay.hidden) return;
-  const { top, bottom } = essayChromeInsets();
-  state.overlay.style.setProperty("--essay-overlay-top", `${top}px`);
-  state.overlay.style.setProperty("--essay-overlay-bottom", `${bottom}px`);
-}
-
 function openEssayOverlay(item, section) {
   const state = ensureEssayOverlay();
   state.returnScroll = window.scrollY || 0;
@@ -676,8 +708,7 @@ function openEssayOverlay(item, section) {
   }
   state.overlay.hidden = false;
   document.body.classList.add("is-essay-open");
-  placeEssayOverlay();
-  window.addEventListener("resize", placeEssayOverlay);
+  refreshViewportUi();
   document.addEventListener("keydown", state.onKey);
   const closeBtn = state.overlay.querySelector(".essay-overlay__close");
   if (closeBtn) closeBtn.focus();
@@ -688,8 +719,8 @@ function closeEssayOverlay() {
   if (!state || state.overlay.hidden) return;
   state.overlay.hidden = true;
   state.overlay.classList.remove("essay-overlay--has-images", "essay-overlay--text-only");
+  state.overlay.style.height = "";
   document.body.classList.remove("is-essay-open");
-  window.removeEventListener("resize", placeEssayOverlay);
   document.removeEventListener("keydown", state.onKey);
   state.body.replaceChildren();
   state.photos.replaceChildren();
