@@ -691,7 +691,8 @@ h3 {
   transform: rotate(45deg);
 }
 
-.news .card__mark {
+.news .card__mark,
+.essays .card__mark {
   grid-row: 1 / span 3;
 }
 
@@ -703,7 +704,8 @@ h3 {
   padding: 0 1.25rem 1.25rem;
 }
 
-.news .card__body {
+.news .card__body,
+.essays .card__body {
   max-height: min(40vh, 20rem);
   overflow-x: hidden;
   overflow-y: auto;
@@ -713,16 +715,19 @@ h3 {
   scrollbar-color: rgba(17, 94, 89, 0.35) transparent;
 }
 
-.news .card__body::-webkit-scrollbar {
+.news .card__body::-webkit-scrollbar,
+.essays .card__body::-webkit-scrollbar {
   width: 4px;
 }
 
-.news .card__body::-webkit-scrollbar-thumb {
+.news .card__body::-webkit-scrollbar-thumb,
+.essays .card__body::-webkit-scrollbar-thumb {
   background: rgba(17, 94, 89, 0.35);
   border-radius: 999px;
 }
 
-.news .card__body::-webkit-scrollbar-track {
+.news .card__body::-webkit-scrollbar-track,
+.essays .card__body::-webkit-scrollbar-track {
   background: transparent;
 }
 
@@ -749,8 +754,15 @@ h3 {
   color: var(--teal);
 }
 
+.news__md blockquote {
+  margin: 0 0 0.7rem;
+  padding-left: 0.85rem;
+  border-left: 3px solid rgba(17, 94, 89, 0.35);
+  color: var(--muted);
+  font-style: italic;
+}
+
 @media (min-width: 921px) {
-  .essays .card--lead,
   .essay--feature {
     min-height: 100%;
   }
@@ -1495,11 +1507,13 @@ h3 {
   align-content: start;
 }
 
-.news:not(.is-expanded) .news__card--more {
+.news:not(.is-expanded) .news__card--more,
+.essays:not(.is-expanded) .essays__card--more {
   display: none;
 }
 
-.news__more {
+.news__more,
+.essays__more {
   margin: 0.15rem 0 0;
   padding: 0;
   border: 0;
@@ -1513,18 +1527,22 @@ h3 {
 }
 
 .news__more:hover,
-.news__more:focus-visible {
+.news__more:focus-visible,
+.essays__more:hover,
+.essays__more:focus-visible {
   text-decoration: underline;
 }
 
-.news__more:focus-visible {
+.news__more:focus-visible,
+.essays__more:focus-visible {
   outline: 2px solid var(--teal);
   outline-offset: 3px;
 }
 
 /* Máy tính / iPad ngang: card mới nhất cố định bên trái, viền mint. */
 @media (min-width: 921px) {
-  .news > .card--lead {
+  .news > .card--lead,
+  .essays > .card--lead {
     align-self: start;
     width: 100%;
     min-height: 0;
