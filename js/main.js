@@ -145,8 +145,9 @@ bindAccordion(document.querySelector("#bai-viet .essays"), ".essays__side .card"
 
 const SCHEDULE_FILE = "data/Lịch học.csv";
 const NEWS_DIR = "data/thông báo";
+const NEWS_REPO = "linhhvd/MINT-YOGA-COFFEE";
 const NEWS_API =
-  "https://api.github.com/repos/linhhvd/MINT-YOGA-COFFEE/contents/data/th%C3%B4ng%20b%C3%A1o?ref=main";
+  `https://api.github.com/repos/${NEWS_REPO}/contents/data/th%C3%B4ng%20b%C3%A1o?ref=main`;
 
 function parseCsv(text) {
   const rows = [];
@@ -449,6 +450,50 @@ function sortNewsNames(names) {
 
 const NEWS_VISIBLE = 5;
 
+function formatNewsDate(date) {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
+  return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+}
+
+async function fetchNewsFileCreatedAt(name) {
+  const path = `${NEWS_DIR}/${name}`;
+  const url =
+    `https://api.github.com/repos/${NEWS_REPO}/commits?path=${encodeURIComponent(path)}&per_page=100`;
+  try {
+    const response = await fetch(url, {
+      headers: { Accept: "application/vnd.github+json" },
+    });
+    if (!response.ok) return null;
+    const commits = await response.json();
+    if (!Array.isArray(commits) || !commits.length) return null;
+    const oldest = commits[commits.length - 1];
+    const commit = oldest && oldest.commit;
+    const iso =
+      commit &&
+      ((commit.author && commit.author.date) || (commit.committer && commit.committer.date));
+    return iso ? new Date(iso) : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function addNewsPostedLine(toggle, { newest, createdAt }) {
+  if (!toggle) return;
+  const line = document.createElement("span");
+  if (newest) {
+    line.className = "card__posted card__posted--new";
+    line.textContent = "Mới nhất";
+  } else {
+    const text = formatNewsDate(createdAt);
+    if (!text) return;
+    line.className = "card__posted";
+    line.textContent = text;
+  }
+  const nameEl = toggle.querySelector(".card__name");
+  if (nameEl) nameEl.after(line);
+  else toggle.append(line);
+}
+
 function collapseNewsCard(card) {
   card.classList.remove("is-open");
   const button = card.querySelector(".card__toggle");
@@ -488,34 +533,35 @@ function renderNews(items) {
     </h3>
     <div class="card__body" id="${leadId}"></div>
   `;
+  const leadToggle = leadCard.querySelector(".card__toggle");
   leadCard.querySelector(".card__name").textContent = lead.title || lead.name;
+  addNewsPostedLine(leadToggle, { newest: true, createdAt: lead.createdAt });
   appendNewsBody(leadCard.querySelector(".card__body"), lead.body);
   fragment.append(leadCard);
 
-  if (rest.length) {
-    const restWrap = document.createElement("div");
-    restWrap.className = "news__rest";
-    rest.forEach((item, index) => {
-      const cardIndex = index + 1;
-      const card = document.createElement("article");
-      card.className = "card";
-      if (cardIndex >= NEWS_VISIBLE) card.classList.add("news__card--more");
-      const id = newsSlug(item.name, cardIndex);
-      card.innerHTML = `
-        <h3>
-          <button class="card__toggle" type="button" aria-expanded="false" aria-controls="${id}">
-            <span class="card__name"></span>
-            <span class="card__mark" aria-hidden="true"></span>
-          </button>
-        </h3>
-        <div class="card__body" id="${id}" hidden></div>
-      `;
-      card.querySelector(".card__name").textContent = item.title || item.name;
-      appendNewsBody(card.querySelector(".card__body"), item.body);
-      restWrap.append(card);
-    });
-    fragment.append(restWrap);
-  }
+  const restWrap = document.createElement("div");
+  restWrap.className = "news__rest";
+  rest.forEach((item, index) => {
+    const cardIndex = index + 1;
+    const card = document.createElement("article");
+    card.className = "card";
+    if (cardIndex >= NEWS_VISIBLE) card.classList.add("news__card--more");
+    const id = newsSlug(item.name, cardIndex);
+    card.innerHTML = `
+      <h3>
+        <button class="card__toggle" type="button" aria-expanded="false" aria-controls="${id}">
+          <span class="card__name"></span>
+          <span class="card__mark" aria-hidden="true"></span>
+        </button>
+      </h3>
+      <div class="card__body" id="${id}" hidden></div>
+    `;
+    const toggle = card.querySelector(".card__toggle");
+    card.querySelector(".card__name").textContent = item.title || item.name;
+    addNewsPostedLine(toggle, { newest: false, createdAt: item.createdAt });
+    appendNewsBody(card.querySelector(".card__body"), item.body);
+    restWrap.append(card);
+  });
 
   if (hasMore) {
     const more = document.createElement("button");
@@ -532,8 +578,10 @@ function renderNews(items) {
         root.querySelectorAll(".news__card--more").forEach(collapseNewsCard);
       }
     });
-    fragment.append(more);
+    restWrap.append(more);
   }
+
+  if (rest.length || hasMore) fragment.append(restWrap);
 
   root.classList.remove("is-expanded");
   root.replaceChildren(fragment);
@@ -550,8 +598,13 @@ async function loadNews() {
       if (!response.ok) continue;
       const parsed = parseNewsText(await response.text());
       if (!parsed.title && !parsed.body) continue;
-      items.push({ name, title: parsed.title, body: parsed.body });
+      items.push({ name, title: parsed.title, body: parsed.body, createdAt: null });
     }
+    await Promise.all(
+      items.map(async (item) => {
+        item.createdAt = await fetchNewsFileCreatedAt(item.name);
+      })
+    );
     renderNews(items);
   } catch (error) {
     if (status) status.textContent = "Chưa tải được thông báo.";

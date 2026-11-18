@@ -665,6 +665,22 @@ h3 {
   grid-column: 1;
 }
 
+.card__posted {
+  grid-column: 1;
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: 0;
+  text-transform: none;
+  color: rgba(92, 107, 102, 0.72);
+}
+
+.card__posted--new {
+  color: rgba(185, 58, 58, 0.72);
+}
+
 .card__mark {
   grid-column: 2;
   grid-row: 1 / span 2;
@@ -673,6 +689,10 @@ h3 {
   border-right: 2px solid var(--teal);
   border-bottom: 2px solid var(--teal);
   transform: rotate(45deg);
+}
+
+.news .card__mark {
+  grid-row: 1 / span 3;
 }
 
 .card.is-open .card__mark {
@@ -1426,6 +1446,7 @@ h3 {
 .essays__side {
   display: grid;
   gap: 0.8rem;
+  align-content: start;
 }
 
 .news:not(.is-expanded) .news__card--more {
@@ -1433,8 +1454,7 @@ h3 {
 }
 
 .news__more {
-  grid-column: 1 / -1;
-  margin: 0.2rem 0 0;
+  margin: 0.15rem 0 0;
   padding: 0;
   border: 0;
   background: none;
@@ -1443,6 +1463,7 @@ h3 {
   font-weight: 600;
   text-align: left;
   cursor: pointer;
+  justify-self: start;
 }
 
 .news__more:hover,
@@ -1453,6 +1474,17 @@ h3 {
 .news__more:focus-visible {
   outline: 2px solid var(--teal);
   outline-offset: 3px;
+}
+
+/* Máy tính / iPad ngang: card mới nhất cố định bên trái, viền mint. */
+@media (min-width: 921px) {
+  .news > .card--lead {
+    align-self: start;
+    width: 100%;
+    height: max-content;
+    border: 2px solid #2dd4bf;
+    box-shadow: none;
+  }
 }
 
 .card--lead h3,
