@@ -99,11 +99,23 @@ if (document.fonts && document.fonts.ready) {
 
 let essayOverlayState = null;
 
-/** Chiều cao viewport thật (tránh 100vh tràn khi thanh URL mobile / xoay). */
+/** Chiều cao vùng nhìn thấy (lấy min để không tràn dưới khi thanh URL/Edge). */
 function viewportHeight() {
   const vv = window.visualViewport;
-  if (vv && Number.isFinite(vv.height) && vv.height > 0) return vv.height;
-  return window.innerHeight || document.documentElement.clientHeight || 0;
+  const values = [
+    vv && vv.height,
+    window.innerHeight,
+    document.documentElement.clientHeight,
+  ].filter((n) => Number.isFinite(n) && n > 0);
+  return values.length ? Math.min(...values) : 0;
+}
+
+function visibleViewportBottom() {
+  const vv = window.visualViewport;
+  if (vv && Number.isFinite(vv.height)) {
+    return vv.offsetTop + vv.height;
+  }
+  return viewportHeight();
 }
 
 function placeEssayOverlay() {
@@ -111,12 +123,17 @@ function placeEssayOverlay() {
   if (!state || !state.overlay || state.overlay.hidden) return;
 
   const headerEl = document.querySelector(".site-header");
-  const top = headerEl ? Math.max(0, Math.ceil(headerEl.getBoundingClientRect().height)) : 0;
-  const height = Math.max(0, Math.round(viewportHeight() - top));
+  const headerBottom = headerEl
+    ? Math.max(0, Math.ceil(headerEl.getBoundingClientRect().bottom))
+    : 0;
+  const viewBottom = Math.floor(visibleViewportBottom());
+  const top = headerBottom;
+  const height = Math.max(0, viewBottom - top);
 
   state.overlay.style.top = `${top}px`;
   state.overlay.style.bottom = "auto";
   state.overlay.style.height = `${height}px`;
+  state.overlay.style.maxHeight = `${height}px`;
   state.overlay.style.setProperty("--essay-overlay-top", `${top}px`);
   state.overlay.style.setProperty("--essay-overlay-height", `${height}px`);
   state.overlay.style.setProperty("--essay-overlay-bottom", "0px");
