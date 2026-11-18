@@ -276,6 +276,10 @@ function setupBotToggle() {
   layoutBot();
   window.addEventListener("resize", layoutBot);
   window.addEventListener("load", layoutBot);
+  window.addEventListener("viewport-refresh", layoutBot);
+  window.addEventListener("orientationchange", () => {
+    window.setTimeout(layoutBot, 280);
+  });
 
   panel.addEventListener("click", (event) => {
     if (open || busy || event.target.closest(".mint-bot__chat")) return;
