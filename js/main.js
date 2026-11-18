@@ -601,10 +601,9 @@ let essayOverlayState = null;
 
 function essayChromeInsets() {
   const header = document.querySelector(".site-header");
-  const footer = document.querySelector(".site-footer");
   return {
     top: header ? Math.ceil(header.getBoundingClientRect().height) : 0,
-    bottom: footer ? Math.ceil(footer.getBoundingClientRect().height) : 0,
+    bottom: 0,
   };
 }
 
