@@ -171,7 +171,11 @@ const ESSAY_SECTION = {
   moreCardClass: "essays__card--more",
   moreBtnClass: "essays__more",
   idPrefix: "bv",
+  withImages: true,
 };
+
+const TXT_IMAGE_EXT = /\.(jpe?g|png|gif)$/i;
+const TXT_IMAGE_MAX = 5;
 
 function parseCsv(text) {
   const rows = [];
@@ -400,7 +404,7 @@ function txtCardSlug(prefix, name, index) {
   return `${prefix}-${base || index}`;
 }
 
-async function listTxtFiles(section) {
+async function listDirFileNames(section) {
   try {
     const response = await fetch(section.apiUrl, {
       headers: { Accept: "application/vnd.github+json" },
@@ -409,28 +413,92 @@ async function listTxtFiles(section) {
       const data = await response.json();
       if (Array.isArray(data)) {
         return data
-          .filter(
-            (item) =>
-              item &&
-              item.type === "file" &&
-              typeof item.name === "string" &&
-              /\.txt$/i.test(item.name) &&
-              item.name !== "_list.txt"
-          )
-          .map((item) => item.name);
+          .filter((item) => item && item.type === "file" && typeof item.name === "string")
+          .map((item) => item.name)
+          .filter((name) => name !== "_list.txt");
       }
     }
   } catch (error) {
-    /* dùng _list.txt */
+    /* fallback */
   }
 
   const response = await fetch(`${encodeURI(`${section.dir}/_list.txt`)}?t=${Date.now()}`);
   if (!response.ok) throw new Error(String(response.status));
-  return (await response.text())
+  const texts = (await response.text())
     .replace(/^\uFEFF/, "")
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter((name) => name && /\.txt$/i.test(name) && name !== "_list.txt");
+
+  if (!section.withImages) return texts;
+
+  // Fallback: dò ảnh trùng tên với từng file txt (tối đa 5/bài).
+  const found = [...texts];
+  const exts = ["jpg", "jpeg", "png", "gif"];
+  await Promise.all(
+    texts.map(async (txtName) => {
+      const base = txtName.replace(/\.txt$/i, "");
+      const candidates = [];
+      exts.forEach((ext) => candidates.push(`${base}.${ext}`));
+      for (let i = 1; i <= TXT_IMAGE_MAX; i += 1) {
+        exts.forEach((ext) => candidates.push(`${base}_${i}.${ext}`));
+      }
+      await Promise.all(
+        candidates.map(async (name) => {
+          try {
+            const res = await fetch(`${encodeURI(`${section.dir}/${name}`)}?t=${Date.now()}`, {
+              method: "HEAD",
+            });
+            if (res.ok) found.push(name);
+          } catch (error) {
+            /* bỏ qua */
+          }
+        })
+      );
+    })
+  );
+  return [...new Set(found)];
+}
+
+function listTxtNamesFromDir(fileNames) {
+  return fileNames.filter((name) => /\.txt$/i.test(name));
+}
+
+function imagesForTxtBase(base, imageFiles) {
+  const lowerMap = new Map(imageFiles.map((name) => [name.toLowerCase(), name]));
+  const matched = [];
+  const pushIf = (candidate) => {
+    if (matched.length >= TXT_IMAGE_MAX) return;
+    const real = lowerMap.get(candidate.toLowerCase());
+    if (real && !matched.includes(real)) matched.push(real);
+  };
+
+  ["jpg", "jpeg", "png", "gif"].forEach((ext) => pushIf(`${base}.${ext}`));
+  for (let i = 1; i <= TXT_IMAGE_MAX; i += 1) {
+    ["jpg", "jpeg", "png", "gif"].forEach((ext) => pushIf(`${base}_${i}.${ext}`));
+  }
+  return matched.slice(0, TXT_IMAGE_MAX);
+}
+
+function assetUrl(dir, name) {
+  return `${dir.split("/").map(encodeURIComponent).join("/")}/${encodeURIComponent(name)}`;
+}
+
+function appendCardImages(container, dir, imageNames) {
+  if (!imageNames || !imageNames.length) return;
+  const wrap = document.createElement("div");
+  wrap.className = "essay__photos";
+  imageNames.forEach((name) => {
+    const figure = document.createElement("figure");
+    figure.className = "essay__photo";
+    const img = document.createElement("img");
+    img.src = `${assetUrl(dir, name)}?t=${Date.now()}`;
+    img.alt = "";
+    img.loading = "lazy";
+    figure.append(img);
+    wrap.append(figure);
+  });
+  container.append(wrap);
 }
 
 function sortTxtNames(names) {
@@ -523,7 +591,9 @@ function renderTxtSection(section, items) {
   const leadToggle = leadCard.querySelector(".card__toggle");
   leadCard.querySelector(".card__name").textContent = lead.title || lead.name;
   addTxtPostedLine(leadToggle, { newest: true, createdAt: lead.createdAt });
-  appendMarkdownBody(leadCard.querySelector(".card__body"), lead.body);
+  const leadBody = leadCard.querySelector(".card__body");
+  appendMarkdownBody(leadBody, lead.body);
+  if (section.withImages) appendCardImages(leadBody, section.dir, lead.images || []);
   fragment.append(leadCard);
 
   const restWrap = document.createElement("div");
@@ -546,7 +616,9 @@ function renderTxtSection(section, items) {
     const toggle = card.querySelector(".card__toggle");
     card.querySelector(".card__name").textContent = item.title || item.name;
     addTxtPostedLine(toggle, { newest: false, createdAt: item.createdAt });
-    appendMarkdownBody(card.querySelector(".card__body"), item.body);
+    const bodyEl = card.querySelector(".card__body");
+    appendMarkdownBody(bodyEl, item.body);
+    if (section.withImages) appendCardImages(bodyEl, section.dir, item.images || []);
     restWrap.append(card);
   });
 
@@ -578,14 +650,23 @@ function renderTxtSection(section, items) {
 async function loadTxtSection(section) {
   const status = document.querySelector(`#${section.statusId}`);
   try {
-    const names = sortTxtNames(await listTxtFiles(section));
+    const fileNames = await listDirFileNames(section);
+    const names = sortTxtNames(listTxtNamesFromDir(fileNames));
+    const imageFiles = section.withImages ? fileNames.filter((name) => TXT_IMAGE_EXT.test(name)) : [];
     const items = [];
     for (const name of names) {
       const response = await fetch(`${encodeURI(`${section.dir}/${name}`)}?t=${Date.now()}`);
       if (!response.ok) continue;
       const parsed = parseTxtCard(await response.text());
       if (!parsed.title && !parsed.body) continue;
-      items.push({ name, title: parsed.title, body: parsed.body, createdAt: null });
+      const base = name.replace(/\.txt$/i, "");
+      items.push({
+        name,
+        title: parsed.title,
+        body: parsed.body,
+        createdAt: null,
+        images: section.withImages ? imagesForTxtBase(base, imageFiles) : [],
+      });
     }
     await Promise.all(
       items.map(async (item) => {

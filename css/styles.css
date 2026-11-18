@@ -798,21 +798,22 @@ h3 {
   gap: 1rem;
 }
 
-.essay__text p + p,
-.essay__text p + blockquote,
-.essay__text blockquote + p {
-  margin-top: 0.8rem;
-}
-
-.essay__text + .essay__photo {
-  margin-top: 1rem;
+.essay__photos {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.85rem;
 }
 
 .essay__photo {
   margin: 0;
-  color: var(--muted);
-  font-size: 0.95rem;
-  line-height: 1.4;
+}
+
+.essay__photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.7rem;
+  background: rgba(28, 44, 41, 0.04);
 }
 
 .essay blockquote {
