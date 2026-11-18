@@ -1,14 +1,13 @@
 ---
-description: Trang luôn thân thiện với máy tính, điện thoại và máy tính bảng
+description: Trang chỉ có hai loại giao diện — hẹp và rộng
 alwaysApply: true
 ---
 
-# Ba kích thước màn hình
+# Hai loại màn hình
 
-Mọi thay đổi giao diện phải dùng được trên máy tính, điện thoại và máy tính bảng. Máy tính bảng gồm cả iPad, cả chiều dọc và chiều ngang. Không sửa một kích thước rồi để kích thước kia vỡ.
+Chỉ có **hai** layout. Không thêm breakpoint hay case trung gian khác.
 
-- Máy tính, từ 921px: menu là hàng chữ.
-- Điện thoại và iPad dọc, đến 920px: nút Menu, khối không tràn ngang, chữ và nút đủ lớn để bấm.
-- iPad ngang: cột và lịch vẫn đọc được, không đè lên nhau.
+- **Hẹp** (điện thoại + iPad dọc), đến 920px: một cột, nút Menu, khối không tràn ngang, chữ và nút đủ lớn để bấm. Header compact / slogan dock / footer hẹp dùng chung cho cả điện thoại và iPad dọc.
+- **Rộng** (iPad ngang + laptop), từ 921px: nhiều cột, menu là hàng chữ, lịch và cột đọc được không đè nhau.
 
-Sau khi sửa HTML, CSS hoặc layout, kiểm tra khoảng 390px (điện thoại), 820px (iPad dọc), 1024px (iPad ngang) và 1280px (máy tính). Trang không kéo ngang. Slogan trong header vẫn đọc được.
+Sau khi sửa HTML, CSS hoặc layout, kiểm tra khoảng 390px và 820px (hẹp), 1024px và 1280px (rộng). Trang không kéo ngang. Slogan trong header vẫn đọc được.
