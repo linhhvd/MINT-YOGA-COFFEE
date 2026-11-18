@@ -982,6 +982,7 @@ body.is-essay-open {
 }
 
 .essay-overlay {
+  --essay-overlay-pad: max(0.6rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
   position: fixed;
   top: var(--essay-overlay-top, 3.226rem);
   right: 0;
@@ -995,6 +996,11 @@ body.is-essay-open {
   flex-direction: column;
   overflow: hidden;
   box-sizing: border-box;
+  /* Padding đều 4 cạnh quanh panel giấy. */
+  padding: max(0.6rem, env(safe-area-inset-top, 0px))
+    max(0.6rem, env(safe-area-inset-right, 0px))
+    max(0.6rem, env(safe-area-inset-bottom, 0px))
+    max(0.6rem, env(safe-area-inset-left, 0px));
 }
 
 .essay-overlay[hidden] {
@@ -1012,18 +1018,20 @@ body.is-essay-open {
   position: relative;
   z-index: 1;
   box-sizing: border-box;
-  width: min(52rem, calc(100% - 1.2rem));
+  width: min(52rem, 100%);
   flex: 1 1 auto;
   min-height: 0;
   height: auto;
-  margin: 0.6rem auto 0;
+  max-height: 100%;
+  margin: 0 auto;
   background: var(--paper);
   color: var(--ink);
-  border-radius: 1rem 1rem 0 0;
+  border-radius: 1rem;
   box-shadow: 0 18px 50px rgba(28, 44, 41, 0.16);
   display: flex;
   flex-direction: column;
   align-self: center;
+  overflow: hidden;
 }
 
 .essay-overlay__close {
@@ -1117,7 +1125,7 @@ body.is-essay-open {
 /* Rộng: panel rộng hơn cho 2 vùng. */
 @media (min-width: 921px) {
   .essay-overlay__panel {
-    width: min(72rem, calc(100% - 1.6rem));
+    width: min(72rem, 100%);
   }
 
   /* Có ảnh: chữ trái + ảnh phải, scroll riêng. */
