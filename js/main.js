@@ -337,64 +337,31 @@ function parseNewsText(text) {
 
 function appendNewsBody(container, body) {
   if (!body) return;
-  const lines = body.split("\n").map((line) => line.trimEnd());
-  const blocks = [];
-  let list = null;
-  let para = [];
+  container.classList.add("news__md");
 
-  const flushPara = () => {
-    if (!para.length) return;
-    blocks.push({ type: "p", text: para.join("\n").trim() });
-    para = [];
-  };
-  const flushList = () => {
-    if (!list || !list.length) {
-      list = null;
-      return;
+  const markedLib = window.marked;
+  const purify = window.DOMPurify;
+  if (markedLib && typeof markedLib.parse === "function" && purify && typeof purify.sanitize === "function") {
+    if (typeof markedLib.setOptions === "function") {
+      markedLib.setOptions({ breaks: true, gfm: true });
     }
-    blocks.push({ type: "ul", items: list });
-    list = null;
-  };
-
-  lines.forEach((line) => {
-    const trimmed = line.trim();
-    const bullet = trimmed.match(/^[-•*]\s+(.+)$/);
-    if (bullet) {
-      flushPara();
-      if (!list) list = [];
-      list.push(bullet[1].trim());
-      return;
-    }
-    flushList();
-    if (!trimmed) {
-      flushPara();
-      return;
-    }
-    para.push(trimmed);
-  });
-  flushPara();
-  flushList();
-
-  if (!blocks.length) {
-    const p = document.createElement("p");
-    p.textContent = body;
-    container.append(p);
+    container.innerHTML = purify.sanitize(markedLib.parse(body), {
+      USE_PROFILES: { html: true },
+    });
+    container.querySelectorAll("a[href]").forEach((link) => {
+      link.setAttribute("target", "_blank");
+      link.setAttribute("rel", "noopener noreferrer");
+    });
     return;
   }
 
-  blocks.forEach((block) => {
-    if (block.type === "ul") {
-      const ul = document.createElement("ul");
-      block.items.forEach((item) => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        ul.append(li);
-      });
-      container.append(ul);
-      return;
-    }
+  // Fallback nếu CDN markdown chưa tải: giữ xuống hàng từng dòng.
+  body.split("\n").forEach((line) => {
     const p = document.createElement("p");
-    p.textContent = block.text;
+    p.textContent = line.trimEnd();
+    if (!p.textContent) {
+      p.innerHTML = "&nbsp;";
+    }
     container.append(p);
   });
 }

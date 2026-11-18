@@ -703,8 +703,54 @@ h3 {
   padding: 0 1.25rem 1.25rem;
 }
 
+.news .card__body {
+  max-height: min(40vh, 20rem);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(17, 94, 89, 0.35) transparent;
+}
+
+.news .card__body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.news .card__body::-webkit-scrollbar-thumb {
+  background: rgba(17, 94, 89, 0.35);
+  border-radius: 999px;
+}
+
+.news .card__body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.news__md > :first-child {
+  margin-top: 0;
+}
+
+.news__md > :last-child {
+  margin-bottom: 0;
+}
+
+.news__md p,
+.news__md ul,
+.news__md ol {
+  margin: 0 0 0.7rem;
+}
+
+.news__md ul,
+.news__md ol {
+  padding-left: 1.2rem;
+}
+
+.news__md a {
+  color: var(--teal);
+}
+
 @media (min-width: 921px) {
-  .card--lead,
+  .essays .card--lead,
   .essay--feature {
     min-height: 100%;
   }
@@ -1481,6 +1527,7 @@ h3 {
   .news > .card--lead {
     align-self: start;
     width: 100%;
+    min-height: 0;
     height: max-content;
     border: 2px solid #2dd4bf;
     box-shadow: none;
