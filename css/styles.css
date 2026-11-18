@@ -1551,6 +1551,12 @@ h3 {
     border: 2px solid #2dd4bf;
     box-shadow: none;
   }
+
+  /* Card đầu cao hơn 30% so với max-height mặc định. */
+  .news > .card--lead .card__body,
+  .essays > .card--lead .card__body {
+    max-height: min(52vh, 26rem);
+  }
 }
 
 .card--lead h3,
