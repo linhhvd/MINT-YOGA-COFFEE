@@ -171,11 +171,11 @@ const ESSAY_SECTION = {
   emptyText: "Chưa có bài viết.",
   failText: "Chưa tải được bài viết.",
   moreText: "Xem bài viết cũ hơn..",
-  restClass: "essays__side",
   moreCardClass: "essays__card--more",
   moreBtnClass: "essays__more",
   idPrefix: "bv",
   withImages: true,
+  layout: "essay-grid",
 };
 
 const TXT_IMAGE_EXT = /\.(jpe?g|png|gif)$/i;
@@ -553,6 +553,197 @@ function addTxtPostedLine(toggle, { newest, createdAt }) {
   else toggle.append(line);
 }
 
+/** Cắt ~20 từ; nếu hết câu sớm hơn trong giới hạn thì dừng ở câu. */
+function essayExcerpt(body, maxWords = 20) {
+  const plain = String(body || "")
+    .replace(/^>\s?/gm, "")
+    .replace(/!\[[^\]]*]\([^)]*\)/g, "")
+    .replace(/\[([^\]]*)]\([^)]*\)/g, "$1")
+    .replace(/[`*_#>[\]()]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!plain) return "";
+  const words = plain.split(" ").filter(Boolean);
+  if (words.length <= maxWords) return plain;
+
+  const limited = words.slice(0, maxWords).join(" ");
+  const endMarks = [".", "!", "?", "…"];
+  let cut = -1;
+  endMarks.forEach((mark) => {
+    const at = limited.lastIndexOf(mark);
+    if (at > cut) cut = at;
+  });
+  if (cut >= Math.min(12, limited.length * 0.35)) {
+    return limited.slice(0, cut + 1).trim();
+  }
+  return `${limited.replace(/[,:;–—\-/(]+$/u, "").trim()}…`;
+}
+
+let essayOverlayState = null;
+
+function essayChromeInsets() {
+  const header = document.querySelector(".site-header");
+  const footer = document.querySelector(".site-footer");
+  return {
+    top: header ? Math.ceil(header.getBoundingClientRect().height) : 0,
+    bottom: footer ? Math.ceil(footer.getBoundingClientRect().height) : 0,
+  };
+}
+
+function ensureEssayOverlay() {
+  if (essayOverlayState) return essayOverlayState;
+
+  const overlay = document.createElement("div");
+  overlay.className = "essay-overlay";
+  overlay.hidden = true;
+  overlay.innerHTML = `
+    <div class="essay-overlay__scrim" data-essay-close="1"></div>
+    <div class="essay-overlay__panel" role="dialog" aria-modal="true" aria-labelledby="essay-overlay-title">
+      <button class="essay-overlay__close" type="button" aria-label="Đóng bài viết" data-essay-close="1"></button>
+      <div class="essay-overlay__scroll">
+        <h2 class="essay-overlay__title" id="essay-overlay-title"></h2>
+        <p class="essay-overlay__date"></p>
+        <div class="essay-overlay__body news__md"></div>
+        <div class="essay-overlay__photos"></div>
+      </div>
+    </div>
+  `;
+  document.body.append(overlay);
+
+  const onKey = (event) => {
+    if (event.key === "Escape") closeEssayOverlay();
+  };
+
+  overlay.addEventListener("click", (event) => {
+    if (event.target.closest("[data-essay-close]")) closeEssayOverlay();
+  });
+
+  essayOverlayState = {
+    overlay,
+    title: overlay.querySelector(".essay-overlay__title"),
+    date: overlay.querySelector(".essay-overlay__date"),
+    body: overlay.querySelector(".essay-overlay__body"),
+    photos: overlay.querySelector(".essay-overlay__photos"),
+    onKey,
+    returnScroll: 0,
+  };
+  return essayOverlayState;
+}
+
+function placeEssayOverlay() {
+  const state = essayOverlayState;
+  if (!state || state.overlay.hidden) return;
+  const { top, bottom } = essayChromeInsets();
+  state.overlay.style.setProperty("--essay-overlay-top", `${top}px`);
+  state.overlay.style.setProperty("--essay-overlay-bottom", `${bottom}px`);
+}
+
+function openEssayOverlay(item, section) {
+  const state = ensureEssayOverlay();
+  state.returnScroll = window.scrollY || 0;
+  state.title.textContent = item.title || item.name;
+  const dateText = formatTxtDate(item.createdAt);
+  state.date.textContent = dateText;
+  state.date.hidden = !dateText;
+  state.body.replaceChildren();
+  appendMarkdownBody(state.body, item.body);
+  state.photos.replaceChildren();
+  if (item.images && item.images.length) {
+    appendCardImages(state.photos, section.dir, item.images);
+  }
+  state.overlay.hidden = false;
+  document.body.classList.add("is-essay-open");
+  placeEssayOverlay();
+  window.addEventListener("resize", placeEssayOverlay);
+  document.addEventListener("keydown", state.onKey);
+  const closeBtn = state.overlay.querySelector(".essay-overlay__close");
+  if (closeBtn) closeBtn.focus();
+}
+
+function closeEssayOverlay() {
+  const state = essayOverlayState;
+  if (!state || state.overlay.hidden) return;
+  state.overlay.hidden = true;
+  document.body.classList.remove("is-essay-open");
+  window.removeEventListener("resize", placeEssayOverlay);
+  document.removeEventListener("keydown", state.onKey);
+  state.body.replaceChildren();
+  state.photos.replaceChildren();
+  window.scrollTo(0, state.returnScroll);
+}
+
+function renderEssaySection(section, items) {
+  const root = document.querySelector(section.rootSelector);
+  if (!root) return;
+
+  if (!items.length) {
+    root.replaceChildren();
+    const status = document.createElement("p");
+    status.className = "news-status";
+    status.id = section.statusId;
+    status.textContent = section.emptyText;
+    root.append(status);
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  const hasMore = items.length > TXT_VISIBLE;
+
+  items.forEach((item, index) => {
+    const card = document.createElement("article");
+    card.className = "essay-card";
+    if (hasMore && index >= TXT_VISIBLE) card.classList.add(section.moreCardClass);
+    if (!(item.images && item.images.length)) card.classList.add("essay-card--text");
+
+    const thumbName = item.images && item.images[0];
+    card.innerHTML = `
+      <button class="essay-card__hit" type="button">
+        <span class="essay-card__title"></span>
+        <span class="essay-card__date"></span>
+        <span class="essay-card__excerpt"></span>
+        ${
+          thumbName
+            ? `<span class="essay-card__thumb"><img alt="" loading="lazy"></span>`
+            : ""
+        }
+      </button>
+    `;
+    card.querySelector(".essay-card__title").textContent = item.title || item.name;
+    const dateEl = card.querySelector(".essay-card__date");
+    const dateText = formatTxtDate(item.createdAt);
+    if (dateText) dateEl.textContent = dateText;
+    else dateEl.hidden = true;
+    card.querySelector(".essay-card__excerpt").textContent = essayExcerpt(item.body);
+    if (thumbName) {
+      const img = card.querySelector(".essay-card__thumb img");
+      img.src = `${assetUrl(section.dir, thumbName)}?t=${Date.now()}`;
+    }
+    card.querySelector(".essay-card__hit").addEventListener("click", () => {
+      openEssayOverlay(item, section);
+    });
+    fragment.append(card);
+  });
+
+  if (hasMore) {
+    const more = document.createElement("button");
+    more.type = "button";
+    more.className = section.moreBtnClass;
+    more.textContent = section.moreText;
+    more.setAttribute("aria-expanded", "false");
+    more.addEventListener("click", () => {
+      const expanded = !root.classList.contains("is-expanded");
+      root.classList.toggle("is-expanded", expanded);
+      more.textContent = expanded ? "Thu gọn" : section.moreText;
+      more.setAttribute("aria-expanded", String(expanded));
+    });
+    fragment.append(more);
+  }
+
+  root.classList.remove("is-expanded");
+  root.className = "essays essays--grid";
+  root.replaceChildren(fragment);
+}
+
 function collapseTxtCard(card) {
   card.classList.remove("is-open");
   const button = card.querySelector(".card__toggle");
@@ -677,7 +868,8 @@ async function loadTxtSection(section) {
         item.createdAt = await fetchTxtFileCreatedAt(section.dir, item.name);
       })
     );
-    renderTxtSection(section, items);
+    if (section.layout === "essay-grid") renderEssaySection(section, items);
+    else renderTxtSection(section, items);
   } catch (error) {
     if (status) status.textContent = section.failText;
   }
