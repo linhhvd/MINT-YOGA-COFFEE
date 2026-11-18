@@ -717,7 +717,10 @@ function renderEssaySection(section, items) {
 
     card.innerHTML = `
       <button class="essay-card__hit" type="button">
-        <span class="essay-card__title"></span>
+        <span class="essay-card__head">
+          <span class="essay-card__title"></span>
+          <span class="essay-card__date"></span>
+        </span>
         <span class="essay-card__body">
           ${
             thumbName
@@ -725,7 +728,6 @@ function renderEssaySection(section, items) {
               : ""
           }
           <span class="essay-card__copy">
-            <span class="essay-card__date"></span>
             <span class="essay-card__excerpt"></span>
           </span>
         </span>
