@@ -62,10 +62,14 @@ function fitHeaderSlogan() {
     menu.getBoundingClientRect().left - logo.getBoundingClientRect().right - 12;
   if (avail < 48) return;
 
+  const logoH = logo.getBoundingClientRect().height || 32;
+  // Cỡ chữ ~42% chiều cao logo; tối đa ~0.72rem khi logo 2rem.
+  const maxPx = Math.min(logoH * 0.42, 14);
+  const minPx = Math.max(9, logoH * 0.28);
   const ref = 12;
   const lineW = measureSloganLines(headerSlogan, ref);
   // Vừa khoảng logo–menu; vẫn đúng 2 dòng, không tràn.
-  const fitted = Math.min(Math.max((avail / lineW) * ref * 0.92, 10), 17.5);
+  const fitted = Math.min(Math.max((avail / lineW) * ref * 0.82, minPx), maxPx);
   headerSlogan.style.fontSize = `${fitted.toFixed(2)}px`;
 }
 

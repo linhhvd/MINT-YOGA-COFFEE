@@ -102,8 +102,8 @@ h3 {
 .site-header.is-scrolled,
 .site-header.is-compact,
 .site-header.is-slogan-docked {
-  /* Header trắng (rộng): cao 80% lần trước (4.48 → 3.584). */
-  height: 3.584rem;
+  /* Header trắng (rộng): cao 90% lần trước (3.584 → 3.226). */
+  height: 3.226rem;
   background: #ffffff;
   color: var(--ink);
   border-bottom-color: var(--line);
@@ -112,8 +112,8 @@ h3 {
 .site-header.is-scrolled .brand__logo,
 .site-header.is-compact .brand__logo,
 .site-header.is-slogan-docked .brand__logo {
-  /* Logo header trắng (rộng): 80% của 4.08rem. */
-  height: 3.264rem;
+  /* Logo header trắng (rộng): 90% của 3.264rem. */
+  height: 2.938rem;
 }
 
 .site-header.is-scrolled .brand__logo--light,
@@ -1091,8 +1091,8 @@ h3 {
 }
 
 .site-footer {
-  /* Khớp header trắng rộng (3.584rem). */
-  height: 3.584rem;
+  /* Khớp header trắng rộng (3.226rem). */
+  height: 3.226rem;
   padding: 0;
   background: #ffffff;
   color: var(--muted);
@@ -1110,8 +1110,8 @@ h3 {
 }
 
 .footer-logo {
-  /* Bằng logo header trắng rộng (3.264rem). */
-  height: 3.264rem;
+  /* Bằng logo header trắng rộng (2.938rem). */
+  height: 2.938rem;
   width: auto;
   flex: none;
 }
@@ -1236,9 +1236,9 @@ h3 {
     white-space: nowrap;
     font-weight: 400;
     text-align: center;
-    /* JS fitHeaderSlogan() chỉnh theo khoảng logo–menu; clamp là nền (nhỏ hơn trước). */
-    font-size: clamp(0.64rem, 3.6vw, 0.92rem);
-    line-height: 1.2;
+    /* Nhỏ tương ứng logo compact 2rem; JS fitHeaderSlogan() chỉnh tiếp. */
+    font-size: clamp(0.55rem, 2.8vw, 0.72rem);
+    line-height: 1.15;
     letter-spacing: -0.03em;
   }
 
