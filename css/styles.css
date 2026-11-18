@@ -826,10 +826,16 @@ h3 {
   padding: 1.1rem 1.15rem 1rem;
 }
 
-/* Title luôn trên, full ngang card. */
-.essay-card__title {
+/* Title + ngày: cụm riêng trên cùng, full ngang card. */
+.essay-card__head {
   flex: 0 0 auto;
   width: 100%;
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.essay-card__title {
   margin: 0;
   font-family: var(--sans);
   font-size: 0.98rem;
@@ -842,7 +848,16 @@ h3 {
   overflow: hidden;
 }
 
-/* Khối ảnh + text dưới title. */
+.essay-card__date {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 400;
+  font-style: italic;
+  color: rgba(92, 107, 102, 0.72);
+}
+
+/* Khối ảnh + excerpt dưới cụm title. */
 .essay-card__body {
   flex: 1 1 auto;
   min-height: 0;
@@ -868,8 +883,7 @@ h3 {
 
 .essay-card__copy {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: 0.3rem;
+  grid-template-rows: minmax(0, 1fr);
   min-height: 0;
   min-width: 0;
   flex: 1 1 auto;
@@ -886,15 +900,6 @@ h3 {
   display: -webkit-box;
   -webkit-line-clamp: 5;
   -webkit-box-orient: vertical;
-}
-
-.essay-card__date {
-  margin: 0;
-  font-family: var(--sans);
-  font-size: 0.78rem;
-  font-weight: 400;
-  font-style: italic;
-  color: rgba(92, 107, 102, 0.72);
 }
 
 .essay-card--portrait .essay-card__excerpt {
