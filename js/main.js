@@ -617,11 +617,13 @@ function ensureEssayOverlay() {
     <div class="essay-overlay__scrim" data-essay-close="1"></div>
     <div class="essay-overlay__panel" role="dialog" aria-modal="true" aria-labelledby="essay-overlay-title">
       <button class="essay-overlay__close" type="button" aria-label="Đóng bài viết" data-essay-close="1"></button>
-      <div class="essay-overlay__scroll">
-        <h2 class="essay-overlay__title" id="essay-overlay-title"></h2>
-        <p class="essay-overlay__date"></p>
-        <div class="essay-overlay__body news__md"></div>
-        <div class="essay-overlay__photos"></div>
+      <div class="essay-overlay__layout">
+        <div class="essay-overlay__text">
+          <h2 class="essay-overlay__title" id="essay-overlay-title"></h2>
+          <p class="essay-overlay__date"></p>
+          <div class="essay-overlay__body news__md"></div>
+        </div>
+        <div class="essay-overlay__photos" hidden></div>
       </div>
     </div>
   `;
@@ -665,7 +667,11 @@ function openEssayOverlay(item, section) {
   state.body.replaceChildren();
   appendMarkdownBody(state.body, item.body);
   state.photos.replaceChildren();
-  if (item.images && item.images.length) {
+  const hasImages = !!(item.images && item.images.length);
+  state.overlay.classList.toggle("essay-overlay--has-images", hasImages);
+  state.overlay.classList.toggle("essay-overlay--text-only", !hasImages);
+  state.photos.hidden = !hasImages;
+  if (hasImages) {
     appendCardImages(state.photos, section.dir, item.images);
   }
   state.overlay.hidden = false;
@@ -681,11 +687,13 @@ function closeEssayOverlay() {
   const state = essayOverlayState;
   if (!state || state.overlay.hidden) return;
   state.overlay.hidden = true;
+  state.overlay.classList.remove("essay-overlay--has-images", "essay-overlay--text-only");
   document.body.classList.remove("is-essay-open");
   window.removeEventListener("resize", placeEssayOverlay);
   document.removeEventListener("keydown", state.onKey);
   state.body.replaceChildren();
   state.photos.replaceChildren();
+  state.photos.hidden = true;
   window.scrollTo(0, state.returnScroll);
 }
 
