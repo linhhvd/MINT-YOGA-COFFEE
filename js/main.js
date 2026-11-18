@@ -717,15 +717,17 @@ function renderEssaySection(section, items) {
 
     card.innerHTML = `
       <button class="essay-card__hit" type="button">
-        ${
-          thumbName
-            ? `<span class="essay-card__thumb"><img alt="" loading="lazy"></span>`
-            : ""
-        }
-        <span class="essay-card__copy">
-          <span class="essay-card__title"></span>
-          <span class="essay-card__date"></span>
-          <span class="essay-card__excerpt"></span>
+        <span class="essay-card__title"></span>
+        <span class="essay-card__body">
+          ${
+            thumbName
+              ? `<span class="essay-card__thumb"><img alt="" loading="eager" decoding="async"></span>`
+              : ""
+          }
+          <span class="essay-card__copy">
+            <span class="essay-card__date"></span>
+            <span class="essay-card__excerpt"></span>
+          </span>
         </span>
       </button>
     `;
