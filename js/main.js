@@ -20,7 +20,7 @@ if (toggle && nav) {
 const header = document.querySelector(".site-header");
 const heroSlogan = document.querySelector(".hero__slogan");
 const headerSlogan = document.querySelector(".brand__slogan");
-const phoneHeader = window.matchMedia("(max-width: 760px)");
+const phoneHeader = window.matchMedia("(max-width: 920px)");
 
 function measureSloganLines(el, fontSizePx) {
   const cs = getComputedStyle(el);
