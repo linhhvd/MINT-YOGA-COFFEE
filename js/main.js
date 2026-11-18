@@ -148,6 +148,7 @@ function bindAccordion(root, restSelector) {
 const SCHEDULE_FILE = "data/Lịch học.csv";
 const TXT_REPO = "linhhvd/MINT-YOGA-COFFEE";
 const TXT_VISIBLE = 5;
+const ESSAY_VISIBLE = 6;
 
 const NEWS_SECTION = {
   dir: "data/thông báo",
@@ -553,7 +554,7 @@ function addTxtPostedLine(toggle, { newest, createdAt }) {
   else toggle.append(line);
 }
 
-/** Cắt ~20 từ; nếu hết câu sớm hơn trong giới hạn thì dừng ở câu. */
+/** Cắt ~20 từ; ưu tiên hết câu trong giới hạn; luôn kết bằng …. */
 function essayExcerpt(body, maxWords = 20) {
   const plain = String(body || "")
     .replace(/^>\s?/gm, "")
@@ -562,21 +563,38 @@ function essayExcerpt(body, maxWords = 20) {
     .replace(/[`*_#>[\]()]/g, "")
     .replace(/\s+/g, " ")
     .trim();
-  if (!plain) return "";
+  if (!plain) return "…";
   const words = plain.split(" ").filter(Boolean);
-  if (words.length <= maxWords) return plain;
-
-  const limited = words.slice(0, maxWords).join(" ");
-  const endMarks = [".", "!", "?", "…"];
-  let cut = -1;
-  endMarks.forEach((mark) => {
-    const at = limited.lastIndexOf(mark);
-    if (at > cut) cut = at;
-  });
-  if (cut >= Math.min(12, limited.length * 0.35)) {
-    return limited.slice(0, cut + 1).trim();
+  let text;
+  if (words.length <= maxWords) {
+    text = plain;
+  } else {
+    const limited = words.slice(0, maxWords).join(" ");
+    const endMarks = [".", "!", "?"];
+    let cut = -1;
+    endMarks.forEach((mark) => {
+      const at = limited.lastIndexOf(mark);
+      if (at > cut) cut = at;
+    });
+    if (cut >= Math.min(12, limited.length * 0.35)) {
+      text = limited.slice(0, cut + 1).trim();
+    } else {
+      text = limited.replace(/[,:;–—\-/(]+$/u, "").trim();
+    }
   }
-  return `${limited.replace(/[,:;–—\-/(]+$/u, "").trim()}…`;
+  return `${text.replace(/[.…]+$/u, "").trim()}…`;
+}
+
+function applyEssayThumbOrient(card, img) {
+  const setOrient = () => {
+    const w = img.naturalWidth || 0;
+    const h = img.naturalHeight || 0;
+    card.classList.remove("essay-card--landscape", "essay-card--portrait");
+    if (h > w) card.classList.add("essay-card--portrait");
+    else card.classList.add("essay-card--landscape");
+  };
+  if (img.complete && img.naturalWidth) setOrient();
+  else img.addEventListener("load", setOrient, { once: true });
 }
 
 let essayOverlayState = null;
@@ -687,25 +705,29 @@ function renderEssaySection(section, items) {
   }
 
   const fragment = document.createDocumentFragment();
-  const hasMore = items.length > TXT_VISIBLE;
+  const hasMore = items.length > ESSAY_VISIBLE;
 
   items.forEach((item, index) => {
     const card = document.createElement("article");
     card.className = "essay-card";
-    if (hasMore && index >= TXT_VISIBLE) card.classList.add(section.moreCardClass);
-    if (!(item.images && item.images.length)) card.classList.add("essay-card--text");
+    if (hasMore && index >= ESSAY_VISIBLE) card.classList.add(section.moreCardClass);
 
     const thumbName = item.images && item.images[0];
+    if (thumbName) card.classList.add("essay-card--landscape");
+    else card.classList.add("essay-card--text");
+
     card.innerHTML = `
       <button class="essay-card__hit" type="button">
-        <span class="essay-card__title"></span>
-        <span class="essay-card__date"></span>
-        <span class="essay-card__excerpt"></span>
         ${
           thumbName
             ? `<span class="essay-card__thumb"><img alt="" loading="lazy"></span>`
             : ""
         }
+        <span class="essay-card__copy">
+          <span class="essay-card__title"></span>
+          <span class="essay-card__date"></span>
+          <span class="essay-card__excerpt"></span>
+        </span>
       </button>
     `;
     card.querySelector(".essay-card__title").textContent = item.title || item.name;
@@ -717,6 +739,7 @@ function renderEssaySection(section, items) {
     if (thumbName) {
       const img = card.querySelector(".essay-card__thumb img");
       img.src = `${assetUrl(section.dir, thumbName)}?t=${Date.now()}`;
+      applyEssayThumbOrient(card, img);
     }
     card.querySelector(".essay-card__hit").addEventListener("click", () => {
       openEssayOverlay(item, section);
