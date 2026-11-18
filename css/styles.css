@@ -1509,13 +1509,10 @@ body.is-essay-open {
     transition: height 0.2s ease;
   }
 
-  .site-header.is-compact {
-    /* 80% của 3.4rem. */
-    height: 2.72rem;
-  }
-
-  .site-header.is-compact.is-slogan-docked {
-    /* 80% của 4.15rem. */
+  .site-header.is-compact,
+  .site-header.is-compact.is-slogan-docked,
+  .site-header.is-scrolled {
+    /* Luôn bằng chiều cao lúc đã có slogan (không nhảy thấp hơn). */
     height: 3.32rem;
   }
 
