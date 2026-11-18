@@ -141,13 +141,41 @@ function bindAccordion(root, restSelector) {
   narrow.addEventListener("change", layout);
 }
 
-bindAccordion(document.querySelector("#bai-viet .essays"), ".essays__side .card");
-
 const SCHEDULE_FILE = "data/Lịch học.csv";
-const NEWS_DIR = "data/thông báo";
-const NEWS_REPO = "linhhvd/MINT-YOGA-COFFEE";
-const NEWS_API =
-  `https://api.github.com/repos/${NEWS_REPO}/contents/data/th%C3%B4ng%20b%C3%A1o?ref=main`;
+const TXT_REPO = "linhhvd/MINT-YOGA-COFFEE";
+const TXT_VISIBLE = 5;
+
+const NEWS_SECTION = {
+  dir: "data/thông báo",
+  apiUrl: `https://api.github.com/repos/${TXT_REPO}/contents/data/th%C3%B4ng%20b%C3%A1o?ref=main`,
+  rootSelector: "#news-root",
+  statusId: "thong-bao-status",
+  emptyText: "Chưa có thông báo.",
+  failText: "Chưa tải được thông báo.",
+  moreText: "Xem thông báo cũ hơn..",
+  restClass: "news__rest",
+  moreCardClass: "news__card--more",
+  moreBtnClass: "news__more",
+  idPrefix: "tb",
+};
+
+const ESSAY_SECTION = {
+  dir: "data/bài viết",
+  apiUrl: `https://api.github.com/repos/${TXT_REPO}/contents/data/b%C3%A0i%20vi%E1%BA%BFt?ref=main`,
+  rootSelector: "#essays-root",
+  statusId: "bai-viet-status",
+  emptyText: "Chưa có bài viết.",
+  failText: "Chưa tải được bài viết.",
+  moreText: "Xem bài viết cũ hơn..",
+  restClass: "essays__side",
+  moreCardClass: "essays__card--more",
+  moreBtnClass: "essays__more",
+  idPrefix: "bv",
+  withImages: true,
+};
+
+const TXT_IMAGE_EXT = /\.(jpe?g|png|gif)$/i;
+const TXT_IMAGE_MAX = 5;
 
 function parseCsv(text) {
   const rows = [];
@@ -325,9 +353,10 @@ async function loadSchedule() {
 }
 
 loadSchedule();
-loadNews();
+loadTxtSection(NEWS_SECTION);
+loadTxtSection(ESSAY_SECTION);
 
-function parseNewsText(text) {
+function parseTxtCard(text) {
   const normalized = String(text || "").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
   const lines = normalized.split("\n");
   const title = (lines[0] || "").trim();
@@ -335,7 +364,7 @@ function parseNewsText(text) {
   return { title, body };
 }
 
-function appendNewsBody(container, body) {
+function appendMarkdownBody(container, body) {
   if (!body) return;
   container.classList.add("news__md");
 
@@ -355,18 +384,15 @@ function appendNewsBody(container, body) {
     return;
   }
 
-  // Fallback nếu CDN markdown chưa tải: giữ xuống hàng từng dòng.
   body.split("\n").forEach((line) => {
     const p = document.createElement("p");
     p.textContent = line.trimEnd();
-    if (!p.textContent) {
-      p.innerHTML = "&nbsp;";
-    }
+    if (!p.textContent) p.innerHTML = "&nbsp;";
     container.append(p);
   });
 }
 
-function newsSlug(name, index) {
+function txtCardSlug(prefix, name, index) {
   const base = String(name || "")
     .replace(/\.txt$/i, "")
     .toLowerCase()
@@ -375,57 +401,119 @@ function newsSlug(name, index) {
     .replace(/đ/g, "d")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
-  return `tb-${base || index}`;
+  return `${prefix}-${base || index}`;
 }
 
-async function listNewsFiles() {
+async function listDirFileNames(section) {
   try {
-    const response = await fetch(NEWS_API, {
+    const response = await fetch(section.apiUrl, {
       headers: { Accept: "application/vnd.github+json" },
     });
     if (response.ok) {
       const data = await response.json();
       if (Array.isArray(data)) {
         return data
-          .filter(
-            (item) =>
-              item &&
-              item.type === "file" &&
-              typeof item.name === "string" &&
-              /\.txt$/i.test(item.name) &&
-              item.name !== "_list.txt"
-          )
-          .map((item) => item.name);
+          .filter((item) => item && item.type === "file" && typeof item.name === "string")
+          .map((item) => item.name)
+          .filter((name) => name !== "_list.txt");
       }
     }
   } catch (error) {
-    /* dùng _list.txt */
+    /* fallback */
   }
 
-  const response = await fetch(`${encodeURI(`${NEWS_DIR}/_list.txt`)}?t=${Date.now()}`);
+  const response = await fetch(`${encodeURI(`${section.dir}/_list.txt`)}?t=${Date.now()}`);
   if (!response.ok) throw new Error(String(response.status));
-  return (await response.text())
+  const texts = (await response.text())
     .replace(/^\uFEFF/, "")
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter((name) => name && /\.txt$/i.test(name) && name !== "_list.txt");
+
+  if (!section.withImages) return texts;
+
+  // Fallback: dò ảnh trùng tên với từng file txt (tối đa 5/bài).
+  const found = [...texts];
+  const exts = ["jpg", "jpeg", "png", "gif"];
+  await Promise.all(
+    texts.map(async (txtName) => {
+      const base = txtName.replace(/\.txt$/i, "");
+      const candidates = [];
+      exts.forEach((ext) => candidates.push(`${base}.${ext}`));
+      for (let i = 1; i <= TXT_IMAGE_MAX; i += 1) {
+        exts.forEach((ext) => candidates.push(`${base}_${i}.${ext}`));
+      }
+      await Promise.all(
+        candidates.map(async (name) => {
+          try {
+            const res = await fetch(`${encodeURI(`${section.dir}/${name}`)}?t=${Date.now()}`, {
+              method: "HEAD",
+            });
+            if (res.ok) found.push(name);
+          } catch (error) {
+            /* bỏ qua */
+          }
+        })
+      );
+    })
+  );
+  return [...new Set(found)];
 }
 
-function sortNewsNames(names) {
+function listTxtNamesFromDir(fileNames) {
+  return fileNames.filter((name) => /\.txt$/i.test(name));
+}
+
+function imagesForTxtBase(base, imageFiles) {
+  const lowerMap = new Map(imageFiles.map((name) => [name.toLowerCase(), name]));
+  const matched = [];
+  const pushIf = (candidate) => {
+    if (matched.length >= TXT_IMAGE_MAX) return;
+    const real = lowerMap.get(candidate.toLowerCase());
+    if (real && !matched.includes(real)) matched.push(real);
+  };
+
+  ["jpg", "jpeg", "png", "gif"].forEach((ext) => pushIf(`${base}.${ext}`));
+  for (let i = 1; i <= TXT_IMAGE_MAX; i += 1) {
+    ["jpg", "jpeg", "png", "gif"].forEach((ext) => pushIf(`${base}_${i}.${ext}`));
+  }
+  return matched.slice(0, TXT_IMAGE_MAX);
+}
+
+function assetUrl(dir, name) {
+  return `${dir.split("/").map(encodeURIComponent).join("/")}/${encodeURIComponent(name)}`;
+}
+
+function appendCardImages(container, dir, imageNames) {
+  if (!imageNames || !imageNames.length) return;
+  const wrap = document.createElement("div");
+  wrap.className = "essay__photos";
+  imageNames.forEach((name) => {
+    const figure = document.createElement("figure");
+    figure.className = "essay__photo";
+    const img = document.createElement("img");
+    img.src = `${assetUrl(dir, name)}?t=${Date.now()}`;
+    img.alt = "";
+    img.loading = "lazy";
+    figure.append(img);
+    wrap.append(figure);
+  });
+  container.append(wrap);
+}
+
+function sortTxtNames(names) {
   return [...names].sort((a, b) => b.localeCompare(a, "vi", { numeric: true, sensitivity: "base" }));
 }
 
-const NEWS_VISIBLE = 5;
-
-function formatNewsDate(date) {
+function formatTxtDate(date) {
   if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
   return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
 }
 
-async function fetchNewsFileCreatedAt(name) {
-  const path = `${NEWS_DIR}/${name}`;
+async function fetchTxtFileCreatedAt(dir, name) {
+  const path = `${dir}/${name}`;
   const url =
-    `https://api.github.com/repos/${NEWS_REPO}/commits?path=${encodeURIComponent(path)}&per_page=100`;
+    `https://api.github.com/repos/${TXT_REPO}/commits?path=${encodeURIComponent(path)}&per_page=100`;
   try {
     const response = await fetch(url, {
       headers: { Accept: "application/vnd.github+json" },
@@ -444,14 +532,14 @@ async function fetchNewsFileCreatedAt(name) {
   }
 }
 
-function addNewsPostedLine(toggle, { newest, createdAt }) {
+function addTxtPostedLine(toggle, { newest, createdAt }) {
   if (!toggle) return;
   const line = document.createElement("span");
   if (newest) {
     line.className = "card__posted card__posted--new";
     line.textContent = "Mới nhất";
   } else {
-    const text = formatNewsDate(createdAt);
+    const text = formatTxtDate(createdAt);
     if (!text) return;
     line.className = "card__posted";
     line.textContent = text;
@@ -461,7 +549,7 @@ function addNewsPostedLine(toggle, { newest, createdAt }) {
   else toggle.append(line);
 }
 
-function collapseNewsCard(card) {
+function collapseTxtCard(card) {
   card.classList.remove("is-open");
   const button = card.querySelector(".card__toggle");
   const body = card.querySelector(".card__body");
@@ -469,16 +557,16 @@ function collapseNewsCard(card) {
   if (body) body.hidden = true;
 }
 
-function renderNews(items) {
-  const root = document.querySelector("#news-root");
+function renderTxtSection(section, items) {
+  const root = document.querySelector(section.rootSelector);
   if (!root) return;
 
   if (!items.length) {
     root.replaceChildren();
     const status = document.createElement("p");
     status.className = "news-status";
-    status.id = "thong-bao-status";
-    status.textContent = "Chưa có thông báo.";
+    status.id = section.statusId;
+    status.textContent = section.emptyText;
     root.append(status);
     return;
   }
@@ -486,11 +574,11 @@ function renderNews(items) {
   const fragment = document.createDocumentFragment();
   const lead = items[0];
   const rest = items.slice(1);
-  const hasMore = items.length > NEWS_VISIBLE;
+  const hasMore = items.length > TXT_VISIBLE;
 
   const leadCard = document.createElement("article");
   leadCard.className = "card card--lead is-open";
-  const leadId = newsSlug(lead.name, 0);
+  const leadId = txtCardSlug(section.idPrefix, lead.name, 0);
   leadCard.innerHTML = `
     <h3>
       <button class="card__toggle" type="button" aria-expanded="true" aria-controls="${leadId}">
@@ -502,18 +590,20 @@ function renderNews(items) {
   `;
   const leadToggle = leadCard.querySelector(".card__toggle");
   leadCard.querySelector(".card__name").textContent = lead.title || lead.name;
-  addNewsPostedLine(leadToggle, { newest: true, createdAt: lead.createdAt });
-  appendNewsBody(leadCard.querySelector(".card__body"), lead.body);
+  addTxtPostedLine(leadToggle, { newest: true, createdAt: lead.createdAt });
+  const leadBody = leadCard.querySelector(".card__body");
+  appendMarkdownBody(leadBody, lead.body);
+  if (section.withImages) appendCardImages(leadBody, section.dir, lead.images || []);
   fragment.append(leadCard);
 
   const restWrap = document.createElement("div");
-  restWrap.className = "news__rest";
+  restWrap.className = section.restClass;
   rest.forEach((item, index) => {
     const cardIndex = index + 1;
     const card = document.createElement("article");
     card.className = "card";
-    if (cardIndex >= NEWS_VISIBLE) card.classList.add("news__card--more");
-    const id = newsSlug(item.name, cardIndex);
+    if (cardIndex >= TXT_VISIBLE) card.classList.add(section.moreCardClass);
+    const id = txtCardSlug(section.idPrefix, item.name, cardIndex);
     card.innerHTML = `
       <h3>
         <button class="card__toggle" type="button" aria-expanded="false" aria-controls="${id}">
@@ -525,24 +615,26 @@ function renderNews(items) {
     `;
     const toggle = card.querySelector(".card__toggle");
     card.querySelector(".card__name").textContent = item.title || item.name;
-    addNewsPostedLine(toggle, { newest: false, createdAt: item.createdAt });
-    appendNewsBody(card.querySelector(".card__body"), item.body);
+    addTxtPostedLine(toggle, { newest: false, createdAt: item.createdAt });
+    const bodyEl = card.querySelector(".card__body");
+    appendMarkdownBody(bodyEl, item.body);
+    if (section.withImages) appendCardImages(bodyEl, section.dir, item.images || []);
     restWrap.append(card);
   });
 
   if (hasMore) {
     const more = document.createElement("button");
     more.type = "button";
-    more.className = "news__more";
-    more.textContent = "Xem thông báo cũ hơn..";
+    more.className = section.moreBtnClass;
+    more.textContent = section.moreText;
     more.setAttribute("aria-expanded", "false");
     more.addEventListener("click", () => {
       const expanded = !root.classList.contains("is-expanded");
       root.classList.toggle("is-expanded", expanded);
-      more.textContent = expanded ? "Thu gọn" : "Xem thông báo cũ hơn..";
+      more.textContent = expanded ? "Thu gọn" : section.moreText;
       more.setAttribute("aria-expanded", String(expanded));
       if (!expanded) {
-        root.querySelectorAll(".news__card--more").forEach(collapseNewsCard);
+        root.querySelectorAll(`.${section.moreCardClass}`).forEach(collapseTxtCard);
       }
     });
     restWrap.append(more);
@@ -552,28 +644,37 @@ function renderNews(items) {
 
   root.classList.remove("is-expanded");
   root.replaceChildren(fragment);
-  bindAccordion(root, ".news__rest .card");
+  bindAccordion(root, `.${section.restClass} .card`);
 }
 
-async function loadNews() {
-  const status = document.querySelector("#thong-bao-status");
+async function loadTxtSection(section) {
+  const status = document.querySelector(`#${section.statusId}`);
   try {
-    const names = sortNewsNames(await listNewsFiles());
+    const fileNames = await listDirFileNames(section);
+    const names = sortTxtNames(listTxtNamesFromDir(fileNames));
+    const imageFiles = section.withImages ? fileNames.filter((name) => TXT_IMAGE_EXT.test(name)) : [];
     const items = [];
     for (const name of names) {
-      const response = await fetch(`${encodeURI(`${NEWS_DIR}/${name}`)}?t=${Date.now()}`);
+      const response = await fetch(`${encodeURI(`${section.dir}/${name}`)}?t=${Date.now()}`);
       if (!response.ok) continue;
-      const parsed = parseNewsText(await response.text());
+      const parsed = parseTxtCard(await response.text());
       if (!parsed.title && !parsed.body) continue;
-      items.push({ name, title: parsed.title, body: parsed.body, createdAt: null });
+      const base = name.replace(/\.txt$/i, "");
+      items.push({
+        name,
+        title: parsed.title,
+        body: parsed.body,
+        createdAt: null,
+        images: section.withImages ? imagesForTxtBase(base, imageFiles) : [],
+      });
     }
     await Promise.all(
       items.map(async (item) => {
-        item.createdAt = await fetchNewsFileCreatedAt(item.name);
+        item.createdAt = await fetchTxtFileCreatedAt(section.dir, item.name);
       })
     );
-    renderNews(items);
+    renderTxtSection(section, items);
   } catch (error) {
-    if (status) status.textContent = "Chưa tải được thông báo.";
+    if (status) status.textContent = section.failText;
   }
 }
