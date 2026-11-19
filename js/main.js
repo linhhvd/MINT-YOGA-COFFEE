@@ -791,9 +791,8 @@ function closeEventOverlay(done) {
     showNextEventOverlay();
     return;
   }
-  if (state.overlay.hidden && !state.queue.length) return;
-  state.overlay.hidden = true;
   state.queue = [];
+  state.overlay.hidden = true;
   document.body.classList.remove("is-event-open");
   document.removeEventListener("keydown", state.onKey);
   state.body.replaceChildren();
