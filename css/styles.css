@@ -2534,33 +2534,25 @@ body.is-activity-open {
   object-fit: contain;
 }
 
+/* Nút duyệt: mặc định chỉ mũi tên; hover mới hiện vòng tròn. */
 .activity-overlay__nav {
+  box-sizing: border-box;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
   border: 0;
-  background: rgba(20, 56, 51, 0.08);
+  border-radius: 999px;
+  background: transparent;
   color: var(--teal);
   cursor: pointer;
   position: relative;
+  flex: none;
+  align-self: center;
+  justify-self: center;
+  transition: background 0.15s ease;
 }
 
-.activity-overlay__nav:focus-visible {
-  outline: 2px solid var(--teal);
-  outline-offset: 2px;
-}
-
-.activity-overlay--portrait .activity-overlay__nav--prev {
-  height: 2.6rem;
-  margin: 2.8rem 1rem 0;
-  border-radius: 0.7rem;
-}
-
-.activity-overlay--portrait .activity-overlay__nav--next {
-  height: 2.6rem;
-  margin: 0 1rem;
-  border-radius: 0.7rem;
-}
-
-.activity-overlay--portrait .activity-overlay__nav--prev::before,
-.activity-overlay--portrait .activity-overlay__nav--next::before {
+.activity-overlay__nav::before {
   content: "";
   position: absolute;
   left: 50%;
@@ -2569,6 +2561,26 @@ body.is-activity-open {
   height: 0.55rem;
   border-left: 2px solid currentColor;
   border-top: 2px solid currentColor;
+}
+
+@media (hover: hover) {
+  .activity-overlay__nav:hover {
+    background: rgba(20, 56, 51, 0.12);
+  }
+}
+
+.activity-overlay__nav:focus-visible {
+  background: rgba(20, 56, 51, 0.12);
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+.activity-overlay--portrait .activity-overlay__nav--prev {
+  margin: 2.8rem auto 0;
+}
+
+.activity-overlay--portrait .activity-overlay__nav--next {
+  margin: 0.35rem auto 0;
 }
 
 .activity-overlay--portrait .activity-overlay__nav--prev::before {
@@ -2579,34 +2591,16 @@ body.is-activity-open {
   transform: translate(-50%, -70%) rotate(-135deg);
 }
 
-.activity-overlay--landscape .activity-overlay__nav--prev,
-.activity-overlay--landscape .activity-overlay__nav--next {
-  width: 2.8rem;
-  align-self: stretch;
-  margin: 2.6rem 0.6rem 0.6rem;
-  border-radius: 0.7rem;
-}
-
 .activity-overlay--landscape .activity-overlay__nav--prev {
   grid-column: 1;
   grid-row: 1;
+  margin: 2.6rem 0.35rem 0.6rem 0.55rem;
 }
 
 .activity-overlay--landscape .activity-overlay__nav--next {
   grid-column: 3;
   grid-row: 1;
-}
-
-.activity-overlay--landscape .activity-overlay__nav--prev::before,
-.activity-overlay--landscape .activity-overlay__nav--next::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 0.55rem;
-  height: 0.55rem;
-  border-left: 2px solid currentColor;
-  border-top: 2px solid currentColor;
+  margin: 2.6rem 0.55rem 0.6rem 0.35rem;
 }
 
 .activity-overlay--landscape .activity-overlay__nav--prev::before {
