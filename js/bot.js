@@ -142,7 +142,8 @@ function setupBotToggle() {
     window.setTimeout(resolve, reduceMotion ? 0 : ms);
   });
 
-  const phoneLayout = () => window.matchMedia("(max-width: 920px)").matches;
+  // Chat: hẹp ≤390 như phone; trung bình + rộng như desktop.
+  const phoneLayout = () => window.matchMedia("(max-width: 390px)").matches;
   const scroller = document.scrollingElement || document.documentElement;
   let returnScroll = 0;
 
@@ -208,7 +209,7 @@ function setupBotToggle() {
     const style = getComputedStyle(panel);
     const padLeft = Number.parseFloat(style.paddingLeft) || 0;
     const padRight = Number.parseFloat(style.paddingRight) || 0;
-    const phone = window.matchMedia("(max-width: 920px)").matches;
+    const phone = window.matchMedia("(max-width: 390px)").matches;
     const band = reach.closest(".contact-band");
     const bandStyle = getComputedStyle(band);
     const bandPad = (Number.parseFloat(bandStyle.paddingTop) || 0) + (Number.parseFloat(bandStyle.paddingBottom) || 0);

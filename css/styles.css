@@ -756,7 +756,7 @@ h3 {
   font-style: italic;
 }
 
-@media (min-width: 921px) {
+@media (min-width: 391px) {
   .card--lead .card__toggle {
     cursor: default;
   }
@@ -1123,7 +1123,7 @@ body.is-essay-open {
 }
 
 /* Rộng: panel rộng hơn cho 2 vùng. */
-@media (min-width: 921px) {
+@media (min-width: 1024px) {
   .essay-overlay__panel {
     width: min(72rem, 100%);
   }
@@ -1507,8 +1507,8 @@ body.is-essay-open {
   white-space: nowrap;
 }
 
-/* Hẹp (điện thoại + iPad dọc ≤920px): một cột, nút Menu. */
-@media (max-width: 920px) {
+/* Hẹp + trung bình (≤1023px): nút Menu; header/footer cùng cỡ với rộng. */
+@media (max-width: 1023px) {
   .nav-toggle {
     display: inline-flex;
   }
@@ -1556,16 +1556,12 @@ body.is-essay-open {
   .section__head,
   .cards,
   .days,
-  .studio__grid,
-  .news,
-  .essays--grid,
-  .gallery {
+  .studio__grid {
     grid-template-columns: 1fr;
   }
 
   .site-header .wrap,
   .site-footer .wrap {
-    /* Cùng bề ngang để logo footer khớp logo header trắng. */
     width: calc(100% - 1rem);
     gap: 0.45rem;
   }
@@ -1573,10 +1569,6 @@ body.is-essay-open {
   .site-header .brand-lockup {
     gap: 0.4rem;
     min-width: 0;
-  }
-
-  .brand__logo {
-    height: 3.7rem;
   }
 
   .brand__slogan {
@@ -1588,10 +1580,10 @@ body.is-essay-open {
     white-space: nowrap;
     font-weight: 400;
     text-align: center;
-    /* Nhỏ tương ứng logo compact 2rem; JS fitHeaderSlogan() chỉnh tiếp. */
-    font-size: clamp(0.55rem, 2.8vw, 0.72rem);
-    line-height: 1.15;
-    letter-spacing: -0.03em;
+    /* Cùng cỡ slogan với màn rộng; JS fitHeaderSlogan() chỉ khi tràn. */
+    font-size: 1.06rem;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
   }
 
   .site-header,
@@ -1599,20 +1591,8 @@ body.is-essay-open {
     transition: height 0.2s ease;
   }
 
-  .site-header.is-compact,
-  .site-header.is-compact.is-slogan-docked,
-  .site-header.is-scrolled {
-    /* Luôn bằng chiều cao lúc đã có slogan (không nhảy thấp hơn). */
-    height: 3.32rem;
-  }
-
   .site-header.is-slogan-docked .brand__slogan {
     display: block;
-  }
-
-  .site-header.is-compact .brand__logo {
-    /* 80% của 2.5rem. */
-    height: 2rem;
   }
 
   .site-header.is-compact .site-nav,
@@ -1633,8 +1613,30 @@ body.is-essay-open {
     border-top: 1px solid var(--line);
   }
 
-  .gallery__item--portrait {
-    width: 100%;
+  .hero__copy {
+    min-height: calc(100svh - var(--header) - 2.2rem);
+    gap: 1.7rem;
+    padding-bottom: 0.2rem;
+  }
+
+  .hero__slogan {
+    max-width: none;
+    align-self: center;
+    text-align: center;
+    font-size: 0.95rem;
+    transition: opacity 0.18s ease;
+  }
+
+  .hero__slogan.is-docked {
+    opacity: 0;
+  }
+}
+
+/* Hẹp ≤390px: 1 cột thông báo/bài viết; chat compact. */
+@media (max-width: 390px) {
+  .news,
+  .essays--grid {
+    grid-template-columns: 1fr;
   }
 
   .reach {
@@ -1659,48 +1661,15 @@ body.is-essay-open {
     gap: 0.35rem;
   }
 
-  .site-footer {
-    /* Khớp header trắng khi đã cuộn + slogan dock (80%). */
-    height: 3.32rem;
-  }
-
-  .footer-logo {
-    /* Bằng logo header compact (80% của 2.5rem). */
-    height: 2rem;
-  }
-
-  .footer-note {
-    font-size: 0.78rem;
-  }
-
-  .footer-address {
-    font-size: 0.92rem;
-  }
-
-
-  .hero__copy {
-    min-height: calc(100svh - var(--header) - 2.2rem);
-    gap: 1.7rem;
-    padding-bottom: 0.2rem;
-  }
-
-  .hero__slogan {
-    max-width: none;
-    align-self: center;
-    text-align: center;
-    /* Bằng cỡ chữ nút Xem lịch / Chat với Mint; giữ đúng 2 dòng. */
-    font-size: 0.95rem;
-    transition: opacity 0.18s ease;
-  }
-
-  .hero__slogan.is-docked {
-    opacity: 0;
+  .card--lead h3 {
+    font-size: 1.55rem;
   }
 }
 
 
-/* Rộng (iPad ngang + laptop ≥921px): slogan hero ẩn (đã có trong header). */
-@media (min-width: 921px) {
+
+/* Rộng (≥1024px): slogan hero ẩn (đã có trong header). */
+@media (min-width: 1024px) {
   .hero__slogan {
     position: absolute;
     width: 1px;
@@ -1725,9 +1694,15 @@ body.is-essay-open {
 
 .studio__grid {
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
+  grid-template-columns: 1fr;
   gap: 1.2rem;
   align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .studio__grid {
+    grid-template-columns: 1.15fr 0.85fr;
+  }
 }
 
 .studio__panel {
@@ -1752,6 +1727,55 @@ body.is-essay-open {
 
 .studio__panel p {
   color: rgba(246, 241, 230, 0.86);
+}
+
+.studio__media {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.activity-card {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: 1.2rem;
+  background: var(--paper);
+  cursor: pointer;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.activity-card:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 3px;
+}
+
+.activity-card__grid {
+  display: grid;
+  grid-template-columns: repeat(var(--activity-cols, 2), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--activity-rows, 2), minmax(0, 1fr));
+  gap: 0.35rem;
+  width: 100%;
+  height: 100%;
+}
+
+.activity-card__grid img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.45rem;
+  background: #d7e4df;
+}
+
+@media (min-width: 1024px) {
+  .activity-card {
+    aspect-ratio: 4 / 3;
+  }
 }
 
 .lich-status,
@@ -1820,9 +1844,15 @@ body.is-essay-open {
 
 .news {
   display: grid;
-  grid-template-columns: 1.25fr 0.85fr;
+  grid-template-columns: 1fr;
   gap: 1rem;
   align-items: start;
+}
+
+@media (min-width: 391px) {
+  .news {
+    grid-template-columns: 1.25fr 0.85fr;
+  }
 }
 
 .news__rest {
@@ -1867,8 +1897,8 @@ body.is-essay-open {
   outline-offset: 3px;
 }
 
-/* Máy tính / iPad ngang: thông báo lead cố định bên trái, viền mint. */
-@media (min-width: 921px) {
+/* TB + rộng: thông báo lead cố định bên trái, viền mint. */
+@media (min-width: 391px) {
   .news > .card--lead {
     align-self: start;
     width: 100%;
@@ -1887,6 +1917,13 @@ body.is-essay-open {
   }
 }
 
+/* Rộng: bài viết 3 cột. */
+@media (min-width: 1024px) {
+  .essays--grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
 .card--lead h3 {
   font-size: clamp(2rem, 4vw, 3rem);
 }
@@ -1902,7 +1939,7 @@ body.is-essay-open {
   transition: height 0.6s ease;
 }
 
-@media (min-width: 921px) {
+@media (min-width: 391px) {
   .contact-band.is-tall {
     height: calc(20.45rem * 1.25);
   }
@@ -1930,7 +1967,7 @@ body.is-essay-open {
   top: calc(50% - var(--chat-label-half));
 }
 
-@media (max-width: 920px) {
+@media (max-width: 390px) {
   .contact-band {
     height: 17.05rem;
     padding: 1.15rem 0;
@@ -2309,7 +2346,8 @@ body.is-essay-open {
   transform: translateX(-50%) rotate(45deg);
 }
 
-@media (max-width: 920px) {
+/* Hẹp + trung bình: lịch xếp từng ngày (1 cột nội dung). */
+@media (max-width: 1023px) {
   .board {
     overflow-x: visible;
   }
@@ -2366,16 +2404,227 @@ body.is-essay-open {
     text-transform: uppercase;
     color: var(--muted);
   }
+}
 
-  .studio__grid,
-  .news,
-  .essays--grid {
-    grid-template-columns: 1fr;
-  }
 
-  .card--lead h3 {
-    font-size: 1.55rem;
-  }
+body.is-activity-open {
+  overflow: hidden;
+}
+
+.activity-overlay {
+  position: fixed;
+  top: var(--essay-overlay-top, 3.226rem);
+  right: 0;
+  left: 0;
+  bottom: auto;
+  height: var(--essay-overlay-height, calc(100dvh - var(--essay-overlay-top, 3.226rem)));
+  max-height: var(--essay-overlay-height, calc(100dvh - var(--essay-overlay-top, 3.226rem)));
+  z-index: 9;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: max(0.6rem, env(safe-area-inset-top, 0px))
+    max(0.6rem, env(safe-area-inset-right, 0px))
+    max(0.6rem, env(safe-area-inset-bottom, 0px))
+    max(0.6rem, env(safe-area-inset-left, 0px));
+}
+
+.activity-overlay[hidden] {
+  display: none !important;
+}
+
+.activity-overlay__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 28, 26, 0.45);
+}
+
+.activity-overlay__panel {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: min(52rem, 100%);
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 100%;
+  margin: 0 auto;
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 1rem;
+  box-shadow: 0 18px 50px rgba(28, 44, 41, 0.16);
+  display: grid;
+  align-self: center;
+  overflow: hidden;
+}
+
+.activity-overlay--portrait .activity-overlay__panel {
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  grid-template-columns: 1fr;
+}
+
+.activity-overlay--landscape .activity-overlay__panel {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr) auto;
+  width: min(72rem, 100%);
+}
+
+.activity-overlay__close {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  z-index: 2;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(20, 56, 51, 0.88);
+  color: #f6f1e6;
+  cursor: pointer;
+}
+
+.activity-overlay__close::before,
+.activity-overlay__close::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1rem;
+  height: 2px;
+  background: currentColor;
+}
+
+.activity-overlay__close::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.activity-overlay__close::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.activity-overlay__close:focus-visible {
+  outline: 2px solid #4eb4e0;
+  outline-offset: 2px;
+}
+
+.activity-overlay__stage {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.6rem 1rem 1rem;
+}
+
+.activity-overlay--landscape .activity-overlay__stage {
+  grid-column: 2;
+  grid-row: 1;
+  padding: 2.6rem 0.5rem 0.5rem;
+}
+
+.activity-overlay__img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.activity-overlay__nav {
+  border: 0;
+  background: rgba(20, 56, 51, 0.08);
+  color: var(--teal);
+  cursor: pointer;
+  position: relative;
+}
+
+.activity-overlay__nav:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+.activity-overlay--portrait .activity-overlay__nav--prev {
+  height: 2.6rem;
+  margin: 2.8rem 1rem 0;
+  border-radius: 0.7rem;
+}
+
+.activity-overlay--portrait .activity-overlay__nav--next {
+  height: 2.6rem;
+  margin: 0 1rem;
+  border-radius: 0.7rem;
+}
+
+.activity-overlay--portrait .activity-overlay__nav--prev::before,
+.activity-overlay--portrait .activity-overlay__nav--next::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-left: 2px solid currentColor;
+  border-top: 2px solid currentColor;
+}
+
+.activity-overlay--portrait .activity-overlay__nav--prev::before {
+  transform: translate(-50%, -30%) rotate(45deg);
+}
+
+.activity-overlay--portrait .activity-overlay__nav--next::before {
+  transform: translate(-50%, -70%) rotate(-135deg);
+}
+
+.activity-overlay--landscape .activity-overlay__nav--prev,
+.activity-overlay--landscape .activity-overlay__nav--next {
+  width: 2.8rem;
+  align-self: stretch;
+  margin: 2.6rem 0.6rem 0.6rem;
+  border-radius: 0.7rem;
+}
+
+.activity-overlay--landscape .activity-overlay__nav--prev {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.activity-overlay--landscape .activity-overlay__nav--next {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.activity-overlay--landscape .activity-overlay__nav--prev::before,
+.activity-overlay--landscape .activity-overlay__nav--next::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-left: 2px solid currentColor;
+  border-top: 2px solid currentColor;
+}
+
+.activity-overlay--landscape .activity-overlay__nav--prev::before {
+  transform: translate(-30%, -50%) rotate(-45deg);
+}
+
+.activity-overlay--landscape .activity-overlay__nav--next::before {
+  transform: translate(-70%, -50%) rotate(135deg);
+}
+
+.activity-overlay__counter {
+  margin: 0;
+  padding: 0.55rem 1rem 0.9rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.activity-overlay--landscape .activity-overlay__counter {
+  grid-column: 1 / -1;
+  grid-row: 2;
 }
 
 .sr-only {
