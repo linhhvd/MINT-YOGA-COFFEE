@@ -5,11 +5,13 @@ alwaysApply: true
 
 # Ba case màn hình
 
-UI có **ba** case theo bề ngang viewport. Chỉ khác nhau ở **layout các phần trong trang**. **Header và footer hoàn toàn như nhau** trên cả ba case (cùng kích thước, logo, menu/slogan, khoảng cách — không tách kiểu header/footer theo hẹp/trung bình/rộng).
+UI có **ba** case theo bề ngang viewport. Mốc phân biệt: **iPhone thường** (dọc) và **iPad thường** (ngang).
 
-- **Hẹp**: ≤ bề ngang điện thoại cỡ lớn nằm dọc.
-- **Trung bình**: nằm giữa hẹp và rộng (ví dụ điện thoại ngang, tablet/iPad dọc, và các kích thước giữa).
-- **Rộng**: ≥ bề ngang iPad thông thường nằm ngang, hoặc laptop.
+- **Hẹp**: ≤ **390px** (bề ngang iPhone thường nằm dọc).
+- **Trung bình**: **391px–1023px** (giữa iPhone thường và iPad thường ngang).
+- **Rộng**: ≥ **1024px** (bề ngang iPad thường nằm ngang, hoặc laptop).
+
+Chỉ khác nhau ở **layout các phần trong trang**. **Header và footer hoàn toàn như nhau** trên cả ba case (cùng kích thước, logo, menu/slogan, khoảng cách — không tách kiểu header/footer theo hẹp/trung bình/rộng).
 
 Khác biệt layout từng phần (cột, lưới, chat, overlay…) do người dùng nói **cụ thể theo từng case**. Không tự suy layout trung bình từ hẹp/rộng nếu chưa được nói.
 
@@ -19,4 +21,4 @@ Mỗi khi có yêu cầu chỉnh giao diện mà **không nói rõ** áp dụng 
 
 ## Kiểm tra
 
-Sau khi sửa HTML, CSS hoặc layout: kiểm tra đại diện hẹp (điện thoại dọc), trung bình (tablet/iPad dọc hoặc điện thoại ngang), và rộng (iPad ngang / laptop). Trang không kéo ngang. Slogan trong header vẫn đọc được. Header và footer nhìn giống nhau ở cả ba bề ngang.
+Sau khi sửa HTML, CSS hoặc layout: kiểm tra khoảng **390px** (hẹp), **768px** / **820px** (trung bình — iPad dọc), **1024px** (rộng — iPad ngang) và **1280px** (laptop). Trang không kéo ngang. Slogan trong header vẫn đọc được. Header và footer nhìn giống nhau ở cả ba bề ngang.
