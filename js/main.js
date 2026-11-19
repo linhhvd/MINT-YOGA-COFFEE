@@ -271,7 +271,7 @@ const ESSAY_VISIBLE = 6;
 
 const NEWS_SECTION = {
   dir: "data/thông báo",
-  apiUrl: `https://api.github.com/repos/${TXT_REPO}/contents/data/th%C3%B4ng%20b%C3%A1o?ref=main`,
+  listFile: "_list.csv",
   rootSelector: "#news-root",
   statusId: "thong-bao-status",
   emptyText: "Chưa có thông báo.",
@@ -285,7 +285,7 @@ const NEWS_SECTION = {
 
 const ESSAY_SECTION = {
   dir: "data/bài viết",
-  listFile: "_list.csv",
+  apiUrl: `https://api.github.com/repos/${TXT_REPO}/contents/data/b%C3%A0i%20vi%E1%BA%BFt?ref=main`,
   rootSelector: "#essays-root",
   statusId: "bai-viet-status",
   emptyText: "Chưa có bài viết.",
@@ -477,8 +477,8 @@ async function loadSchedule() {
 }
 
 loadSchedule();
-loadTxtSection(NEWS_SECTION);
-loadEssayFromList(ESSAY_SECTION);
+loadNewsFromList(NEWS_SECTION);
+loadTxtSection(ESSAY_SECTION);
 
 function parseTxtCard(text) {
   const normalized = String(text || "").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
@@ -651,7 +651,7 @@ function parseListDate(raw) {
 }
 
 /**
- * _list.csv: mỗi dòng `title;ngày;file.txt` (ngày = d/m/y).
+ * Thông báo `_list.csv`: mỗi dòng `title;ngày;file.txt` (ngày = d/m/y).
  * Title có thể chứa `;` — phần cuối là file, áp chót là ngày.
  */
 function parseListCsv(text) {
@@ -672,27 +672,8 @@ function parseListCsv(text) {
     .filter(Boolean);
 }
 
-/** Ảnh thumb/overlay: HEAD song song base.ext (không dò GitHub). */
-async function probeEssayImages(dir, base) {
-  const candidates = ["jpg", "jpeg", "png", "gif"].map((ext) => `${base}.${ext}`);
-  const found = [];
-  await Promise.all(
-    candidates.map(async (name) => {
-      try {
-        const res = await fetch(`${encodeURI(`${dir}/${name}`)}?t=${Date.now()}`, {
-          method: "HEAD",
-        });
-        if (res.ok) found.push(name);
-      } catch (error) {
-        /* bỏ qua */
-      }
-    })
-  );
-  return imagesForTxtBase(base, found);
-}
-
-/** Bài viết: đọc _list.csv (dòng cuối → đầu), fetch body song song. */
-async function loadEssayFromList(section) {
+/** Thông báo: đọc _list.csv (dòng cuối → đầu), fetch body song song. */
+async function loadNewsFromList(section) {
   const status = document.querySelector(`#${section.statusId}`);
   try {
     const listName = section.listFile || "_list.csv";
@@ -703,7 +684,6 @@ async function loadEssayFromList(section) {
     const ordered = rows.slice().reverse();
     const items = await Promise.all(
       ordered.map(async (row) => {
-        const base = row.name.replace(/\.txt$/i, "");
         let body = "";
         let bodyMissing = false;
         try {
@@ -713,21 +693,29 @@ async function loadEssayFromList(section) {
         } catch (error) {
           bodyMissing = true;
         }
-        const images = section.withImages ? await probeEssayImages(section.dir, base) : [];
         return {
           name: row.name,
           title: row.title,
           createdAt: row.createdAt,
           body,
           bodyMissing,
-          images,
+          images: [],
         };
       })
     );
-    renderEssaySection(section, items);
+    renderTxtSection(section, items);
   } catch (error) {
     if (status) status.textContent = section.failText;
   }
+}
+
+function fillNewsCardBody(el, item) {
+  if (!el) return;
+  if (item.bodyMissing) {
+    el.textContent = "not found";
+    return;
+  }
+  appendMarkdownBody(el, item.body);
 }
 
 async function fetchTxtFileCreatedAt(dir, name) {
@@ -869,11 +857,7 @@ function openEssayOverlay(item, section) {
   state.date.textContent = dateText;
   state.date.hidden = !dateText;
   state.body.replaceChildren();
-  if (item.bodyMissing) {
-    state.body.textContent = "not found";
-  } else {
-    appendMarkdownBody(state.body, item.body);
-  }
+  appendMarkdownBody(state.body, item.body);
   state.photos.replaceChildren();
   const hasImages = !!(item.images && item.images.length);
   state.overlay.classList.toggle("essay-overlay--has-images", hasImages);
@@ -962,7 +946,7 @@ function renderEssaySection(section, items) {
     if (dateText) dateEl.textContent = dateText;
     else dateEl.hidden = true;
     const excerptEl = card.querySelector(".essay-card__excerpt");
-    excerptEl.textContent = item.bodyMissing ? "…" : essayPlainText(item.body) || "…";
+    excerptEl.textContent = essayPlainText(item.body) || "…";
     if (thumbName) {
       const img = card.querySelector(".essay-card__thumb img");
       img.src = `${assetUrl(section.dir, thumbName)}?t=${Date.now()}`;
@@ -1049,7 +1033,7 @@ function renderTxtSection(section, items) {
   leadCard.querySelector(".card__name").textContent = lead.title || lead.name;
   addTxtPostedLine(leadToggle, { newest: true, createdAt: lead.createdAt });
   const leadBody = leadCard.querySelector(".card__body");
-  appendMarkdownBody(leadBody, lead.body);
+  fillNewsCardBody(leadBody, lead);
   if (section.withImages) appendCardImages(leadBody, section.dir, lead.images || []);
   fragment.append(leadCard);
 
@@ -1074,7 +1058,7 @@ function renderTxtSection(section, items) {
     card.querySelector(".card__name").textContent = item.title || item.name;
     addTxtPostedLine(toggle, { newest: false, createdAt: item.createdAt });
     const bodyEl = card.querySelector(".card__body");
-    appendMarkdownBody(bodyEl, item.body);
+    fillNewsCardBody(bodyEl, item);
     if (section.withImages) appendCardImages(bodyEl, section.dir, item.images || []);
     restWrap.append(card);
   });
