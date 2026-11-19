@@ -1,13 +1,22 @@
 ---
-description: Trang chỉ có hai loại giao diện — hẹp và rộng
+description: Ba case màn hình — hẹp, trung bình, rộng; header/footer giống nhau
 alwaysApply: true
 ---
 
-# Hai loại màn hình
+# Ba case màn hình
 
-Chỉ có **hai** layout. Không thêm breakpoint hay case trung gian khác.
+UI có **ba** case theo bề ngang viewport. Chỉ khác nhau ở **layout các phần trong trang**. **Header và footer hoàn toàn như nhau** trên cả ba case (cùng kích thước, logo, menu/slogan, khoảng cách — không tách kiểu header/footer theo hẹp/trung bình/rộng).
 
-- **Hẹp** (điện thoại + iPad dọc), đến 920px: một cột, nút Menu, khối không tràn ngang, chữ và nút đủ lớn để bấm. Header compact / slogan dock / footer hẹp dùng chung cho cả điện thoại và iPad dọc.
-- **Rộng** (iPad ngang + laptop), từ 921px: nhiều cột, menu là hàng chữ, lịch và cột đọc được không đè nhau.
+- **Hẹp**: ≤ bề ngang điện thoại cỡ lớn nằm dọc.
+- **Trung bình**: nằm giữa hẹp và rộng (ví dụ điện thoại ngang, tablet/iPad dọc, và các kích thước giữa).
+- **Rộng**: ≥ bề ngang iPad thông thường nằm ngang, hoặc laptop.
 
-Sau khi sửa HTML, CSS hoặc layout, kiểm tra khoảng 390px và 820px (hẹp), 1024px và 1280px (rộng). Trang không kéo ngang. Slogan trong header vẫn đọc được.
+Khác biệt layout từng phần (cột, lưới, chat, overlay…) do người dùng nói **cụ thể theo từng case**. Không tự suy layout trung bình từ hẹp/rộng nếu chưa được nói.
+
+## Khi chỉnh UI — hỏi lại nếu chưa rõ
+
+Mỗi khi có yêu cầu chỉnh giao diện mà **không nói rõ** áp dụng thế nào với **hẹp / trung bình / rộng**, phải **hỏi lại** trước khi sửa: case nào đổi, case nào giữ nguyên, và khác nhau ra sao. Không đoán thay.
+
+## Kiểm tra
+
+Sau khi sửa HTML, CSS hoặc layout: kiểm tra đại diện hẹp (điện thoại dọc), trung bình (tablet/iPad dọc hoặc điện thoại ngang), và rộng (iPad ngang / laptop). Trang không kéo ngang. Slogan trong header vẫn đọc được. Header và footer nhìn giống nhau ở cả ba bề ngang.
