@@ -1130,6 +1130,60 @@ function showActivitySlide(index) {
   if (state.counter) state.counter.textContent = `${state.index + 1} / ${total}`;
 }
 
+/** Quẹt ảnh: đứng = lên/xuống; ngang = trái/phải. */
+function bindActivitySwipe(stage) {
+  if (!stage) return;
+  const THRESH = 48;
+  let startX = 0;
+  let startY = 0;
+  let tracking = false;
+  let pointerId = null;
+
+  const onDown = (event) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    tracking = true;
+    pointerId = event.pointerId;
+    startX = event.clientX;
+    startY = event.clientY;
+    try {
+      stage.setPointerCapture(event.pointerId);
+    } catch (error) {
+      /* ignore */
+    }
+  };
+
+  const onUp = (event) => {
+    if (!tracking || (pointerId != null && event.pointerId !== pointerId)) return;
+    tracking = false;
+    pointerId = null;
+    const dx = event.clientX - startX;
+    const dy = event.clientY - startY;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+    if (Math.max(absX, absY) < THRESH) return;
+
+    if (isPortraitWindow()) {
+      // Ưu tiên trục dọc: quẹt lên = ảnh sau, quẹt xuống = ảnh trước.
+      if (absY < absX) return;
+      showActivitySlide(activityState.index + (dy < 0 ? 1 : -1));
+      return;
+    }
+    // Ngang: quẹt trái = ảnh sau, quẹt phải = ảnh trước.
+    if (absX < absY) return;
+    showActivitySlide(activityState.index + (dx < 0 ? 1 : -1));
+  };
+
+  const onCancel = (event) => {
+    if (pointerId != null && event.pointerId !== pointerId) return;
+    tracking = false;
+    pointerId = null;
+  };
+
+  stage.addEventListener("pointerdown", onDown);
+  stage.addEventListener("pointerup", onUp);
+  stage.addEventListener("pointercancel", onCancel);
+}
+
 function ensureActivityOverlay() {
   if (activityState && activityState.overlay) return activityState;
 
@@ -1142,7 +1196,7 @@ function ensureActivityOverlay() {
       <button class="activity-overlay__close" type="button" aria-label="Đóng ảnh hoạt động" data-activity-close="1"></button>
       <button class="activity-overlay__nav activity-overlay__nav--prev" type="button" aria-label="Ảnh trước"></button>
       <div class="activity-overlay__stage">
-        <img class="activity-overlay__img" alt="">
+        <img class="activity-overlay__img" alt="" draggable="false">
       </div>
       <button class="activity-overlay__nav activity-overlay__nav--next" type="button" aria-label="Ảnh sau"></button>
       <p class="activity-overlay__counter" aria-live="polite"></p>
@@ -1171,6 +1225,9 @@ function ensureActivityOverlay() {
   overlay.querySelector(".activity-overlay__nav--next").addEventListener("click", () => {
     showActivitySlide(activityState.index + 1);
   });
+
+  const stage = overlay.querySelector(".activity-overlay__stage");
+  bindActivitySwipe(stage);
 
   if (!activityState) activityState = {};
   Object.assign(activityState, {
