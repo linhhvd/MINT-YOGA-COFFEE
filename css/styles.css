@@ -1694,9 +1694,15 @@ body.is-essay-open {
 
 .studio__grid {
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
+  grid-template-columns: 1fr;
   gap: 1.2rem;
   align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .studio__grid {
+    grid-template-columns: 1.15fr 0.85fr;
+  }
 }
 
 .studio__panel {
@@ -1838,9 +1844,15 @@ body.is-essay-open {
 
 .news {
   display: grid;
-  grid-template-columns: 1.25fr 0.85fr;
+  grid-template-columns: 1fr;
   gap: 1rem;
   align-items: start;
+}
+
+@media (min-width: 391px) {
+  .news {
+    grid-template-columns: 1.25fr 0.85fr;
+  }
 }
 
 .news__rest {

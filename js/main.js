@@ -101,6 +101,7 @@ if (document.fonts && document.fonts.ready) {
 }
 
 let essayOverlayState = null;
+let activityState = null;
 
 /** Chiều cao vùng nhìn thấy (lấy min để không tràn dưới khi thanh URL/Edge). */
 function viewportHeight() {
@@ -432,7 +433,6 @@ async function loadSchedule() {
 loadSchedule();
 loadTxtSection(NEWS_SECTION);
 loadTxtSection(ESSAY_SECTION);
-initActivityGallery();
 
 function parseTxtCard(text) {
   const normalized = String(text || "").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
@@ -978,8 +978,6 @@ const ACTIVITY_API =
   `https://api.github.com/repos/${TXT_REPO}/contents/data/${encodeURIComponent("ảnh hoạt động")}?ref=main`;
 const ACTIVITY_ROTATE_MS = 15000;
 
-let activityState = null;
-
 function layoutTier() {
   if (narrowLayout.matches) return "narrow";
   if (wideLayout.matches) return "wide";
@@ -1016,10 +1014,11 @@ async function listActivityImageNames() {
     if (response.ok) {
       const data = await response.json();
       if (Array.isArray(data)) {
-        return data
+        const names = data
           .filter((item) => item && item.type === "file" && typeof item.name === "string")
           .map((item) => item.name)
           .filter((name) => TXT_IMAGE_EXT.test(name));
+        if (names.length) return names;
       }
     }
   } catch (error) {
@@ -1031,7 +1030,7 @@ async function listActivityImageNames() {
     .replace(/^\uFEFF/, "")
     .split(/\r?\n/)
     .map((line) => line.trim())
-    .filter((name) => name && TXT_IMAGE_EXT.test(name));
+    .filter((name) => name && name !== "_list.txt" && TXT_IMAGE_EXT.test(name));
 }
 
 function paintActivityCard(names) {
@@ -1206,3 +1205,5 @@ async function initActivityGallery() {
     placeActivityOverlay();
   });
 }
+
+initActivityGallery();
