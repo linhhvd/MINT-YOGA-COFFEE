@@ -889,12 +889,14 @@ h3 {
   flex-direction: column;
 }
 
+/* Text chỉ chiếm phần còn lại sau ảnh; fill hết rồi mới cắt — không lấn ảnh. */
 .essay-card__copy {
   display: grid;
   grid-template-rows: minmax(0, 1fr);
   min-height: 0;
   min-width: 0;
-  flex: 1 1 auto;
+  flex: 1 1 0;
+  overflow: hidden;
 }
 
 .essay-card__excerpt {
@@ -913,13 +915,14 @@ h3 {
   line-clamp: 20;
 }
 
+/* Ảnh giữ phần riêng (không shrink vì text dài). */
 .essay-card__thumb {
   display: block;
   margin: 0;
   border-radius: 0.7rem;
   overflow: hidden;
   background: rgba(28, 44, 41, 0.04);
-  flex: 0 1 auto;
+  flex: 0 0 auto;
   min-height: 0;
   min-width: 0;
   line-height: 0;
