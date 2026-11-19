@@ -696,18 +696,13 @@ function fitEssayExcerptClamp(excerptEl) {
   }
   const avail = excerptEl.clientHeight;
   if (avail <= 0) return;
+  // floor(+tolerance): dùng gần hết ô text; scrollHeight + line-clamp không đáng tin để đo.
+  const lines = Math.max(1, Math.floor((avail + lineHeight * 0.2) / lineHeight));
   excerptEl.style.display = "-webkit-box";
   excerptEl.style.webkitBoxOrient = "vertical";
   excerptEl.style.overflow = "hidden";
-  // Ước lượng cao rồi hạ dần tới vừa khít ô text.
-  let lines = Math.max(1, Math.ceil(avail / lineHeight));
   excerptEl.style.webkitLineClamp = String(lines);
   excerptEl.style.lineClamp = String(lines);
-  while (lines > 1 && excerptEl.scrollHeight > avail + 1) {
-    lines -= 1;
-    excerptEl.style.webkitLineClamp = String(lines);
-    excerptEl.style.lineClamp = String(lines);
-  }
 }
 
 function fitAllEssayExcerpts() {
