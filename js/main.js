@@ -684,7 +684,7 @@ function essayPlainText(body) {
     .trim();
 }
 
-/** Cắt excerpt theo chiều cao ô còn trống (… khi tràn). */
+/** Cắt excerpt theo chiều cao ô text (fill hết phần text; dư mới …). Không đụng phần ảnh. */
 function fitEssayExcerptClamp(excerptEl) {
   if (!excerptEl) return;
   excerptEl.style.removeProperty("-webkit-line-clamp");
@@ -695,12 +695,19 @@ function fitEssayExcerptClamp(excerptEl) {
     lineHeight = (parseFloat(style.fontSize) || 16) * 1.45;
   }
   const avail = excerptEl.clientHeight;
-  const lines = Math.max(1, Math.floor((avail + 0.5) / lineHeight));
+  if (avail <= 0) return;
   excerptEl.style.display = "-webkit-box";
   excerptEl.style.webkitBoxOrient = "vertical";
   excerptEl.style.overflow = "hidden";
+  // Ước lượng cao rồi hạ dần tới vừa khít ô text.
+  let lines = Math.max(1, Math.ceil(avail / lineHeight));
   excerptEl.style.webkitLineClamp = String(lines);
   excerptEl.style.lineClamp = String(lines);
+  while (lines > 1 && excerptEl.scrollHeight > avail + 1) {
+    lines -= 1;
+    excerptEl.style.webkitLineClamp = String(lines);
+    excerptEl.style.lineClamp = String(lines);
+  }
 }
 
 function fitAllEssayExcerpts() {
