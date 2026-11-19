@@ -192,6 +192,9 @@ function refreshViewportUi() {
   fitFooterAddress();
   placeEssayOverlay();
   if (typeof placeActivityOverlay === "function") placeActivityOverlay();
+  if (typeof fitAllEssayExcerpts === "function") {
+    window.requestAnimationFrame(fitAllEssayExcerpts);
+  }
   window.dispatchEvent(new Event("viewport-refresh"));
 }
 
@@ -670,35 +673,38 @@ function addTxtPostedLine(toggle, { newest, createdAt }) {
   else toggle.append(line);
 }
 
-/** Cắt ~20 từ; ưu tiên hết câu trong giới hạn; luôn kết bằng …. */
-function essayExcerpt(body, maxWords = 20) {
-  const plain = String(body || "")
+/** Plain text bài viết cho excerpt card — clamp theo ô. */
+function essayPlainText(body) {
+  return String(body || "")
     .replace(/^>\s?/gm, "")
     .replace(/!\[[^\]]*]\([^)]*\)/g, "")
     .replace(/\[([^\]]*)]\([^)]*\)/g, "$1")
     .replace(/[`*_#>[\]()]/g, "")
     .replace(/\s+/g, " ")
     .trim();
-  if (!plain) return "…";
-  const words = plain.split(" ").filter(Boolean);
-  let text;
-  if (words.length <= maxWords) {
-    text = plain;
-  } else {
-    const limited = words.slice(0, maxWords).join(" ");
-    const endMarks = [".", "!", "?"];
-    let cut = -1;
-    endMarks.forEach((mark) => {
-      const at = limited.lastIndexOf(mark);
-      if (at > cut) cut = at;
-    });
-    if (cut >= Math.min(12, limited.length * 0.35)) {
-      text = limited.slice(0, cut + 1).trim();
-    } else {
-      text = limited.replace(/[,:;–—\-/(]+$/u, "").trim();
-    }
+}
+
+/** Cắt excerpt theo chiều cao ô còn trống (… khi tràn). */
+function fitEssayExcerptClamp(excerptEl) {
+  if (!excerptEl) return;
+  excerptEl.style.removeProperty("-webkit-line-clamp");
+  excerptEl.style.removeProperty("line-clamp");
+  const style = getComputedStyle(excerptEl);
+  let lineHeight = parseFloat(style.lineHeight);
+  if (!Number.isFinite(lineHeight) || lineHeight <= 0) {
+    lineHeight = (parseFloat(style.fontSize) || 16) * 1.45;
   }
-  return `${text.replace(/[.…]+$/u, "").trim()}…`;
+  const avail = excerptEl.clientHeight;
+  const lines = Math.max(1, Math.floor((avail + 0.5) / lineHeight));
+  excerptEl.style.display = "-webkit-box";
+  excerptEl.style.webkitBoxOrient = "vertical";
+  excerptEl.style.overflow = "hidden";
+  excerptEl.style.webkitLineClamp = String(lines);
+  excerptEl.style.lineClamp = String(lines);
+}
+
+function fitAllEssayExcerpts() {
+  document.querySelectorAll(".essay-card__excerpt").forEach((el) => fitEssayExcerptClamp(el));
 }
 
 function applyEssayThumbOrient(card, img) {
@@ -708,6 +714,8 @@ function applyEssayThumbOrient(card, img) {
     card.classList.remove("essay-card--landscape", "essay-card--portrait");
     if (h > w) card.classList.add("essay-card--portrait");
     else card.classList.add("essay-card--landscape");
+    const excerpt = card.querySelector(".essay-card__excerpt");
+    if (excerpt) window.requestAnimationFrame(() => fitEssayExcerptClamp(excerpt));
   };
   if (img.complete && img.naturalWidth) setOrient();
   else img.addEventListener("load", setOrient, { once: true });
@@ -851,11 +859,19 @@ function renderEssaySection(section, items) {
     const dateText = formatTxtDate(item.createdAt);
     if (dateText) dateEl.textContent = dateText;
     else dateEl.hidden = true;
-    card.querySelector(".essay-card__excerpt").textContent = essayExcerpt(item.body);
+    const excerptEl = card.querySelector(".essay-card__excerpt");
+    excerptEl.textContent = essayPlainText(item.body) || "…";
     if (thumbName) {
       const img = card.querySelector(".essay-card__thumb img");
       img.src = `${assetUrl(section.dir, thumbName)}?t=${Date.now()}`;
       applyEssayThumbOrient(card, img);
+      img.addEventListener(
+        "load",
+        () => {
+          window.requestAnimationFrame(() => fitEssayExcerptClamp(excerptEl));
+        },
+        { once: true }
+      );
     }
     card.querySelector(".essay-card__hit").addEventListener("click", () => {
       openEssayOverlay(item, section);
@@ -874,6 +890,7 @@ function renderEssaySection(section, items) {
       root.classList.toggle("is-expanded", expanded);
       more.textContent = expanded ? "Thu gọn..." : section.moreText;
       more.setAttribute("aria-expanded", String(expanded));
+      window.requestAnimationFrame(() => fitAllEssayExcerpts());
     });
     fragment.append(more);
   }
@@ -881,6 +898,10 @@ function renderEssaySection(section, items) {
   root.classList.remove("is-expanded");
   root.className = "essays essays--grid";
   root.replaceChildren(fragment);
+  window.requestAnimationFrame(() => {
+    fitAllEssayExcerpts();
+    window.requestAnimationFrame(fitAllEssayExcerpts);
+  });
 }
 
 function collapseTxtCard(card) {
