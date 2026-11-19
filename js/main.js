@@ -143,6 +143,7 @@ if (document.fonts && document.fonts.ready) {
 fitFooterAddress();
 
 let essayOverlayState = null;
+let eventOverlayState = null;
 let activityState = null;
 
 /** Chiều cao vùng nhìn thấy (lấy min để không tràn dưới khi thanh URL/Edge). */
@@ -191,6 +192,7 @@ function refreshViewportUi() {
   onScroll();
   fitFooterAddress();
   placeEssayOverlay();
+  if (typeof placeEventOverlay === "function") placeEventOverlay();
   if (typeof placeActivityOverlay === "function") placeActivityOverlay();
   if (typeof fitAllEssayExcerpts === "function") {
     window.requestAnimationFrame(fitAllEssayExcerpts);
@@ -651,8 +653,10 @@ function parseListDate(raw) {
 }
 
 /**
- * Thông báo `_list.csv`: mỗi dòng `title;ngày;file.txt` (ngày = d/m/y).
- * Title có thể chứa `;` — phần cuối là file, áp chót là ngày.
+ * Thông báo `_list.csv`:
+ * - Thường: `title;ngày;file.txt`
+ * - Sự kiện: `title;ngày;file.txt;ngày hết hạn` (d/m/y)
+ * Title có thể chứa `;`.
  */
 function parseListCsv(text) {
   return String(text || "")
@@ -663,13 +667,145 @@ function parseListCsv(text) {
     .map((line) => {
       const parts = line.split(";");
       if (parts.length < 3) return null;
-      const name = parts[parts.length - 1].trim();
-      const dateRaw = parts[parts.length - 2].trim();
-      const title = parts.slice(0, -2).join(";").trim();
-      if (!name || !/\.txt$/i.test(name)) return null;
-      return { name, title, createdAt: parseListDate(dateRaw) };
+      const last = parts[parts.length - 1].trim();
+      const secondLast = parts[parts.length - 2].trim();
+      let name;
+      let dateRaw;
+      let title;
+      let expiresAt = null;
+      if (parts.length >= 4 && /\.txt$/i.test(secondLast) && parseListDate(last)) {
+        name = secondLast;
+        dateRaw = parts[parts.length - 3].trim();
+        title = parts.slice(0, -3).join(";").trim();
+        expiresAt = parseListDate(last);
+      } else if (/\.txt$/i.test(last)) {
+        name = last;
+        dateRaw = secondLast;
+        title = parts.slice(0, -2).join(";").trim();
+      } else {
+        return null;
+      }
+      if (!name) return null;
+      return { name, title, createdAt: parseListDate(dateRaw), expiresAt };
     })
     .filter(Boolean);
+}
+
+/** Còn hạn nếu hôm nay ≤ hết ngày hết hạn. */
+function isEventActive(expiresAt) {
+  if (!(expiresAt instanceof Date) || Number.isNaN(expiresAt.getTime())) return false;
+  const end = new Date(
+    expiresAt.getFullYear(),
+    expiresAt.getMonth(),
+    expiresAt.getDate(),
+    23,
+    59,
+    59,
+    999
+  );
+  return Date.now() <= end.getTime();
+}
+
+function placeEventOverlay() {
+  const state = eventOverlayState;
+  if (!state || !state.overlay || state.overlay.hidden) return;
+  const headerEl = document.querySelector(".site-header");
+  const headerBottom = headerEl
+    ? Math.max(0, Math.ceil(headerEl.getBoundingClientRect().bottom))
+    : 0;
+  const viewBottom = Math.floor(visibleViewportBottom());
+  const top = headerBottom;
+  const height = Math.max(0, viewBottom - top);
+  state.overlay.style.top = `${top}px`;
+  state.overlay.style.bottom = "auto";
+  state.overlay.style.height = `${height}px`;
+  state.overlay.style.maxHeight = `${height}px`;
+  state.overlay.style.setProperty("--event-overlay-top", `${top}px`);
+  state.overlay.style.setProperty("--event-overlay-height", `${height}px`);
+}
+
+function ensureEventOverlay() {
+  if (eventOverlayState) return eventOverlayState;
+  const overlay = document.createElement("div");
+  overlay.className = "event-overlay";
+  overlay.hidden = true;
+  overlay.innerHTML = `
+    <div class="event-overlay__scrim" data-event-close="1"></div>
+    <div class="event-overlay__panel" role="dialog" aria-modal="true" aria-labelledby="event-overlay-title">
+      <button class="event-overlay__close" type="button" aria-label="Đóng sự kiện" data-event-close="1"></button>
+      <p class="event-overlay__kicker">Sự kiện</p>
+      <h2 class="event-overlay__title" id="event-overlay-title"></h2>
+      <p class="event-overlay__date"></p>
+      <div class="event-overlay__body news__md"></div>
+    </div>
+  `;
+  document.body.append(overlay);
+  const onKey = (event) => {
+    if (event.key === "Escape") closeEventOverlay();
+  };
+  overlay.addEventListener("click", (event) => {
+    if (event.target.closest("[data-event-close]")) closeEventOverlay();
+  });
+  eventOverlayState = {
+    overlay,
+    title: overlay.querySelector(".event-overlay__title"),
+    date: overlay.querySelector(".event-overlay__date"),
+    body: overlay.querySelector(".event-overlay__body"),
+    queue: [],
+    onKey,
+    returnScroll: 0,
+  };
+  return eventOverlayState;
+}
+
+function showNextEventOverlay() {
+  const state = ensureEventOverlay();
+  const item = state.queue.shift();
+  if (!item) {
+    closeEventOverlay(true);
+    return;
+  }
+  state.returnScroll = window.scrollY || 0;
+  state.title.textContent = item.title || item.name;
+  const dateText = formatTxtDate(item.createdAt);
+  const expiryText = formatTxtDate(item.expiresAt);
+  state.date.textContent = expiryText
+    ? `${dateText ? `${dateText} · ` : ""}Hết hạn ${expiryText}`
+    : dateText;
+  state.date.hidden = !state.date.textContent;
+  state.body.replaceChildren();
+  if (item.bodyMissing) state.body.textContent = "not found";
+  else fillNewsCardBody(state.body, item);
+  state.overlay.hidden = false;
+  document.body.classList.add("is-event-open");
+  refreshViewportUi();
+  document.addEventListener("keydown", state.onKey);
+  const closeBtn = state.overlay.querySelector(".event-overlay__close");
+  if (closeBtn) closeBtn.focus();
+}
+
+function closeEventOverlay(done) {
+  const state = eventOverlayState;
+  if (!state) return;
+  if (!done && state.queue.length) {
+    showNextEventOverlay();
+    return;
+  }
+  if (state.overlay.hidden && !state.queue.length) return;
+  state.overlay.hidden = true;
+  state.queue = [];
+  document.body.classList.remove("is-event-open");
+  document.removeEventListener("keydown", state.onKey);
+  state.body.replaceChildren();
+  window.scrollTo(0, state.returnScroll || 0);
+}
+
+function openEventOverlays(items) {
+  const active = (items || []).filter((item) => item && item.expiresAt && isEventActive(item.expiresAt));
+  if (!active.length) return;
+  const state = ensureEventOverlay();
+  state.queue = active.slice();
+  showNextEventOverlay();
 }
 
 /** Thông báo: đọc _list.csv (dòng cuối → đầu), fetch body song song. */
@@ -697,6 +833,7 @@ async function loadNewsFromList(section) {
           name: row.name,
           title: row.title,
           createdAt: row.createdAt,
+          expiresAt: row.expiresAt || null,
           body,
           bodyMissing,
           images: [],
@@ -704,6 +841,7 @@ async function loadNewsFromList(section) {
       })
     );
     renderTxtSection(section, items);
+    openEventOverlays(items);
   } catch (error) {
     if (status) status.textContent = section.failText;
   }
