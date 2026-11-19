@@ -696,8 +696,8 @@ function fitEssayExcerptClamp(excerptEl) {
   }
   const avail = excerptEl.clientHeight;
   if (avail <= 0) return;
-  // floor(+tolerance): dùng gần hết ô text; scrollHeight + line-clamp không đáng tin để đo.
-  const lines = Math.max(1, Math.floor((avail + lineHeight * 0.2) / lineHeight));
+  // round: fill gần hết ô text; overflow:hidden cắt phần dư rất nhỏ.
+  const lines = Math.max(1, Math.round(avail / lineHeight));
   excerptEl.style.display = "-webkit-box";
   excerptEl.style.webkitBoxOrient = "vertical";
   excerptEl.style.overflow = "hidden";
