@@ -76,6 +76,44 @@ function fitHeaderSlogan() {
   headerSlogan.style.fontSize = `${fitted.toFixed(2)}px`;
 }
 
+const footerAddress = document.querySelector(".footer-address");
+const footerNote = document.querySelector(".footer-note");
+
+function measurePlainTextWidth(text, fontSizePx, el) {
+  const cs = getComputedStyle(el);
+  const span = document.createElement("span");
+  span.style.cssText = [
+    "position:absolute",
+    "visibility:hidden",
+    "white-space:nowrap",
+    `font-family:${cs.fontFamily}`,
+    `font-weight:${cs.fontWeight}`,
+    `font-style:${cs.fontStyle}`,
+    `letter-spacing:${cs.letterSpacing}`,
+    `font-size:${fontSizePx}px`,
+  ].join(";");
+  span.textContent = text;
+  document.body.appendChild(span);
+  const width = span.getBoundingClientRect().width;
+  span.remove();
+  return width || 1;
+}
+
+/** Co font địa chỉ footer theo bề rộng thực tế — luôn 1 dòng, không xuống hàng. */
+function fitFooterAddress() {
+  if (!footerAddress || !footerNote) return;
+  footerAddress.style.fontSize = "";
+  const avail = Math.floor(footerNote.getBoundingClientRect().width);
+  if (avail < 40) return;
+  const text = (footerAddress.textContent || "").trim();
+  if (!text) return;
+  const maxPx = parseFloat(getComputedStyle(footerAddress).fontSize) || 17;
+  const minPx = 9;
+  const need = measurePlainTextWidth(text, maxPx, footerAddress);
+  const fitted = Math.min(Math.max((avail / need) * maxPx * 0.98, minPx), maxPx);
+  footerAddress.style.fontSize = `${fitted.toFixed(2)}px`;
+}
+
 const onScroll = () => {
   if (!header) return;
   const phone = phoneHeader.matches;
@@ -97,8 +135,12 @@ onScroll();
 window.addEventListener("scroll", onScroll, { passive: true });
 phoneHeader.addEventListener("change", onScroll);
 if (document.fonts && document.fonts.ready) {
-  document.fonts.ready.then(() => fitHeaderSlogan());
+  document.fonts.ready.then(() => {
+    fitHeaderSlogan();
+    fitFooterAddress();
+  });
 }
+fitFooterAddress();
 
 let essayOverlayState = null;
 let activityState = null;
@@ -147,6 +189,7 @@ function placeEssayOverlay() {
 function refreshViewportUi() {
   document.documentElement.style.setProperty("--app-height", `${Math.round(viewportHeight())}px`);
   onScroll();
+  fitFooterAddress();
   placeEssayOverlay();
   if (typeof placeActivityOverlay === "function") placeActivityOverlay();
   window.dispatchEvent(new Event("viewport-refresh"));
