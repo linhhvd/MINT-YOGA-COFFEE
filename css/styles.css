@@ -2517,6 +2517,14 @@ body.is-activity-open {
   align-items: center;
   justify-content: center;
   padding: 2.6rem 1rem 1rem;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.activity-overlay__stage:active {
+  cursor: grabbing;
 }
 
 .activity-overlay--landscape .activity-overlay__stage {
@@ -2532,6 +2540,8 @@ body.is-activity-open {
   width: auto;
   height: auto;
   object-fit: contain;
+  pointer-events: none;
+  -webkit-user-drag: none;
 }
 
 /* Nút duyệt: mặc định chỉ mũi tên; hover mới hiện vòng tròn. */
