@@ -20,7 +20,10 @@ if (toggle && nav) {
 const header = document.querySelector(".site-header");
 const heroSlogan = document.querySelector(".hero__slogan");
 const headerSlogan = document.querySelector(".brand__slogan");
-const phoneHeader = window.matchMedia("(max-width: 920px)");
+/** Hẹp + trung bình: nút menu, slogan dock. Rộng ≥1024: menu hàng chữ. */
+const phoneHeader = window.matchMedia("(max-width: 1023px)");
+const narrowLayout = window.matchMedia("(max-width: 390px)");
+const wideLayout = window.matchMedia("(min-width: 1024px)");
 
 function measureSloganLines(el, fontSizePx) {
   const cs = getComputedStyle(el);
@@ -144,6 +147,7 @@ function refreshViewportUi() {
   document.documentElement.style.setProperty("--app-height", `${Math.round(viewportHeight())}px`);
   onScroll();
   placeEssayOverlay();
+  if (typeof placeActivityOverlay === "function") placeActivityOverlay();
   window.dispatchEvent(new Event("viewport-refresh"));
 }
 
@@ -167,7 +171,8 @@ refreshViewportUi();
 
 function bindAccordion(root, restSelector) {
   if (!root) return;
-  const narrow = window.matchMedia("(max-width: 920px)");
+  // Hẹp: cả cột 1 card mở. TB+rộng: lead luôn mở; cột phải chỉ 1 card mở.
+  const narrow = narrowLayout;
 
   function setCard(card, open) {
     card.classList.toggle("is-open", open);
@@ -214,7 +219,7 @@ function bindAccordion(root, restSelector) {
 
 const SCHEDULE_FILE = "data/Lịch học.csv";
 const TXT_REPO = "linhhvd/MINT-YOGA-COFFEE";
-const TXT_VISIBLE = 5;
+const TXT_VISIBLE = 3;
 const ESSAY_VISIBLE = 6;
 
 const NEWS_SECTION = {
@@ -224,7 +229,7 @@ const NEWS_SECTION = {
   statusId: "thong-bao-status",
   emptyText: "Chưa có thông báo.",
   failText: "Chưa tải được thông báo.",
-  moreText: "Xem thông báo cũ hơn..",
+  moreText: "Xem thông báo cũ hơn...",
   restClass: "news__rest",
   moreCardClass: "news__card--more",
   moreBtnClass: "news__more",
@@ -238,7 +243,7 @@ const ESSAY_SECTION = {
   statusId: "bai-viet-status",
   emptyText: "Chưa có bài viết.",
   failText: "Chưa tải được bài viết.",
-  moreText: "Xem bài viết cũ hơn..",
+  moreText: "Xem tất cả bài viết...",
   moreCardClass: "essays__card--more",
   moreBtnClass: "essays__more",
   idPrefix: "bv",
@@ -427,6 +432,7 @@ async function loadSchedule() {
 loadSchedule();
 loadTxtSection(NEWS_SECTION);
 loadTxtSection(ESSAY_SECTION);
+initActivityGallery();
 
 function parseTxtCard(text) {
   const normalized = String(text || "").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
@@ -823,7 +829,7 @@ function renderEssaySection(section, items) {
     more.addEventListener("click", () => {
       const expanded = !root.classList.contains("is-expanded");
       root.classList.toggle("is-expanded", expanded);
-      more.textContent = expanded ? "Thu gọn" : section.moreText;
+      more.textContent = expanded ? "Thu gọn..." : section.moreText;
       more.setAttribute("aria-expanded", String(expanded));
     });
     fragment.append(more);
@@ -916,7 +922,7 @@ function renderTxtSection(section, items) {
     more.addEventListener("click", () => {
       const expanded = !root.classList.contains("is-expanded");
       root.classList.toggle("is-expanded", expanded);
-      more.textContent = expanded ? "Thu gọn" : section.moreText;
+      more.textContent = expanded ? "Thu gọn..." : section.moreText;
       more.setAttribute("aria-expanded", String(expanded));
       if (!expanded) {
         root.querySelectorAll(`.${section.moreCardClass}`).forEach(collapseTxtCard);
@@ -963,4 +969,240 @@ async function loadTxtSection(section) {
   } catch (error) {
     if (status) status.textContent = section.failText;
   }
+}
+
+/* ——— Ảnh hoạt động (trong Về chúng tôi) ——— */
+
+const ACTIVITY_DIR = "data/ảnh hoạt động";
+const ACTIVITY_API =
+  `https://api.github.com/repos/${TXT_REPO}/contents/data/${encodeURIComponent("ảnh hoạt động")}?ref=main`;
+const ACTIVITY_ROTATE_MS = 15000;
+
+let activityState = null;
+
+function layoutTier() {
+  if (narrowLayout.matches) return "narrow";
+  if (wideLayout.matches) return "wide";
+  return "medium";
+}
+
+function activityThumbCount(tier) {
+  if (tier === "narrow") return 4;
+  if (tier === "wide") return 12;
+  return 8;
+}
+
+function isPortraitWindow() {
+  const vv = window.visualViewport;
+  const w = vv && Number.isFinite(vv.width) ? vv.width : window.innerWidth;
+  const h = vv && Number.isFinite(vv.height) ? vv.height : window.innerHeight;
+  return h > w;
+}
+
+function shuffleCopy(list) {
+  const arr = [...list];
+  for (let i = arr.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+async function listActivityImageNames() {
+  try {
+    const response = await fetch(ACTIVITY_API, {
+      headers: { Accept: "application/vnd.github+json" },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        return data
+          .filter((item) => item && item.type === "file" && typeof item.name === "string")
+          .map((item) => item.name)
+          .filter((name) => TXT_IMAGE_EXT.test(name));
+      }
+    }
+  } catch (error) {
+    /* fallback */
+  }
+  const response = await fetch(`${encodeURI(`${ACTIVITY_DIR}/_list.txt`)}?t=${Date.now()}`);
+  if (!response.ok) throw new Error(String(response.status));
+  return (await response.text())
+    .replace(/^\uFEFF/, "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((name) => name && TXT_IMAGE_EXT.test(name));
+}
+
+function paintActivityCard(names) {
+  const state = activityState;
+  if (!state || !state.grid) return;
+  const tier = layoutTier();
+  const count = activityThumbCount(tier);
+  const picks = names.slice(0, Math.min(count, names.length));
+  state.card.dataset.tier = tier;
+  state.grid.style.setProperty("--activity-cols", tier === "wide" ? "4" : tier === "medium" ? "4" : "2");
+  state.grid.style.setProperty("--activity-rows", tier === "wide" ? "3" : tier === "medium" ? "2" : "2");
+  state.grid.replaceChildren();
+  picks.forEach((name) => {
+    const img = document.createElement("img");
+    img.src = `${assetUrl(ACTIVITY_DIR, name)}?t=${Date.now()}`;
+    img.alt = "";
+    img.loading = "lazy";
+    state.grid.append(img);
+  });
+}
+
+function rotateActivityThumbs() {
+  const state = activityState;
+  if (!state || !state.allNames.length) return;
+  state.shown = shuffleCopy(state.allNames);
+  paintActivityCard(state.shown);
+}
+
+function placeActivityOverlay() {
+  const state = activityState;
+  if (!state || !state.overlay || state.overlay.hidden) return;
+  const headerEl = document.querySelector(".site-header");
+  const headerBottom = headerEl
+    ? Math.max(0, Math.ceil(headerEl.getBoundingClientRect().bottom))
+    : 0;
+  const viewBottom = Math.floor(visibleViewportBottom());
+  const top = headerBottom;
+  const height = Math.max(0, viewBottom - top);
+  state.overlay.style.top = `${top}px`;
+  state.overlay.style.height = `${height}px`;
+  state.overlay.style.maxHeight = `${height}px`;
+  state.overlay.classList.toggle("activity-overlay--portrait", isPortraitWindow());
+  state.overlay.classList.toggle("activity-overlay--landscape", !isPortraitWindow());
+}
+
+function showActivitySlide(index) {
+  const state = activityState;
+  if (!state || !state.allNames.length) return;
+  const total = state.allNames.length;
+  state.index = ((index % total) + total) % total;
+  const name = state.allNames[state.index];
+  state.img.src = `${assetUrl(ACTIVITY_DIR, name)}?t=${Date.now()}`;
+  state.img.alt = `Ảnh hoạt động ${state.index + 1} / ${total}`;
+  if (state.counter) state.counter.textContent = `${state.index + 1} / ${total}`;
+}
+
+function ensureActivityOverlay() {
+  if (activityState && activityState.overlay) return activityState;
+
+  const overlay = document.createElement("div");
+  overlay.className = "activity-overlay";
+  overlay.hidden = true;
+  overlay.innerHTML = `
+    <div class="activity-overlay__scrim" data-activity-close="1"></div>
+    <div class="activity-overlay__panel" role="dialog" aria-modal="true" aria-label="Ảnh hoạt động">
+      <button class="activity-overlay__close" type="button" aria-label="Đóng ảnh hoạt động" data-activity-close="1"></button>
+      <button class="activity-overlay__nav activity-overlay__nav--prev" type="button" aria-label="Ảnh trước"></button>
+      <div class="activity-overlay__stage">
+        <img class="activity-overlay__img" alt="">
+      </div>
+      <button class="activity-overlay__nav activity-overlay__nav--next" type="button" aria-label="Ảnh sau"></button>
+      <p class="activity-overlay__counter" aria-live="polite"></p>
+    </div>
+  `;
+  document.body.append(overlay);
+
+  const onKey = (event) => {
+    if (event.key === "Escape") closeActivityOverlay();
+    if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
+      event.preventDefault();
+      showActivitySlide(activityState.index - 1);
+    }
+    if (event.key === "ArrowDown" || event.key === "ArrowRight") {
+      event.preventDefault();
+      showActivitySlide(activityState.index + 1);
+    }
+  };
+
+  overlay.addEventListener("click", (event) => {
+    if (event.target.closest("[data-activity-close]")) closeActivityOverlay();
+  });
+  overlay.querySelector(".activity-overlay__nav--prev").addEventListener("click", () => {
+    showActivitySlide(activityState.index - 1);
+  });
+  overlay.querySelector(".activity-overlay__nav--next").addEventListener("click", () => {
+    showActivitySlide(activityState.index + 1);
+  });
+
+  if (!activityState) activityState = {};
+  Object.assign(activityState, {
+    overlay,
+    img: overlay.querySelector(".activity-overlay__img"),
+    counter: overlay.querySelector(".activity-overlay__counter"),
+    onKey,
+    index: 0,
+    returnScroll: 0,
+  });
+  return activityState;
+}
+
+function openActivityOverlay() {
+  const state = ensureActivityOverlay();
+  if (!state.allNames || !state.allNames.length) return;
+  state.returnScroll = window.scrollY || 0;
+  state.overlay.hidden = false;
+  document.body.classList.add("is-activity-open");
+  showActivitySlide(0);
+  placeActivityOverlay();
+  document.addEventListener("keydown", state.onKey);
+  const closeBtn = state.overlay.querySelector(".activity-overlay__close");
+  if (closeBtn) closeBtn.focus();
+}
+
+function closeActivityOverlay() {
+  const state = activityState;
+  if (!state || !state.overlay || state.overlay.hidden) return;
+  state.overlay.hidden = true;
+  document.body.classList.remove("is-activity-open");
+  document.removeEventListener("keydown", state.onKey);
+  window.scrollTo(0, state.returnScroll || 0);
+}
+
+async function initActivityGallery() {
+  const card = document.querySelector("#activity-card");
+  const grid = document.querySelector("#activity-card-grid");
+  if (!card || !grid) return;
+
+  activityState = {
+    card,
+    grid,
+    allNames: [],
+    shown: [],
+    rotateTimer: 0,
+  };
+
+  try {
+    activityState.allNames = await listActivityImageNames();
+  } catch (error) {
+    card.hidden = true;
+    return;
+  }
+  if (!activityState.allNames.length) {
+    card.hidden = true;
+    return;
+  }
+
+  rotateActivityThumbs();
+  activityState.rotateTimer = window.setInterval(rotateActivityThumbs, ACTIVITY_ROTATE_MS);
+
+  card.addEventListener("click", () => openActivityOverlay());
+
+  if (header) {
+    header.addEventListener("click", () => {
+      if (!activityState || !activityState.overlay || activityState.overlay.hidden) return;
+      closeActivityOverlay();
+    });
+  }
+
+  window.addEventListener("viewport-refresh", () => {
+    if (!activityState || !activityState.allNames.length) return;
+    paintActivityCard(activityState.shown.length ? activityState.shown : activityState.allNames);
+    placeActivityOverlay();
+  });
 }

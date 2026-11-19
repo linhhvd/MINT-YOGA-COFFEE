@@ -1,13 +1,28 @@
 ---
-description: Trang chỉ có hai loại giao diện — hẹp và rộng
+description: Ba case màn hình — hẹp, trung bình, rộng; header/footer giống nhau
 alwaysApply: true
 ---
 
-# Hai loại màn hình
+# Ba case màn hình
 
-Chỉ có **hai** layout. Không thêm breakpoint hay case trung gian khác.
+UI có **ba** case theo bề ngang viewport. Mốc: **iPhone thường** (dọc) và **iPad thường** (ngang).
 
-- **Hẹp** (điện thoại + iPad dọc), đến 920px: một cột, nút Menu, khối không tràn ngang, chữ và nút đủ lớn để bấm. Header compact / slogan dock / footer hẹp dùng chung cho cả điện thoại và iPad dọc.
-- **Rộng** (iPad ngang + laptop), từ 921px: nhiều cột, menu là hàng chữ, lịch và cột đọc được không đè nhau.
+- **Hẹp**: ≤ **390px**
+- **Trung bình**: **391px–1023px**
+- **Rộng**: ≥ **1024px**
 
-Sau khi sửa HTML, CSS hoặc layout, kiểm tra khoảng 390px và 820px (hẹp), 1024px và 1280px (rộng). Trang không kéo ngang. Slogan trong header vẫn đọc được.
+**Header / footer:** logo, slogan, kích thước giống nhau trên cả 3 case. Menu khác: hẹp + trung bình = nút Menu; rộng = hàng chữ. Header trong suốt đầu trang và slogan dock giữ như hiện tại.
+
+Chỉ **layout các phần trong trang** khác theo case. Khi yêu cầu chỉnh UI mà **không nói rõ** hẹp / trung bình / rộng, phải **hỏi lại** trước khi sửa.
+
+## Layout đã chốt
+
+- **Thông báo:** 3 mới nhất + “Xem thông báo cũ hơn…” / “Thu gọn”. Hẹp 1 cột (1 card mở). TB+rộng 2 cột (lead trái luôn mở + viền xanh; phải tối đa 1 card mở; tin cũ thêm vào cột phải).
+- **Bài viết:** hẹp 1 / TB 2 / rộng 3 cột; tối đa 6 + “Xem tất cả bài viết…”. Overlay giữ nguyên.
+- **Lịch:** hẹp+TB xếp từng ngày; rộng bảng tuần như hiện tại.
+- **Chat:** hẹp = layout phone hiện tại; TB+rộng = layout desktop hiện tại.
+- **Về chúng tôi:** bỏ mục Hoạt động riêng. Hẹp+TB 1 cột (thư → video → card ảnh). Rộng 2 cột (trái thư; phải video + card ảnh). Ảnh trong `data/ảnh hoạt động`. Card thumbnail random, đổi mỗi 15s (4 / 8 / 12). Overlay xem hết ảnh; đứng/ngang theo **chiều cao vs rộng cửa sổ trang**.
+
+## Kiểm tra
+
+390px (hẹp), 768/820px (trung bình), 1024px và 1280px (rộng). Không kéo ngang. Header/footer cùng cỡ.
