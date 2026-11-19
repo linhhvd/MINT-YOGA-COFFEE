@@ -1087,11 +1087,14 @@ function paintActivityCard(names) {
   state.grid.style.setProperty("--activity-rows", tier === "wide" ? "3" : tier === "medium" ? "2" : "2");
   state.grid.replaceChildren();
   picks.forEach((name) => {
+    const cell = document.createElement("span");
+    cell.className = "activity-card__cell";
     const img = document.createElement("img");
     img.src = `${assetUrl(ACTIVITY_DIR, name)}?t=${Date.now()}`;
     img.alt = "";
     img.loading = "lazy";
-    state.grid.append(img);
+    cell.append(img);
+    state.grid.append(cell);
   });
 }
 
