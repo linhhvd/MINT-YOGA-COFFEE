@@ -285,7 +285,7 @@ const NEWS_SECTION = {
 
 const ESSAY_SECTION = {
   dir: "data/bài viết",
-  apiUrl: `https://api.github.com/repos/${TXT_REPO}/contents/data/b%C3%A0i%20vi%E1%BA%BFt?ref=main`,
+  listFile: "_list.csv",
   rootSelector: "#essays-root",
   statusId: "bai-viet-status",
   emptyText: "Chưa có bài viết.",
@@ -478,7 +478,7 @@ async function loadSchedule() {
 
 loadSchedule();
 loadTxtSection(NEWS_SECTION);
-loadTxtSection(ESSAY_SECTION);
+loadEssayFromList(ESSAY_SECTION);
 
 function parseTxtCard(text) {
   const normalized = String(text || "").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
@@ -634,6 +634,102 @@ function formatTxtDate(date) {
   return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
 }
 
+/** Parse ngày đăng d/m/y từ _list.csv. */
+function parseListDate(raw) {
+  const m = String(raw || "")
+    .trim()
+    .match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!m) return null;
+  const day = Number(m[1]);
+  const month = Number(m[2]);
+  const year = Number(m[3]);
+  const date = new Date(year, month - 1, day);
+  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+    return null;
+  }
+  return date;
+}
+
+/**
+ * _list.csv: mỗi dòng `file.txt;title;ngày` (ngày = d/m/y).
+ * Title có thể chứa `;` — lấy phần giữa file và ngày.
+ */
+function parseListCsv(text) {
+  return String(text || "")
+    .replace(/^\uFEFF/, "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const parts = line.split(";");
+      if (parts.length < 3) return null;
+      const name = parts[0].trim();
+      const dateRaw = parts[parts.length - 1].trim();
+      const title = parts.slice(1, -1).join(";").trim();
+      if (!name || !/\.txt$/i.test(name)) return null;
+      return { name, title, createdAt: parseListDate(dateRaw) };
+    })
+    .filter(Boolean);
+}
+
+/** Ảnh thumb/overlay: HEAD song song base.ext (không dò GitHub). */
+async function probeEssayImages(dir, base) {
+  const candidates = ["jpg", "jpeg", "png", "gif"].map((ext) => `${base}.${ext}`);
+  const found = [];
+  await Promise.all(
+    candidates.map(async (name) => {
+      try {
+        const res = await fetch(`${encodeURI(`${dir}/${name}`)}?t=${Date.now()}`, {
+          method: "HEAD",
+        });
+        if (res.ok) found.push(name);
+      } catch (error) {
+        /* bỏ qua */
+      }
+    })
+  );
+  return imagesForTxtBase(base, found);
+}
+
+/** Bài viết: đọc _list.csv (dòng cuối → đầu), fetch body song song. */
+async function loadEssayFromList(section) {
+  const status = document.querySelector(`#${section.statusId}`);
+  try {
+    const listName = section.listFile || "_list.csv";
+    const listRes = await fetch(`${encodeURI(`${section.dir}/${listName}`)}?t=${Date.now()}`);
+    if (!listRes.ok) throw new Error(String(listRes.status));
+    const rows = parseListCsv(await listRes.text());
+    // Dòng cuối trong CSV = mới nhất → nạp ngược lên.
+    const ordered = rows.slice().reverse();
+    const items = await Promise.all(
+      ordered.map(async (row) => {
+        const base = row.name.replace(/\.txt$/i, "");
+        let body = "";
+        let bodyMissing = false;
+        try {
+          const response = await fetch(`${encodeURI(`${section.dir}/${row.name}`)}?t=${Date.now()}`);
+          if (!response.ok) bodyMissing = true;
+          else body = String(await response.text()).replace(/^\uFEFF/, "").trim();
+        } catch (error) {
+          bodyMissing = true;
+        }
+        const images = section.withImages ? await probeEssayImages(section.dir, base) : [];
+        return {
+          name: row.name,
+          title: row.title,
+          createdAt: row.createdAt,
+          body,
+          bodyMissing,
+          images,
+        };
+      })
+    );
+    renderEssaySection(section, items);
+  } catch (error) {
+    if (status) status.textContent = section.failText;
+  }
+}
+
 async function fetchTxtFileCreatedAt(dir, name) {
   const path = `${dir}/${name}`;
   const url =
@@ -773,7 +869,11 @@ function openEssayOverlay(item, section) {
   state.date.textContent = dateText;
   state.date.hidden = !dateText;
   state.body.replaceChildren();
-  appendMarkdownBody(state.body, item.body);
+  if (item.bodyMissing) {
+    state.body.textContent = "not found";
+  } else {
+    appendMarkdownBody(state.body, item.body);
+  }
   state.photos.replaceChildren();
   const hasImages = !!(item.images && item.images.length);
   state.overlay.classList.toggle("essay-overlay--has-images", hasImages);
@@ -862,7 +962,7 @@ function renderEssaySection(section, items) {
     if (dateText) dateEl.textContent = dateText;
     else dateEl.hidden = true;
     const excerptEl = card.querySelector(".essay-card__excerpt");
-    excerptEl.textContent = essayPlainText(item.body) || "…";
+    excerptEl.textContent = item.bodyMissing ? "…" : essayPlainText(item.body) || "…";
     if (thumbName) {
       const img = card.querySelector(".essay-card__thumb img");
       img.src = `${assetUrl(section.dir, thumbName)}?t=${Date.now()}`;
