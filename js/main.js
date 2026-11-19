@@ -651,8 +651,8 @@ function parseListDate(raw) {
 }
 
 /**
- * _list.csv: mỗi dòng `file.txt;title;ngày` (ngày = d/m/y).
- * Title có thể chứa `;` — lấy phần giữa file và ngày.
+ * _list.csv: mỗi dòng `title;ngày;file.txt` (ngày = d/m/y).
+ * Title có thể chứa `;` — phần cuối là file, áp chót là ngày.
  */
 function parseListCsv(text) {
   return String(text || "")
@@ -663,9 +663,9 @@ function parseListCsv(text) {
     .map((line) => {
       const parts = line.split(";");
       if (parts.length < 3) return null;
-      const name = parts[0].trim();
-      const dateRaw = parts[parts.length - 1].trim();
-      const title = parts.slice(1, -1).join(";").trim();
+      const name = parts[parts.length - 1].trim();
+      const dateRaw = parts[parts.length - 2].trim();
+      const title = parts.slice(0, -2).join(";").trim();
       if (!name || !/\.txt$/i.test(name)) return null;
       return { name, title, createdAt: parseListDate(dateRaw) };
     })
