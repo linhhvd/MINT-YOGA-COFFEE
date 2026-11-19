@@ -1476,7 +1476,10 @@ body.is-essay-open {
 }
 
 .footer-address {
+  display: inline-block;
+  max-width: 100%;
   font-size: 1.08rem;
+  white-space: nowrap;
 }
 
 .callbar {
