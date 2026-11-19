@@ -1705,6 +1705,7 @@ body.is-essay-open {
 @media (min-width: 1024px) {
   .studio__grid {
     grid-template-columns: 1.15fr 0.85fr;
+    align-items: stretch;
   }
 }
 
@@ -1716,6 +1717,7 @@ body.is-essay-open {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
+  box-sizing: border-box;
 }
 
 .studio__panel .eyebrow {
@@ -1729,13 +1731,45 @@ body.is-essay-open {
 }
 
 .studio__panel p {
+  margin: 0;
   color: rgba(246, 241, 230, 0.86);
+}
+
+.studio__hello {
+  color: #f6f1e6;
+}
+
+.studio__hello strong {
+  font-weight: 700;
 }
 
 .studio__media {
   display: grid;
   gap: 1rem;
   align-content: start;
+}
+
+/* Rộng: thư cao ngang cột phải (video + card ảnh); chữ giãn khoảng chào / thân mến. */
+@media (min-width: 1024px) {
+  .studio__panel {
+    height: 100%;
+    min-height: 100%;
+    gap: 1rem;
+  }
+
+  .studio__media {
+    height: 100%;
+    align-content: stretch;
+  }
+
+  .studio__panel > .studio__hello {
+    margin: 0 0 1.15rem;
+  }
+
+  .studio__panel > .studio__regards {
+    margin: auto 0 0;
+    padding-top: 1.6rem;
+  }
 }
 
 .activity-card {
