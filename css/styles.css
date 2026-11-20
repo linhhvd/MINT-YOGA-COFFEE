@@ -1134,13 +1134,31 @@ body.is-essay-open {
   margin-top: 0;
 }
 
+/* Cột overlay: khoảng hở đứng giữa các phần (text/ảnh) luôn bằng nhau. */
+.essay-overlay__asset {
+  margin: 0;
+  min-width: 0;
+}
+
+.essay-overlay__asset + .essay-overlay__asset {
+  margin-top: 1rem;
+}
+
+.essay-overlay__asset > .essay__photos {
+  margin-top: 0;
+}
+
+.essay-overlay__asset .news__md > :last-child {
+  margin-bottom: 0;
+}
+
 .essay-overlay__photos {
   padding: 0 clamp(1rem, 4vw, 2.4rem) 2rem;
   min-width: 0;
 }
 
 .essay-overlay__photos .essay__photos {
-  margin-top: 0.35rem;
+  margin-top: 0;
 }
 
 .essay-overlay__photos[hidden] {
@@ -1175,15 +1193,6 @@ body.is-essay-open {
   .essay-overlay--has-images .essay-overlay__photos .essay__photos {
     margin-top: 0;
   }
-}
-
-.essay-overlay__gap {
-  margin: 0 0 0.35rem;
-  line-height: 1;
-}
-
-.essay-overlay__block + .essay-overlay__block {
-  margin-top: 0.75rem;
 }
 
 .essay-card__thumb .missing-file {

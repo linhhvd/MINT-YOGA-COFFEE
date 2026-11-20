@@ -1236,19 +1236,20 @@ function ensureEssayOverlay() {
 
 function appendEssayAssetBlock(container, asset) {
   if (!container || !asset) return;
+  const slot = document.createElement("div");
+  slot.className = "essay-overlay__asset";
   if (asset.kind === "txt") {
-    if (asset.missing) {
-      appendMissingPlaceholder(container, "text");
-      return;
+    if (asset.missing) appendMissingPlaceholder(slot, "text");
+    else {
+      slot.classList.add("essay-overlay__block");
+      appendMarkdownBody(slot, asset.body || "");
     }
-    const wrap = document.createElement("div");
-    wrap.className = "essay-overlay__block";
-    appendMarkdownBody(wrap, asset.body || "");
-    container.append(wrap);
+    container.append(slot);
     return;
   }
   if (asset.missing) {
-    appendMissingPlaceholder(container, "img");
+    appendMissingPlaceholder(slot, "img");
+    container.append(slot);
     return;
   }
   const wrap = document.createElement("div");
@@ -1261,7 +1262,8 @@ function appendEssayAssetBlock(container, asset) {
   img.loading = "lazy";
   figure.append(img);
   wrap.append(figure);
-  container.append(wrap);
+  slot.append(wrap);
+  container.append(slot);
 }
 
 /** Hẹp (1 cột): file theo thứ tự CSV. TB+rộng (2 cột): trái txt, phải ảnh. */
@@ -1286,29 +1288,13 @@ function fillEssayOverlayContent(item) {
     state.photos.hidden = true;
     state.overlay.classList.add(hasImages ? "essay-overlay--sequential" : "essay-overlay--text-only");
     const stream = oneColumn && hasImages ? assets : texts.length ? texts : assets;
-    stream.forEach((asset, index) => {
-      if (index > 0 && asset.kind === "txt" && stream[index - 1].kind === "txt") {
-        const gap = document.createElement("p");
-        gap.className = "essay-overlay__gap";
-        gap.innerHTML = "&nbsp;";
-        state.body.append(gap);
-      }
-      appendEssayAssetBlock(state.body, asset);
-    });
+    stream.forEach((asset) => appendEssayAssetBlock(state.body, asset));
     return;
   }
 
   state.photos.hidden = false;
   state.overlay.classList.add("essay-overlay--has-images");
-  texts.forEach((asset, index) => {
-    if (index > 0) {
-      const gap = document.createElement("p");
-      gap.className = "essay-overlay__gap";
-      gap.innerHTML = "&nbsp;";
-      state.body.append(gap);
-    }
-    appendEssayAssetBlock(state.body, asset);
-  });
+  texts.forEach((asset) => appendEssayAssetBlock(state.body, asset));
   images.forEach((asset) => appendEssayAssetBlock(state.photos, asset));
 }
 
