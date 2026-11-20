@@ -734,6 +734,25 @@ h3 {
   background: transparent;
 }
 
+/* File thiếu: thông báo / bài viết / ảnh. */
+.missing-file {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.45;
+  color: rgba(92, 107, 102, 0.55);
+}
+
+.missing-file--img {
+  color: rgba(92, 107, 102, 0.5);
+}
+
+.event-overlay__panel:not([data-kind="notice"]) .missing-file {
+  color: rgba(247, 240, 255, 0.55);
+}
+
 .news__md > :first-child {
   margin-top: 0;
 }

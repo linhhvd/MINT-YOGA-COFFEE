@@ -881,8 +881,7 @@ function buildEventPanel(item, index) {
   dateEl.textContent = posted;
   dateEl.hidden = !posted;
   const bodyEl = panel.querySelector(".event-overlay__body");
-  if (item.bodyMissing) bodyEl.textContent = "not found";
-  else fillNewsCardBody(bodyEl, item);
+  fillNewsCardBody(bodyEl, item);
   return panel;
 }
 
@@ -1001,10 +1000,20 @@ async function loadNewsFromList(section) {
   }
 }
 
+/** Placeholder thiếu file: `<not found>` / `<img not found>` — nghiêng, nhỏ, mờ. */
+function appendMissingPlaceholder(el, kind = "text") {
+  if (!el) return;
+  const p = document.createElement("p");
+  p.className = kind === "img" ? "missing-file missing-file--img" : "missing-file";
+  p.textContent = kind === "img" ? "<img not found>" : "<not found>";
+  el.append(p);
+}
+
 function fillNewsCardBody(el, item) {
   if (!el) return;
+  el.replaceChildren();
   if (item.bodyMissing) {
-    el.textContent = "not found";
+    appendMissingPlaceholder(el, "text");
     return;
   }
   appendMarkdownBody(el, item.body);
