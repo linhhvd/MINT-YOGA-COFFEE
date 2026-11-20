@@ -1573,11 +1573,6 @@ function renderTxtSection(section, items) {
     more.setAttribute("aria-expanded", "false");
     more.addEventListener("click", () => {
       const expanded = !root.classList.contains("is-expanded");
-      // Hẹp 1 cột: khóa cao cột rest trước khi hiện tin cũ → band không nở.
-      if (expanded && narrowLayout.matches && !restWrap.dataset.capped) {
-        restWrap.style.maxHeight = `${Math.ceil(restWrap.getBoundingClientRect().height)}px`;
-        restWrap.dataset.capped = "1";
-      }
       root.classList.toggle("is-expanded", expanded);
       more.textContent = expanded ? "Thu gọn..." : section.moreText;
       more.setAttribute("aria-expanded", String(expanded));

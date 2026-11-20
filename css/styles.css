@@ -1966,6 +1966,35 @@ body.is-event-open {
     grid-template-columns: 1fr;
   }
 
+  /* Thông báo hẹp: band cố định ≈ 1 card 15 dòng; nhiều card → cuộn band.
+     Mọi card mở body tối đa 15 dòng (không tách lead/rest). */
+  .news {
+    --news-lead-line: calc(1.05rem * 1.7);
+    --news-lead-chrome: 5.75rem;
+    --news-col-h: calc(var(--news-lead-line) * 15 + var(--news-lead-chrome));
+    box-sizing: border-box;
+    height: var(--news-col-h);
+    max-height: var(--news-col-h);
+    overflow-x: hidden;
+    overflow-y: auto;
+    align-content: start;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(17, 94, 89, 0.35) transparent;
+  }
+
+  .news::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .news::-webkit-scrollbar-thumb {
+    background: rgba(17, 94, 89, 0.35);
+    border-radius: 999px;
+  }
+
+  .news .card .card__body {
+    max-height: calc(var(--news-lead-line) * 15);
+  }
+
   /* Nội dung (card…): mép trái/phải còn 1/3; header/footer giữ như hẹp+TB. */
   .wrap {
     width: calc(100% - 0.8rem);
@@ -2242,23 +2271,6 @@ body.is-event-open {
   gap: 0.8rem;
   align-content: start;
   min-width: 0;
-}
-
-/* Hẹp: khi đã khóa cao (xem tin cũ), cuộn trong cột rest. */
-.news__rest[data-capped] {
-  overflow-x: hidden;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(17, 94, 89, 0.35) transparent;
-}
-
-.news__rest[data-capped]::-webkit-scrollbar {
-  width: 4px;
-}
-
-.news__rest[data-capped]::-webkit-scrollbar-thumb {
-  background: rgba(17, 94, 89, 0.35);
-  border-radius: 999px;
 }
 
 .news:not(.is-expanded) .news__card--more,
