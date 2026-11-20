@@ -734,6 +734,25 @@ h3 {
   background: transparent;
 }
 
+/* File thiếu: thông báo / bài viết / ảnh. */
+.missing-file {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.45;
+  color: rgba(92, 107, 102, 0.55);
+}
+
+.missing-file--img {
+  color: rgba(92, 107, 102, 0.5);
+}
+
+.event-overlay__panel:not([data-kind="notice"]) .missing-file {
+  color: rgba(247, 240, 255, 0.55);
+}
+
 .news__md > :first-child {
   margin-top: 0;
 }
@@ -1128,13 +1147,12 @@ body.is-essay-open {
   display: none !important;
 }
 
-/* Rộng: panel rộng hơn cho 2 vùng. */
-@media (min-width: 1024px) {
-  .essay-overlay__panel {
+/* TB + rộng (≥391): có ảnh → 2 cột (trái txt, phải ảnh). */
+@media (min-width: 391px) {
+  .essay-overlay--has-images .essay-overlay__panel {
     width: min(72rem, 100%);
   }
 
-  /* Có ảnh: chữ trái + ảnh phải, scroll riêng. */
   .essay-overlay--has-images .essay-overlay__layout {
     flex-direction: row;
     overflow: hidden;
@@ -1157,8 +1175,30 @@ body.is-essay-open {
   .essay-overlay--has-images .essay-overlay__photos .essay__photos {
     margin-top: 0;
   }
+}
 
-  /* Không ảnh: chữ layout báo 2 cột, một vùng scroll. */
+.essay-overlay__gap {
+  margin: 0 0 0.35rem;
+  line-height: 1;
+}
+
+.essay-overlay__block + .essay-overlay__block {
+  margin-top: 0.75rem;
+}
+
+.essay-card__thumb .missing-file {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0.5rem;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* Rộng: không ảnh → chữ layout báo 2 cột. */
+@media (min-width: 1024px) {
   .essay-overlay--text-only .essay-overlay__text {
     padding: 1.6rem clamp(1.4rem, 3vw, 2.6rem) 2.2rem;
   }

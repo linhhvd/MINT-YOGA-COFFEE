@@ -2,6 +2,7 @@
 
 ## Đang làm
 
+- [x] Bài viết `_list.csv` + not-found style (PR)
 - [x] Dựng source trang tĩnh
 - [x] Kiểm tra trên trình duyệt (desktop 1280 và điện thoại)
 - [x] Đẩy GitHub và bật GitHub Pages — https://linhhvd.github.io/MINT-YOGA-COFFEE/
