@@ -2241,6 +2241,24 @@ body.is-event-open {
   display: grid;
   gap: 0.8rem;
   align-content: start;
+  min-width: 0;
+}
+
+/* Hẹp: khi đã khóa cao (xem tin cũ), cuộn trong cột rest. */
+.news__rest[data-capped] {
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(17, 94, 89, 0.35) transparent;
+}
+
+.news__rest[data-capped]::-webkit-scrollbar {
+  width: 4px;
+}
+
+.news__rest[data-capped]::-webkit-scrollbar-thumb {
+  background: rgba(17, 94, 89, 0.35);
+  border-radius: 999px;
 }
 
 .news:not(.is-expanded) .news__card--more,
@@ -2279,12 +2297,16 @@ body.is-event-open {
   outline-offset: 3px;
 }
 
-/* TB + rộng: thông báo lead cố định bên trái, 2 cột đều nhau.
-   Cao cố định ≈ 15 dòng chữ body (không giới hạn theo viewport). */
+/* TB + rộng: 2 cột đều; lead + cột phải cùng cao ≈ 15 dòng (band không nở khi xem cũ). */
 @media (min-width: 391px) {
-  .news > .card--lead {
+  .news {
     --news-lead-line: calc(1.05rem * 1.7);
     --news-lead-chrome: 5.75rem;
+    --news-col-h: calc(var(--news-lead-line) * 15 + var(--news-lead-chrome));
+    align-items: start;
+  }
+
+  .news > .card--lead {
     align-self: start;
     width: 100%;
     min-width: 0;
@@ -2292,7 +2314,7 @@ body.is-event-open {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    height: calc(var(--news-lead-line) * 15 + var(--news-lead-chrome));
+    height: var(--news-col-h);
     box-shadow: none;
   }
 
@@ -2304,6 +2326,30 @@ body.is-event-open {
     flex: 1 1 auto;
     min-height: 0;
     max-height: none;
+  }
+
+  .news__rest {
+    box-sizing: border-box;
+    height: var(--news-col-h);
+    max-height: var(--news-col-h);
+    overflow-x: hidden;
+    overflow-y: auto;
+    align-content: start;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(17, 94, 89, 0.35) transparent;
+  }
+
+  .news__rest::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .news__rest::-webkit-scrollbar-thumb {
+    background: rgba(17, 94, 89, 0.35);
+    border-radius: 999px;
+  }
+
+  .news__rest::-webkit-scrollbar-track {
+    background: transparent;
   }
 
   .essays--grid {
