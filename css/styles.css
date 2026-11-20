@@ -819,18 +819,40 @@ h3 {
 }
 
 .essays {
+  --essay-card-h: 22rem;
+  --essay-gap: 1rem;
+  --essay-empty-line: 1.7rem;
+  /* Tối đa 3 hàng card + 2 gap + 1 dòng trống (chỗ “Xem bài viết cũ”). */
+  --essay-band-max: calc(
+    3 * var(--essay-card-h) + 2 * var(--essay-gap) + var(--essay-empty-line)
+  );
   display: grid;
-  gap: 1rem;
+  gap: var(--essay-gap);
 }
 
 .essays--grid {
   grid-template-columns: 1fr;
   align-items: stretch;
+  box-sizing: border-box;
+  max-height: var(--essay-band-max);
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(17, 94, 89, 0.35) transparent;
+}
+
+.essays--grid::-webkit-scrollbar {
+  width: 4px;
+}
+
+.essays--grid::-webkit-scrollbar-thumb {
+  background: rgba(17, 94, 89, 0.35);
+  border-radius: 999px;
 }
 
 .essay-card {
   box-sizing: border-box;
-  height: 22rem;
+  height: var(--essay-card-h);
   margin: 0;
   background: var(--paper);
   border: 1px solid var(--line);
@@ -971,7 +993,7 @@ h3 {
 
 .essay-card--landscape .essay-card__thumb img {
   max-width: 100%;
-  max-height: calc((22rem - 1.7rem) / 2);
+  max-height: calc((var(--essay-card-h) - 1.7rem) / 2);
 }
 
 .essay-card--portrait .essay-card__thumb {
@@ -2344,6 +2366,13 @@ body.is-event-open {
 
 .essays__more {
   grid-column: 1 / -1;
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  margin: 0;
+  padding: 0.35rem 0 0.15rem;
+  background: #e7e1d4;
+  line-height: var(--essay-empty-line, 1.7rem);
 }
 
 .news__more:hover,

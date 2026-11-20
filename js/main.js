@@ -294,7 +294,12 @@ function bindAccordion(root, restSelector) {
 const SCHEDULE_FILE = "data/lịch học.csv";
 const TXT_REPO = "linhhvd/MINT-YOGA-COFFEE";
 const TXT_VISIBLE = 3;
-const ESSAY_VISIBLE = 6;
+/** Số card vừa 3 hàng lưới bài viết: hẹp 1 cột → 3; TB 2 cột → 6; rộng 3 cột → 9. */
+function essayVisibleCap() {
+  if (window.matchMedia("(min-width: 1024px)").matches) return 9;
+  if (window.matchMedia("(min-width: 391px)").matches) return 6;
+  return 3;
+}
 
 const NEWS_SECTION = {
   dir: "data/thông báo",
@@ -317,7 +322,7 @@ const ESSAY_SECTION = {
   statusId: "bai-viet-status",
   emptyText: "Chưa có bài viết.",
   failText: "Chưa tải được bài viết.",
-  moreText: "Xem tất cả bài viết...",
+  moreText: "Xem bài viết cũ...",
   moreCardClass: "essays__card--more",
   moreBtnClass: "essays__more",
   idPrefix: "bv",
@@ -1384,6 +1389,48 @@ if (header) {
   });
 }
 
+function bindEssayMoreButton(root, section, more) {
+  more.addEventListener("click", () => {
+    const expanded = !root.classList.contains("is-expanded");
+    root.classList.toggle("is-expanded", expanded);
+    more.textContent = expanded ? "Thu gọn..." : section.moreText;
+    more.setAttribute("aria-expanded", String(expanded));
+    window.requestAnimationFrame(() => fitAllEssayExcerpts());
+  });
+}
+
+/** Đánh dấu card dư ngoài 3 hàng; hiện/ẩn nút Xem bài viết cũ theo bề ngang. */
+function syncEssayBandMore(section) {
+  const root = document.querySelector(section.rootSelector);
+  if (!root || !root.classList.contains("essays--grid")) return;
+  const cards = [...root.querySelectorAll(".essay-card")];
+  if (!cards.length) return;
+  const cap = essayVisibleCap();
+  const hasMore = cards.length > cap;
+  cards.forEach((card, index) => {
+    card.classList.toggle(section.moreCardClass, hasMore && index >= cap);
+  });
+  let more = root.querySelector(`:scope > .${section.moreBtnClass}`);
+  if (hasMore) {
+    if (!more) {
+      more = document.createElement("button");
+      more.type = "button";
+      more.className = section.moreBtnClass;
+      more.textContent = section.moreText;
+      more.setAttribute("aria-expanded", "false");
+      bindEssayMoreButton(root, section, more);
+      root.append(more);
+    }
+    if (!root.classList.contains("is-expanded")) {
+      more.textContent = section.moreText;
+      more.setAttribute("aria-expanded", "false");
+    }
+  } else {
+    if (more) more.remove();
+    root.classList.remove("is-expanded");
+  }
+}
+
 function renderEssaySection(section, items) {
   const root = document.querySelector(section.rootSelector);
   if (!root) return;
@@ -1399,12 +1446,13 @@ function renderEssaySection(section, items) {
   }
 
   const fragment = document.createDocumentFragment();
-  const hasMore = items.length > ESSAY_VISIBLE;
+  const cap = essayVisibleCap();
+  const hasMore = items.length > cap;
 
   items.forEach((item, index) => {
     const card = document.createElement("article");
     card.className = "essay-card";
-    if (hasMore && index >= ESSAY_VISIBLE) card.classList.add(section.moreCardClass);
+    if (hasMore && index >= cap) card.classList.add(section.moreCardClass);
 
     const thumbName = item.images && item.images[0];
     const showThumb = Boolean(thumbName) || item.firstImgMissing;
@@ -1473,13 +1521,7 @@ function renderEssaySection(section, items) {
     more.className = section.moreBtnClass;
     more.textContent = section.moreText;
     more.setAttribute("aria-expanded", "false");
-    more.addEventListener("click", () => {
-      const expanded = !root.classList.contains("is-expanded");
-      root.classList.toggle("is-expanded", expanded);
-      more.textContent = expanded ? "Thu gọn..." : section.moreText;
-      more.setAttribute("aria-expanded", String(expanded));
-      window.requestAnimationFrame(() => fitAllEssayExcerpts());
-    });
+    bindEssayMoreButton(root, section, more);
     fragment.append(more);
   }
 
@@ -1491,6 +1533,10 @@ function renderEssaySection(section, items) {
     window.requestAnimationFrame(fitAllEssayExcerpts);
   });
 }
+
+window.addEventListener("viewport-refresh", () => {
+  syncEssayBandMore(ESSAY_SECTION);
+});
 
 function collapseTxtCard(card) {
   card.classList.remove("is-open");
