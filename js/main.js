@@ -291,7 +291,7 @@ function bindAccordion(root, restSelector) {
   narrow.addEventListener("change", layout);
 }
 
-const SCHEDULE_FILE = "data/Lịch học.csv";
+const SCHEDULE_FILE = "data/lịch học.csv";
 const TXT_REPO = "linhhvd/MINT-YOGA-COFFEE";
 const TXT_VISIBLE = 3;
 const ESSAY_VISIBLE = 6;
