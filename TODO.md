@@ -15,7 +15,7 @@
 
 ## Chưa quyết
 
-- Lịch đọc `data/Lịch học.csv`. Mint bot đọc `data/Prompt Min Bot.txt` và `data/Lịch học.csv`. mintyogacoffee.com vẫn là Google Sites cho đến khi đổi DNS GoDaddy.
+- Lịch đọc `data/lịch học.csv`. Mint bot đọc `data/prompt min bot.txt` và `data/lịch học.csv`. mintyogacoffee.com vẫn là Google Sites cho đến khi đổi DNS GoDaddy.
 - Mint bot đã đọc thêm cột Đối tượng học viên. Cần dán `bot/Code.gs` mới và Deploy lại. Thêm câu hỏi ở dưới dòng 12, không chèn lên trên.
 
 ## Không đụng

@@ -8,13 +8,13 @@
  * 4. Dán URL web app vào BOT_URL trong js/bot.js.
  *
  * Nguồn kiến thức chỉ lấy từ repo GitHub Pages:
- * - data/Prompt Min Bot.txt
- * - data/Lịch học.csv
+ * - data/prompt min bot.txt
+ * - data/lịch học.csv
  */
 const PROMPT_URL =
-  "https://linhhvd.github.io/MINT-YOGA-COFFEE/data/Prompt%20Min%20Bot.txt";
+  "https://linhhvd.github.io/MINT-YOGA-COFFEE/data/prompt%20min%20bot.txt";
 const SCHEDULE_URL =
-  "https://linhhvd.github.io/MINT-YOGA-COFFEE/data/L%E1%BB%8Bch%20h%E1%BB%8Dc.csv";
+  "https://linhhvd.github.io/MINT-YOGA-COFFEE/data/l%E1%BB%8Bch%20h%E1%BB%8Dc.csv";
 const MODEL = "gemini-3.1-flash-lite";
 const FALLBACK =
   "Em chưa có thông tin này. Anh/chị vui lòng nhắn Zalo, Messenger, hoặc gọi trực tiếp Ms.Thủy Tiên theo số 098 123 8486 để được tư vấn thêm.";
@@ -139,7 +139,7 @@ function askGemini(question, history) {
       "Bạn là Mint Bot của phòng tập Mint Yoga & Coffee. Chỉ trả lời dựa trên thông tin được cung cấp. Không bịa. Nếu không có thông tin, nói đúng câu: " +
       FALLBACK,
     "",
-    "LỊCH HỌC MỚI NHẤT (file Lịch học.csv, ưu tiên hơn bảng lịch trong mục 4 nếu khác nhau):",
+    "LỊCH HỌC MỚI NHẤT (file lịch học.csv, ưu tiên hơn bảng lịch trong mục 4 nếu khác nhau):",
     knowledge.schedule || "(chưa tải được)",
     "",
     "LỊCH SỬ PHIÊN NÀY:",
