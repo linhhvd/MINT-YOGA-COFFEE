@@ -2327,10 +2327,14 @@ body.is-event-open {
   transition: height 0.6s ease;
 }
 
-@media (min-width: 391px) {
-  .contact-band.is-tall {
-    height: calc(20.45rem * 1.25);
-  }
+/* Mọi màn: nở từ dưới lên, đỉnh gần sát chân header trắng (cao do JS --band-tall-h). */
+.contact-band.is-tall {
+  height: var(--band-tall-h, calc(100svh - 3.226rem));
+  padding-bottom: 1.5rem;
+}
+
+.contact-band.is-tall .icon-btn {
+  display: none;
 }
 
 .contact-band > .wrap {
@@ -2341,33 +2345,25 @@ body.is-event-open {
 }
 
 .contact-band .reach {
+  --bot-cluster: calc(var(--bot-size) * var(--bot-foot) + 2 * var(--chat-label-half));
   flex: 1;
   min-height: 0;
   align-items: stretch;
 }
 
-/* Chữ Chat căn giữa dọc ô xanh; bot đứng sát phía trên chữ. */
+/* Band thu: cụm bot + chữ Chat căn giữa dọc. */
 .contact-band .reach__mid:not(.is-left) {
-  top: calc(50% - var(--chat-label-half) - var(--bot-size) * var(--bot-foot));
+  top: calc(50% - var(--bot-cluster) / 2);
 }
 
 .contact-band .mint-bot:not(.is-open) {
-  top: calc(50% - var(--chat-label-half));
+  top: calc(50% - var(--bot-cluster) / 2 + var(--bot-size) * var(--bot-foot));
 }
 
 @media (max-width: 390px) {
   .contact-band {
     height: 17.05rem;
     padding: 1.15rem 0;
-  }
-
-  .contact-band.is-tall {
-    height: calc(100svh - var(--header));
-    padding-bottom: 1.5rem;
-  }
-
-  .contact-band.is-tall .icon-btn {
-    display: none;
   }
 
   .contact-band .reach {
