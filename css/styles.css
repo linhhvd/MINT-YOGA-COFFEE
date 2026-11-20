@@ -1220,17 +1220,17 @@ body.is-event-open {
   cursor: pointer;
 }
 
-/* Cascade: cũ dưới (z thấp), mới trên; offset khít.
-   Card nở theo nội dung; max = vùng overlay (như bài viết / ảnh). */
+/* Cascade từ sát header: cũ nhất trên (hở chút), mới hơn chồng thấp hơn; z mới cao hơn.
+   Tối đa 3 card. Nở theo nội dung; max = vùng overlay. */
 .event-overlay__stack {
-  --event-cascade-step: 0.5rem;
+  --event-cascade-step: 1.35rem;
   position: relative;
   z-index: 1;
   box-sizing: border-box;
   width: min(52rem, 100%);
-  margin: auto;
+  margin: 0 auto;
   flex: 0 1 auto;
-  align-self: center;
+  align-self: flex-start;
   min-height: 0;
   max-height: 100%;
   height: auto;
@@ -1252,10 +1252,8 @@ body.is-event-open {
   background: rgba(246, 255, 252, 0.96);
   color: var(--ink);
   box-shadow: 0 0.65rem 1.6rem rgba(8, 24, 28, 0.22);
-  transform: translate(
-    calc(var(--cascade-i, 0) * var(--event-cascade-step)),
-    calc(var(--cascade-i, 0) * var(--event-cascade-step))
-  );
+  /* Chỉ lệch xuống: card trên hở mép, card dưới thấp hơn. */
+  transform: translateY(calc(var(--cascade-i, 0) * var(--event-cascade-step)));
   z-index: calc(var(--cascade-i, 0) + 1);
 }
 

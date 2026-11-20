@@ -837,18 +837,27 @@ function closeEventOverlay() {
   if (state.stack) {
     state.stack.replaceChildren();
     state.stack.dataset.count = "0";
+    state.stack.style.height = "";
     state.stack.style.minHeight = "";
+    state.stack.style.maxHeight = "";
   }
   window.scrollTo(0, state.returnScroll || 0);
 }
 
-/** Hiện tất cả sự kiện còn hạn: cascade cũ dưới → mới trên. */
+const EVENT_OVERLAY_MAX = 3;
+
+/**
+ * Sự kiện còn hạn → popup cascade (tối đa 3 mới nhất).
+ * DOM: cũ nhất trước, sát header (hở chút); mới hơn chồng thấp hơn, z cao hơn.
+ */
 function openEventOverlays(items) {
-  // items đã newest-first; đảo để DOM: cũ trước (dưới), mới sau (trên).
-  const active = (items || [])
-    .filter((item) => item && item.expiresAt && isEventActive(item.expiresAt))
-    .slice()
-    .reverse();
+  // items đã newest-first từ loadNewsFromList.
+  const newestFirst = (items || []).filter(
+    (item) => item && item.expiresAt && isEventActive(item.expiresAt)
+  );
+  const limited = newestFirst.slice(0, EVENT_OVERLAY_MAX);
+  // Đảo: cũ nhất trong nhóm → đầu cascade (sát header).
+  const active = limited.slice().reverse();
   if (!active.length) return;
   const state = ensureEventOverlay();
   state.returnScroll = window.scrollY || 0;
