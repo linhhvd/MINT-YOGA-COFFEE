@@ -2327,10 +2327,11 @@ body.is-event-open {
   transition: height 0.6s ease;
 }
 
-/* Mọi màn: nở từ dưới lên, đỉnh gần sát chân header trắng (cao do JS --band-tall-h). */
+/* Mọi màn: nở từ dưới lên, đỉnh gần sát chân header trắng (cao do JS --band-tall-h).
+   Padding trên/dưới bằng nhau; JS đặt lề trái/phải ô chat = 1/2 lề đứng. */
 .contact-band.is-tall {
   height: var(--band-tall-h, calc(100svh - 3.226rem));
-  padding-bottom: 1.5rem;
+  padding: 1.5rem 0;
 }
 
 .contact-band.is-tall .icon-btn {
