@@ -142,27 +142,35 @@ function setupBotToggle() {
     window.setTimeout(resolve, reduceMotion ? 0 : ms);
   });
 
-  // Chat: hẹp ≤390 như phone; trung bình + rộng như desktop.
+  // Chat: hẹp ≤390 đóng thấp hơn; mọi màn khi nở cao tới sát header trắng.
   const phoneLayout = () => window.matchMedia("(max-width: 390px)").matches;
   const scroller = document.scrollingElement || document.documentElement;
   let returnScroll = 0;
 
-  const anchorBottom = () => {
-    if (phoneLayout()) {
-      const icons = [...reach.querySelectorAll(".icon-btn")];
-      return Math.max(...icons.map((el) => el.getBoundingClientRect().bottom));
-    }
-    return document.querySelector(".site-footer").getBoundingClientRect().bottom;
+  /** Cao band nở: từ đáy header thật tới đáy visualViewport. */
+  const measureTallBand = () => {
+    const headerEl = document.querySelector(".site-header");
+    const vv = window.visualViewport;
+    const headerBottom = headerEl
+      ? Math.max(0, Math.ceil(headerEl.getBoundingClientRect().bottom))
+      : 0;
+    const visibleBottom = vv ? vv.offsetTop + vv.height : window.innerHeight;
+    return Math.max(0, Math.round(visibleBottom - headerBottom));
+  };
+
+  const applyTallBandVar = () => {
+    const band = reach.closest(".contact-band");
+    if (!band) return measureTallBand();
+    const tallH = measureTallBand();
+    band.style.setProperty("--band-tall-h", `${tallH}px`);
+    return tallH;
   };
 
   const bandHeight = (tall) => {
+    if (tall) return applyTallBandVar();
     const probe = document.createElement("div");
     probe.style.cssText = "position:fixed;left:0;top:0;visibility:hidden;pointer-events:none;box-sizing:border-box;";
-    if (phoneLayout()) {
-      probe.style.height = tall ? "calc(100svh - var(--header))" : "17.05rem";
-    } else {
-      probe.style.height = tall ? "calc(20.45rem * 1.25)" : "calc(20.45rem * 0.75)";
-    }
+    probe.style.height = phoneLayout() ? "17.05rem" : "calc(20.45rem * 0.75)";
     document.body.appendChild(probe);
     const height = probe.offsetHeight;
     probe.remove();
@@ -194,16 +202,6 @@ function setupBotToggle() {
     window.requestAnimationFrame(step);
   });
 
-  const measureReach = (variable) => {
-    const probe = document.createElement("span");
-    probe.style.cssText = "position:absolute;visibility:hidden;height:0;overflow:hidden;pointer-events:none;";
-    probe.style.width = `var(${variable})`;
-    reach.appendChild(probe);
-    const width = probe.offsetWidth;
-    probe.remove();
-    return width;
-  };
-
   const layoutBot = () => {
     const reachW = reach.clientWidth;
     const style = getComputedStyle(panel);
@@ -212,7 +210,6 @@ function setupBotToggle() {
     const phone = window.matchMedia("(max-width: 390px)").matches;
     const band = reach.closest(".contact-band");
     const bandStyle = getComputedStyle(band);
-    const bandPad = (Number.parseFloat(bandStyle.paddingTop) || 0) + (Number.parseFloat(bandStyle.paddingBottom) || 0);
     const reachBox = reach.getBoundingClientRect();
     const fontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
     const remToPx = (cssStyle, prop, fallbackRem) => {
@@ -224,37 +221,23 @@ function setupBotToggle() {
     // Khớp --chat-open-pad-* với .mint-bot.is-open để mép bot ngang mép bubble.
     const openPadLeft = remToPx(style, "--chat-open-pad-x", 1.15);
     const openPadTop = remToPx(style, "--chat-open-pad-top", 0.55);
-    // Side icons ẩn khi chat full-height trên điện thoại → dùng --icon.
+    // Icon ẩn khi band nở → lấy --icon cho chỗ robot thu nhỏ.
     const measuredIcon = icon.getBoundingClientRect().width;
     const iconW = measuredIcon > 0
       ? measuredIcon
       : remToPx(getComputedStyle(reach), "--icon", phone ? 2.45 : 3.35);
-    let openW;
-    let openLeft;
-    let openH;
-    if (phone) {
-      const probe = document.createElement("div");
-      probe.style.cssText = "position:fixed;top:0;height:100svh;width:0;visibility:hidden;pointer-events:none;";
-      document.body.appendChild(probe);
-      const screenH = probe.offsetHeight;
-      probe.remove();
-      const headerH = document.querySelector(".site-header").offsetHeight;
-      const bandBox = band.getBoundingClientRect();
-      const bottomPad = 1.5 * fontSize;
-      const topPad = Number.parseFloat(bandStyle.paddingTop) || 0;
-      const fullH = Math.max(0, screenH - headerH - topPad - bottomPad);
-      openW = bandBox.width;
-      openLeft = bandBox.left - reachBox.left;
-      openH = band.classList.contains("is-tall") && reach.clientHeight > 0
-        ? reach.clientHeight
-        : fullH;
-    } else {
-      const currentW = measureReach("--chat-w");
-      const openMax = measureReach("--chat-open-max");
-      openW = Math.min(currentW * 2, openMax);
-      openLeft = Math.max(0, (reachW - openW) / 2);
-      openH = 20.45 * 1.25 * fontSize - bandPad;
+    if (band.classList.contains("is-tall") || panel.classList.contains("is-open")) {
+      applyTallBandVar();
     }
+    const bandBox = band.getBoundingClientRect();
+    const topPad = Number.parseFloat(bandStyle.paddingTop) || 0;
+    const bottomPad = Number.parseFloat(bandStyle.paddingBottom) || 0;
+    const fullH = Math.max(0, measureTallBand() - topPad - bottomPad);
+    const openW = bandBox.width;
+    const openLeft = bandBox.left - reachBox.left;
+    const openH = band.classList.contains("is-tall") && reach.clientHeight > 0
+      ? reach.clientHeight
+      : fullH;
     const shift = openLeft + openPadLeft - reachW / 2 + iconW / 2;
     mid.style.setProperty("--bot-shift-to", `${shift}px`);
     mid.style.setProperty("--bot-shift-y-to", `${openPadTop}px`);
@@ -310,14 +293,11 @@ function setupBotToggle() {
       returnScroll = scroller.scrollTop;
       const from = band.offsetHeight;
       const to = bandHeight(true);
-      const startBottom = phoneLayout()
-        ? band.getBoundingClientRect().bottom
-        : anchorBottom();
+      // Neo đáy band → đáy viewport: band nở từ dưới lên sát header.
+      const startBottom = band.getBoundingClientRect().bottom;
       const viewport = window.visualViewport;
       const visibleBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
-      const edge = () => (phoneLayout()
-        ? band.getBoundingClientRect().bottom
-        : anchorBottom());
+      const edge = () => band.getBoundingClientRect().bottom;
       band.classList.add("is-tall");
       await trackBand(band, from, to, (progress) => {
         const desired = startBottom + (visibleBottom - startBottom) * progress;
