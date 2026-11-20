@@ -653,6 +653,12 @@ function formatTxtDate(date) {
   return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
 }
 
+/** Nhãn ngày đăng cho card tin / popup thông báo·sự kiện (không kèm hết hạn). */
+function formatPostedLabel(date) {
+  const text = formatTxtDate(date);
+  return text ? `Ngày đăng ${text}` : "";
+}
+
 /** Parse ngày đăng d/m/y từ _list.csv. */
 function parseListDate(raw) {
   const m = String(raw || "")
@@ -871,12 +877,9 @@ function buildEventPanel(item, index) {
   `;
   panel.querySelector(".event-overlay__title").textContent = item.title || item.name;
   const dateEl = panel.querySelector(".event-overlay__date");
-  const dateText = formatTxtDate(item.createdAt);
-  const expiryText = formatTxtDate(item.expiresAt);
-  dateEl.textContent = expiryText
-    ? `${dateText ? `${dateText} · ` : ""}Hết hạn ${expiryText}`
-    : dateText;
-  dateEl.hidden = !dateEl.textContent;
+  const posted = formatPostedLabel(item.createdAt);
+  dateEl.textContent = posted;
+  dateEl.hidden = !posted;
   const bodyEl = panel.querySelector(".event-overlay__body");
   if (item.bodyMissing) bodyEl.textContent = "not found";
   else fillNewsCardBody(bodyEl, item);
@@ -1031,16 +1034,11 @@ async function fetchTxtFileCreatedAt(dir, name) {
 
 function addTxtPostedLine(toggle, { newest, createdAt }) {
   if (!toggle) return;
+  const posted = formatPostedLabel(createdAt);
+  if (!posted && !newest) return;
   const line = document.createElement("span");
-  if (newest) {
-    line.className = "card__posted card__posted--new";
-    line.textContent = "Mới nhất";
-  } else {
-    const text = formatTxtDate(createdAt);
-    if (!text) return;
-    line.className = "card__posted";
-    line.textContent = text;
-  }
+  line.className = newest ? "card__posted card__posted--new" : "card__posted";
+  line.textContent = posted || "Mới nhất";
   const nameEl = toggle.querySelector(".card__name");
   if (nameEl) nameEl.after(line);
   else toggle.append(line);
