@@ -765,12 +765,14 @@ function reindexEventCascade() {
   panels.forEach((panel, index) => {
     panel.style.setProperty("--cascade-i", String(index));
   });
-  if (panels.length) {
-    const top = panels[panels.length - 1];
-    state.stack.style.minHeight = `${Math.ceil(top.getBoundingClientRect().height + (panels.length - 1) * 8)}px`;
-  } else {
+  if (!panels.length) {
     state.stack.style.minHeight = "";
+    return;
   }
+  const step = parseFloat(getComputedStyle(state.stack).getPropertyValue("--event-cascade-step")) || 8;
+  const top = panels[panels.length - 1];
+  const h = Math.max(...panels.map((p) => p.scrollHeight), top.getBoundingClientRect().height);
+  state.stack.style.minHeight = `${Math.ceil(h + (panels.length - 1) * step)}px`;
 }
 
 function buildEventPanel(item, index) {
