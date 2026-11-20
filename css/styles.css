@@ -1280,15 +1280,22 @@ body.is-event-open {
 .event-overlay__main {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
   min-height: 0;
 }
 
-/* Không tràn → căn giữa dọc phần nội dung. */
+.event-overlay__content {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Không tràn → chỉ nội dung (không gồm kicker) căn giữa dọc. */
 .event-overlay__panel.is-fit {
   overflow-y: hidden;
 }
 
-.event-overlay__panel.is-fit .event-overlay__main {
+.event-overlay__panel.is-fit .event-overlay__content {
   flex: 1 1 auto;
   justify-content: center;
 }
@@ -1402,7 +1409,9 @@ body.is-event-open {
 }
 
 .event-overlay__kicker {
-  margin: 0 2rem 0.35rem 0;
+  flex: 0 0 auto;
+  align-self: flex-start;
+  margin: 0 2.6rem 0.35rem 0;
   font-family: var(--sans);
   font-size: 0.78rem;
   font-weight: 600;

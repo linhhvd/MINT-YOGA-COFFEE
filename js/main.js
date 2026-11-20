@@ -862,9 +862,11 @@ function buildEventPanel(item, index) {
     <button class="event-overlay__close" type="button" aria-label="Đóng ${kicker.toLowerCase()}" data-event-dismiss="1"></button>
     <div class="event-overlay__main">
       <p class="event-overlay__kicker">${kicker}</p>
-      <h2 class="event-overlay__title" id="${titleId}"></h2>
-      <p class="event-overlay__date"></p>
-      <div class="event-overlay__body news__md"></div>
+      <div class="event-overlay__content">
+        <h2 class="event-overlay__title" id="${titleId}"></h2>
+        <p class="event-overlay__date"></p>
+        <div class="event-overlay__body news__md"></div>
+      </div>
     </div>
   `;
   panel.querySelector(".event-overlay__title").textContent = item.title || item.name;
