@@ -1214,9 +1214,11 @@ body.is-event-open {
 .event-overlay__scrim {
   position: absolute;
   inset: 0;
+  /* Tím đậm + chiếu sáng giữa (tone logo TPBank). */
   background:
-    radial-gradient(circle at 80% 18%, rgba(255, 252, 247, 0.22), transparent 32%),
-    linear-gradient(145deg, #1a4f4a, #0e2f2c 55%, #2d6a8f 100%);
+    radial-gradient(ellipse 65% 50% at 50% 40%, rgba(150, 90, 220, 0.62), transparent 58%),
+    radial-gradient(circle at 50% 36%, #5a2e92 0%, transparent 40%),
+    linear-gradient(165deg, #2c1054 0%, #180830 48%, #0c0418 100%);
   cursor: pointer;
 }
 
@@ -1238,6 +1240,11 @@ body.is-event-open {
 
 .event-overlay__panel {
   --event-peek: 0px;
+  --event-tone: #3d2168;
+  --event-tone-hi: #6a3f9e;
+  --event-tone-lo: #1e0e38;
+  --event-ink: #f7f0ff;
+  --event-muted: rgba(247, 240, 255, 0.72);
   position: absolute;
   left: 0;
   right: 0;
@@ -1253,9 +1260,18 @@ body.is-event-open {
   flex-direction: column;
   padding: calc(1.4rem + var(--event-peek)) 1.25rem 1.5rem;
   border-radius: 1rem;
-  background: var(--event-tone, #f3eaf7);
-  color: var(--ink);
-  box-shadow: 0 0.65rem 1.6rem rgba(8, 24, 28, 0.22);
+  color: var(--event-ink);
+  /* Tím đậm + highlight chiếu từ góc trên trái. */
+  background:
+    radial-gradient(ellipse 90% 65% at 20% 10%, rgba(255, 245, 255, 0.38), transparent 48%),
+    radial-gradient(ellipse 55% 45% at 55% 35%, rgba(180, 120, 255, 0.28), transparent 55%),
+    radial-gradient(ellipse 70% 55% at 90% 85%, rgba(120, 60, 200, 0.2), transparent 50%),
+    linear-gradient(155deg, var(--event-tone-hi) 0%, var(--event-tone) 48%, var(--event-tone-lo) 100%);
+  box-shadow:
+    0 0.9rem 2.2rem rgba(8, 2, 22, 0.55),
+    0 0 1.6rem rgba(160, 100, 230, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.12) inset,
+    0 -0.4rem 1.5rem rgba(255, 230, 255, 0.14) inset;
   z-index: calc(var(--cascade-i, 0) + 1);
 }
 
@@ -1275,17 +1291,23 @@ body.is-event-open {
   justify-content: center;
 }
 
-/* Nền tím nhạt kiểu TPBank — mỗi card một tone. */
+/* Tím đậm kiểu TPBank — mỗi card một tone + chiếu sáng riêng. */
 .event-overlay__panel[data-tone="0"] {
-  --event-tone: #f3eaf7;
+  --event-tone: #4a2a78;
+  --event-tone-hi: #7a4ab8;
+  --event-tone-lo: #241044;
 }
 
 .event-overlay__panel[data-tone="1"] {
-  --event-tone: #ebe0f4;
+  --event-tone: #3c2166;
+  --event-tone-hi: #6840a0;
+  --event-tone-lo: #1a0c36;
 }
 
 .event-overlay__panel[data-tone="2"] {
-  --event-tone: #e3d6f0;
+  --event-tone: #301854;
+  --event-tone-hi: #583688;
+  --event-tone-lo: #120828;
 }
 
 /* 1 card: vẫn absolute full chiều cao viewport (giống panel bài viết). */
@@ -1305,7 +1327,8 @@ body.is-event-open {
   height: 2.4rem;
   border: 0;
   border-radius: 999px;
-  background: rgba(20, 56, 51, 0.08);
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18) inset;
   cursor: pointer;
 }
 
@@ -1317,7 +1340,7 @@ body.is-event-open {
   left: 50%;
   width: 1rem;
   height: 2px;
-  background: var(--ink);
+  background: var(--event-ink, #f7f0ff);
 }
 
 .event-overlay__close::before {
@@ -1329,7 +1352,7 @@ body.is-event-open {
 }
 
 .event-overlay__close:focus-visible {
-  outline: 2px solid var(--teal);
+  outline: 2px solid #f0c27a;
   outline-offset: 2px;
 }
 
@@ -1340,7 +1363,7 @@ body.is-event-open {
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #1a5f7a;
+  color: #f0c27a;
 }
 
 .event-overlay__title {
@@ -1349,7 +1372,8 @@ body.is-event-open {
   font-size: clamp(1.6rem, 4vw, 2.2rem);
   font-weight: 560;
   letter-spacing: -0.02em;
-  color: var(--ink);
+  color: var(--event-ink);
+  text-shadow: 0 1px 12px rgba(255, 220, 255, 0.22);
 }
 
 .event-overlay__date {
@@ -1357,18 +1381,27 @@ body.is-event-open {
   font-family: var(--sans);
   font-size: 0.85rem;
   font-style: italic;
-  color: var(--muted);
+  color: var(--event-muted);
 }
 
 .event-overlay__body {
   font-family: var(--sans);
   font-size: 1rem;
   line-height: 1.55;
-  color: var(--ink);
+  color: var(--event-ink);
 }
 
 .event-overlay__body > :first-child {
   margin-top: 0;
+}
+
+.event-overlay__body a {
+  color: #ffd18a;
+}
+
+.event-overlay__body blockquote {
+  border-left-color: rgba(240, 194, 122, 0.55);
+  color: var(--event-muted);
 }
 
 @property --bot-shift {
