@@ -232,9 +232,12 @@ function setupBotToggle() {
     const bandBox = band.getBoundingClientRect();
     const topPad = Number.parseFloat(bandStyle.paddingTop) || 0;
     const bottomPad = Number.parseFloat(bandStyle.paddingBottom) || 0;
+    // Lề đứng band ↔ chat; lề ngang = 1/2 lề đứng.
+    const gapY = (topPad + bottomPad) / 2;
+    const gapX = gapY / 2;
     const fullH = Math.max(0, measureTallBand() - topPad - bottomPad);
-    const openW = bandBox.width;
-    const openLeft = bandBox.left - reachBox.left;
+    const openW = Math.max(0, bandBox.width - 2 * gapX);
+    const openLeft = bandBox.left - reachBox.left + gapX;
     const openH = band.classList.contains("is-tall") && reach.clientHeight > 0
       ? reach.clientHeight
       : fullH;
