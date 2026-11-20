@@ -203,10 +203,21 @@ function placeEssayOverlay() {
   applyOverlayFrame(state.overlay, { essayVars: true });
 }
 
+/** Trần cao card lead thông báo: vùng nhìn thấy dưới header, trừ hở nhỏ. */
+function updateNewsLeadMaxHeight() {
+  const { height } = overlayViewportBox();
+  const gap = 20;
+  document.documentElement.style.setProperty(
+    "--news-lead-max-h",
+    `${Math.max(0, Math.round(height - gap))}px`
+  );
+}
+
 /** Tính lại header, slogan, overlay và báo UI khác (bot…) sau resize/xoay. */
 function refreshViewportUi() {
   document.documentElement.style.setProperty("--app-height", `${Math.round(viewportHeight())}px`);
   onScroll();
+  updateNewsLeadMaxHeight();
   fitFooterAddress();
   placeEssayOverlay();
   if (
