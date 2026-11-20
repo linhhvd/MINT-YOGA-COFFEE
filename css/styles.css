@@ -1249,12 +1249,25 @@ body.is-event-open {
   overflow-y: auto;
   padding: 1.4rem 1.25rem 1.5rem;
   border-radius: 1rem;
-  background: rgba(246, 255, 252, 0.96);
+  background: var(--event-tone, #eef7f3);
   color: var(--ink);
   box-shadow: 0 0.65rem 1.6rem rgba(8, 24, 28, 0.22);
   /* Chỉ lệch xuống: card trên hở mép, card dưới thấp hơn. */
   transform: translateY(calc(var(--cascade-i, 0) * var(--event-cascade-step)));
   z-index: calc(var(--cascade-i, 0) + 1);
+}
+
+/* Mỗi popup một nền nhạt khác nhau (theo vị trí cascade). */
+.event-overlay__panel[data-tone="0"] {
+  --event-tone: #e8f4ef;
+}
+
+.event-overlay__panel[data-tone="1"] {
+  --event-tone: #f5efe4;
+}
+
+.event-overlay__panel[data-tone="2"] {
+  --event-tone: #e7eef6;
 }
 
 .event-overlay__stack[data-count="1"] .event-overlay__panel {

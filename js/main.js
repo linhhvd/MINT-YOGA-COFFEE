@@ -779,6 +779,7 @@ function reindexEventCascade() {
 
   panels.forEach((panel, index) => {
     panel.style.setProperty("--cascade-i", String(index));
+    panel.dataset.tone = String(index % 3);
     panel.style.maxHeight = "none";
   });
   // Đo chiều cao theo nội dung, rồi kẹp max.
