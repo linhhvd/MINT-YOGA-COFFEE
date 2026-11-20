@@ -1214,8 +1214,8 @@ body.is-event-open {
 .event-overlay__scrim {
   position: absolute;
   inset: 0;
-  /* Cùng kiểu lớp phủ bài viết / ảnh hoạt động. */
-  background: rgba(16, 28, 26, 0.45);
+  /* Mờ hơn lớp phủ ảnh; gần bài viết. */
+  background: rgba(16, 28, 26, 0.25);
 }
 
 /* Cascade: full khung viewport như panel bài viết/ảnh.
