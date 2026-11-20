@@ -722,6 +722,7 @@ function placeEventOverlay() {
   state.overlay.style.maxHeight = `${height}px`;
   state.overlay.style.setProperty("--event-overlay-top", `${top}px`);
   state.overlay.style.setProperty("--event-overlay-height", `${height}px`);
+  reindexEventCascade();
 }
 
 function ensureEventOverlay() {
@@ -762,17 +763,34 @@ function reindexEventCascade() {
   if (!state || !state.stack) return;
   const panels = [...state.stack.querySelectorAll(".event-overlay__panel")];
   state.stack.dataset.count = String(panels.length);
-  panels.forEach((panel, index) => {
-    panel.style.setProperty("--cascade-i", String(index));
-  });
   if (!panels.length) {
+    state.stack.style.height = "";
     state.stack.style.minHeight = "";
+    state.stack.style.maxHeight = "";
     return;
   }
-  const step = parseFloat(getComputedStyle(state.stack).getPropertyValue("--event-cascade-step")) || 8;
-  const top = panels[panels.length - 1];
-  const h = Math.max(...panels.map((p) => p.scrollHeight), top.getBoundingClientRect().height);
-  state.stack.style.minHeight = `${Math.ceil(h + (panels.length - 1) * step)}px`;
+
+  const stepRaw = parseFloat(getComputedStyle(state.stack).getPropertyValue("--event-cascade-step"));
+  const step = Number.isFinite(stepRaw) && stepRaw > 0 ? stepRaw : 8;
+  // Max = vùng overlay (giống panel bài viết / ảnh: max-height 100% trong khung).
+  const maxStack = Math.max(0, state.overlay.clientHeight);
+  const cascadeExtra = (panels.length - 1) * step;
+  const maxPanel = Math.max(0, maxStack - cascadeExtra);
+
+  panels.forEach((panel, index) => {
+    panel.style.setProperty("--cascade-i", String(index));
+    panel.style.maxHeight = "none";
+  });
+  // Đo chiều cao theo nội dung, rồi kẹp max.
+  const natural = Math.max(...panels.map((p) => p.scrollHeight), 0);
+  const panelH = Math.min(natural, maxPanel);
+  panels.forEach((panel) => {
+    panel.style.maxHeight = `${Math.ceil(panelH)}px`;
+  });
+  const stackH = Math.min(Math.ceil(panelH + cascadeExtra), maxStack);
+  state.stack.style.maxHeight = `${maxStack}px`;
+  state.stack.style.height = `${stackH}px`;
+  state.stack.style.minHeight = `${stackH}px`;
 }
 
 function buildEventPanel(item, index) {
