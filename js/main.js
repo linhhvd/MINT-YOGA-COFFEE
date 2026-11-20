@@ -165,10 +165,8 @@ function visibleViewportBottom() {
   return viewportHeight();
 }
 
-function placeEssayOverlay() {
-  const state = essayOverlayState;
-  if (!state || !state.overlay || state.overlay.hidden) return;
-
+/** Khung overlay chung: từ đáy header tới đáy vùng nhìn thấy (visualViewport). */
+function overlayViewportBox() {
   const headerEl = document.querySelector(".site-header");
   const headerBottom = headerEl
     ? Math.max(0, Math.ceil(headerEl.getBoundingClientRect().bottom))
@@ -176,14 +174,33 @@ function placeEssayOverlay() {
   const viewBottom = Math.floor(visibleViewportBottom());
   const top = headerBottom;
   const height = Math.max(0, viewBottom - top);
+  return { top, height };
+}
 
-  state.overlay.style.top = `${top}px`;
-  state.overlay.style.bottom = "auto";
-  state.overlay.style.height = `${height}px`;
-  state.overlay.style.maxHeight = `${height}px`;
-  state.overlay.style.setProperty("--essay-overlay-top", `${top}px`);
-  state.overlay.style.setProperty("--essay-overlay-height", `${height}px`);
-  state.overlay.style.setProperty("--essay-overlay-bottom", "0px");
+/** Gắn khung viewport lên overlay (essay / ảnh / sự kiện dùng chung). */
+function applyOverlayFrame(el, { essayVars = false, eventVars = false } = {}) {
+  if (!el) return null;
+  const { top, height } = overlayViewportBox();
+  el.style.top = `${top}px`;
+  el.style.bottom = "auto";
+  el.style.height = `${height}px`;
+  el.style.maxHeight = `${height}px`;
+  if (essayVars) {
+    el.style.setProperty("--essay-overlay-top", `${top}px`);
+    el.style.setProperty("--essay-overlay-height", `${height}px`);
+    el.style.setProperty("--essay-overlay-bottom", "0px");
+  }
+  if (eventVars) {
+    el.style.setProperty("--event-overlay-top", `${top}px`);
+    el.style.setProperty("--event-overlay-height", `${height}px`);
+  }
+  return { top, height };
+}
+
+function placeEssayOverlay() {
+  const state = essayOverlayState;
+  if (!state || !state.overlay || state.overlay.hidden) return;
+  applyOverlayFrame(state.overlay, { essayVars: true });
 }
 
 /** Tính lại header, slogan, overlay và báo UI khác (bot…) sau resize/xoay. */
@@ -709,19 +726,8 @@ function isEventActive(expiresAt) {
 function placeEventOverlay() {
   const state = eventOverlayState;
   if (!state || !state.overlay || state.overlay.hidden) return;
-  const headerEl = document.querySelector(".site-header");
-  const headerBottom = headerEl
-    ? Math.max(0, Math.ceil(headerEl.getBoundingClientRect().bottom))
-    : 0;
-  const viewBottom = Math.floor(visibleViewportBottom());
-  const top = headerBottom;
-  const height = Math.max(0, viewBottom - top);
-  state.overlay.style.top = `${top}px`;
-  state.overlay.style.bottom = "auto";
-  state.overlay.style.height = `${height}px`;
-  state.overlay.style.maxHeight = `${height}px`;
-  state.overlay.style.setProperty("--event-overlay-top", `${top}px`);
-  state.overlay.style.setProperty("--event-overlay-height", `${height}px`);
+  // Cùng khung viewport với popup bài viết / ảnh; cascade đo lại theo chiều cao mới.
+  applyOverlayFrame(state.overlay, { essayVars: true, eventVars: true });
   reindexEventCascade();
 }
 
@@ -781,11 +787,22 @@ function reindexEventCascade() {
     step = parseFloat(pxMatch[1]);
   }
   if (!Number.isFinite(step) || step <= 0) step = 8;
-  const maxStack = Math.max(0, state.overlay.clientHeight);
-  const cascadeExtra = (panels.length - 1) * step;
-  const maxBase = Math.max(0, maxStack - cascadeExtra);
 
-  // Reset để đo chiều cao nội dung tự nhiên.
+  // Stack fill bằng flex/CSS trong khung overlay (trừ padding), giống panel bài viết.
+  state.stack.style.height = "";
+  state.stack.style.minHeight = "";
+  state.stack.style.maxHeight = "";
+  void state.stack.offsetHeight;
+  const maxStack = Math.max(
+    0,
+    Math.floor(state.stack.getBoundingClientRect().height || state.stack.clientHeight || 0)
+  );
+
+  const cascadeExtra = (panels.length - 1) * step;
+  // Card trên (mới) thấp hơn; đáy ngang nhau; cao nhất = full vùng stack/viewport.
+  const baseH = Math.max(0, maxStack - cascadeExtra);
+
+  // Đo nội dung tự nhiên để biết có cần căn giữa (is-fit) không.
   panels.forEach((panel, index) => {
     panel.style.setProperty("--cascade-i", String(index));
     panel.style.setProperty("--event-peek", "0px");
@@ -796,9 +813,7 @@ function reindexEventCascade() {
     panel.style.bottom = "0";
     panel.style.top = "auto";
   });
-
   const naturals = panels.map((p) => p.scrollHeight);
-  const baseH = Math.min(Math.max(...naturals, 0), maxBase);
 
   panels.forEach((panel, index) => {
     const peek = (panels.length - 1 - index) * step;
@@ -806,15 +821,9 @@ function reindexEventCascade() {
     panel.style.setProperty("--event-peek", `${peek}px`);
     panel.style.height = `${h}px`;
     panel.style.maxHeight = `${h}px`;
-    // Không tràn → căn giữa dọc (so với base, không kể mép hở).
-    const contentH = naturals[index];
-    panel.classList.toggle("is-fit", contentH <= baseH + 1);
+    // Không tràn trong chiều cao panel → căn giữa dọc.
+    panel.classList.toggle("is-fit", naturals[index] <= h + 1);
   });
-
-  const stackH = Math.min(Math.ceil(baseH + cascadeExtra), maxStack);
-  state.stack.style.maxHeight = `${maxStack}px`;
-  state.stack.style.height = `${stackH}px`;
-  state.stack.style.minHeight = `${stackH}px`;
 }
 
 function buildEventPanel(item, index) {
@@ -860,6 +869,9 @@ function closeEventOverlay() {
   window.clearTimeout(eventOverlayDelayTimer);
   eventOverlayDelayTimer = 0;
   state.overlay.hidden = true;
+  state.overlay.style.height = "";
+  state.overlay.style.maxHeight = "";
+  state.overlay.style.top = "";
   document.body.classList.remove("is-event-open");
   document.removeEventListener("keydown", state.onKey);
   if (state.stack) {
@@ -1465,16 +1477,7 @@ function rotateActivityThumbs() {
 function placeActivityOverlay() {
   const state = activityState;
   if (!state || !state.overlay || state.overlay.hidden) return;
-  const headerEl = document.querySelector(".site-header");
-  const headerBottom = headerEl
-    ? Math.max(0, Math.ceil(headerEl.getBoundingClientRect().bottom))
-    : 0;
-  const viewBottom = Math.floor(visibleViewportBottom());
-  const top = headerBottom;
-  const height = Math.max(0, viewBottom - top);
-  state.overlay.style.top = `${top}px`;
-  state.overlay.style.height = `${height}px`;
-  state.overlay.style.maxHeight = `${height}px`;
+  applyOverlayFrame(state.overlay, { essayVars: true });
   state.overlay.classList.toggle("activity-overlay--portrait", isPortraitWindow());
   state.overlay.classList.toggle("activity-overlay--landscape", !isPortraitWindow());
 }

@@ -1220,8 +1220,8 @@ body.is-event-open {
   cursor: pointer;
 }
 
-/* Cascade sát header: đáy thẳng hàng, cũ hở trên; z mới cao hơn.
-   Tối đa 3. Nở theo nội dung; max = vùng overlay. */
+/* Cascade: full khung viewport như panel bài viết/ảnh.
+   Đáy ngang nhau; card trên (mới) thấp hơn card dưới (cũ) một chút. */
 .event-overlay__stack {
   --event-cascade-step: 1.35rem;
   position: relative;
@@ -1229,11 +1229,11 @@ body.is-event-open {
   box-sizing: border-box;
   width: min(52rem, 100%);
   margin: 0 auto;
-  flex: 0 1 auto;
-  align-self: flex-start;
+  flex: 1 1 auto;
+  align-self: center;
   min-height: 0;
   max-height: 100%;
-  height: auto;
+  height: 100%;
 }
 
 .event-overlay__panel {
@@ -1245,7 +1245,7 @@ body.is-event-open {
   bottom: 0;
   box-sizing: border-box;
   width: 100%;
-  height: auto;
+  height: 100%;
   max-height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
@@ -1288,9 +1288,12 @@ body.is-event-open {
   --event-tone: #e3d6f0;
 }
 
+/* 1 card: vẫn absolute full chiều cao viewport (giống panel bài viết). */
 .event-overlay__stack[data-count="1"] .event-overlay__panel {
-  position: relative;
-  bottom: auto;
+  position: absolute;
+  bottom: 0;
+  top: auto;
+  height: 100%;
   max-height: 100%;
 }
 
