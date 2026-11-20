@@ -1131,11 +1131,21 @@ async function fetchTxtFileCreatedAt(dir, name) {
 
 function addTxtPostedLine(toggle, { newest, createdAt }) {
   if (!toggle) return;
+  // Card tin mới nhất (không phải popup): luôn "Mới nhất", đỏ mờ.
+  if (newest) {
+    const line = document.createElement("span");
+    line.className = "card__posted card__posted--new";
+    line.textContent = "Mới nhất";
+    const nameEl = toggle.querySelector(".card__name");
+    if (nameEl) nameEl.after(line);
+    else toggle.append(line);
+    return;
+  }
   const posted = formatPostedLabel(createdAt);
-  if (!posted && !newest) return;
+  if (!posted) return;
   const line = document.createElement("span");
-  line.className = newest ? "card__posted card__posted--new" : "card__posted";
-  line.textContent = posted || "Mới nhất";
+  line.className = "card__posted";
+  line.textContent = posted;
   const nameEl = toggle.querySelector(".card__name");
   if (nameEl) nameEl.after(line);
   else toggle.append(line);
@@ -1563,6 +1573,11 @@ function renderTxtSection(section, items) {
     more.setAttribute("aria-expanded", "false");
     more.addEventListener("click", () => {
       const expanded = !root.classList.contains("is-expanded");
+      // Hẹp 1 cột: khóa cao cột rest trước khi hiện tin cũ → band không nở.
+      if (expanded && narrowLayout.matches && !restWrap.dataset.capped) {
+        restWrap.style.maxHeight = `${Math.ceil(restWrap.getBoundingClientRect().height)}px`;
+        restWrap.dataset.capped = "1";
+      }
       root.classList.toggle("is-expanded", expanded);
       more.textContent = expanded ? "Thu gọn..." : section.moreText;
       more.setAttribute("aria-expanded", String(expanded));
