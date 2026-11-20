@@ -730,81 +730,126 @@ function ensureEventOverlay() {
   overlay.className = "event-overlay";
   overlay.hidden = true;
   overlay.innerHTML = `
-    <div class="event-overlay__scrim" data-event-close="1"></div>
-    <div class="event-overlay__panel" role="dialog" aria-modal="true" aria-labelledby="event-overlay-title">
-      <button class="event-overlay__close" type="button" aria-label="Đóng sự kiện" data-event-close="1"></button>
-      <p class="event-overlay__kicker">Sự kiện</p>
-      <h2 class="event-overlay__title" id="event-overlay-title"></h2>
-      <p class="event-overlay__date"></p>
-      <div class="event-overlay__body news__md"></div>
-    </div>
+    <div class="event-overlay__scrim" data-event-close-all="1"></div>
+    <div class="event-overlay__stack" data-count="0"></div>
   `;
   document.body.append(overlay);
   const onKey = (event) => {
     if (event.key === "Escape") closeEventOverlay();
   };
   overlay.addEventListener("click", (event) => {
-    if (event.target.closest("[data-event-close]")) closeEventOverlay();
+    if (event.target.closest("[data-event-close-all]")) {
+      closeEventOverlay();
+      return;
+    }
+    const dismiss = event.target.closest("[data-event-dismiss]");
+    if (dismiss) {
+      const panel = dismiss.closest(".event-overlay__panel");
+      if (panel) dismissEventPanel(panel);
+    }
   });
   eventOverlayState = {
     overlay,
-    title: overlay.querySelector(".event-overlay__title"),
-    date: overlay.querySelector(".event-overlay__date"),
-    body: overlay.querySelector(".event-overlay__body"),
-    queue: [],
+    stack: overlay.querySelector(".event-overlay__stack"),
     onKey,
     returnScroll: 0,
   };
   return eventOverlayState;
 }
 
-function showNextEventOverlay() {
-  const state = ensureEventOverlay();
-  const item = state.queue.shift();
-  if (!item) {
-    closeEventOverlay(true);
+function reindexEventCascade() {
+  const state = eventOverlayState;
+  if (!state || !state.stack) return;
+  const panels = [...state.stack.querySelectorAll(".event-overlay__panel")];
+  state.stack.dataset.count = String(panels.length);
+  panels.forEach((panel, index) => {
+    panel.style.setProperty("--cascade-i", String(index));
+  });
+  if (!panels.length) {
+    state.stack.style.minHeight = "";
     return;
   }
-  state.returnScroll = window.scrollY || 0;
-  state.title.textContent = item.title || item.name;
+  const step = parseFloat(getComputedStyle(state.stack).getPropertyValue("--event-cascade-step")) || 8;
+  const top = panels[panels.length - 1];
+  const h = Math.max(...panels.map((p) => p.scrollHeight), top.getBoundingClientRect().height);
+  state.stack.style.minHeight = `${Math.ceil(h + (panels.length - 1) * step)}px`;
+}
+
+function buildEventPanel(item, index) {
+  const panel = document.createElement("article");
+  panel.className = "event-overlay__panel";
+  panel.setAttribute("role", index === 0 ? "dialog" : "document");
+  panel.setAttribute("aria-modal", index === 0 ? "true" : "false");
+  const titleId = `event-overlay-title-${index}`;
+  panel.innerHTML = `
+    <button class="event-overlay__close" type="button" aria-label="Đóng sự kiện" data-event-dismiss="1"></button>
+    <p class="event-overlay__kicker">Sự kiện</p>
+    <h2 class="event-overlay__title" id="${titleId}"></h2>
+    <p class="event-overlay__date"></p>
+    <div class="event-overlay__body news__md"></div>
+  `;
+  panel.querySelector(".event-overlay__title").textContent = item.title || item.name;
+  const dateEl = panel.querySelector(".event-overlay__date");
   const dateText = formatTxtDate(item.createdAt);
   const expiryText = formatTxtDate(item.expiresAt);
-  state.date.textContent = expiryText
+  dateEl.textContent = expiryText
     ? `${dateText ? `${dateText} · ` : ""}Hết hạn ${expiryText}`
     : dateText;
-  state.date.hidden = !state.date.textContent;
-  state.body.replaceChildren();
-  if (item.bodyMissing) state.body.textContent = "not found";
-  else fillNewsCardBody(state.body, item);
+  dateEl.hidden = !dateEl.textContent;
+  const bodyEl = panel.querySelector(".event-overlay__body");
+  if (item.bodyMissing) bodyEl.textContent = "not found";
+  else fillNewsCardBody(bodyEl, item);
+  return panel;
+}
+
+function dismissEventPanel(panel) {
+  const state = eventOverlayState;
+  if (!state || !panel) return;
+  panel.remove();
+  reindexEventCascade();
+  if (!state.stack.querySelector(".event-overlay__panel")) closeEventOverlay();
+}
+
+function closeEventOverlay() {
+  const state = eventOverlayState;
+  if (!state) return;
+  state.overlay.hidden = true;
+  document.body.classList.remove("is-event-open");
+  document.removeEventListener("keydown", state.onKey);
+  if (state.stack) {
+    state.stack.replaceChildren();
+    state.stack.dataset.count = "0";
+    state.stack.style.minHeight = "";
+  }
+  window.scrollTo(0, state.returnScroll || 0);
+}
+
+/** Hiện tất cả sự kiện còn hạn: cascade cũ dưới → mới trên. */
+function openEventOverlays(items) {
+  // items đã newest-first; đảo để DOM: cũ trước (dưới), mới sau (trên).
+  const active = (items || [])
+    .filter((item) => item && item.expiresAt && isEventActive(item.expiresAt))
+    .slice()
+    .reverse();
+  if (!active.length) return;
+  const state = ensureEventOverlay();
+  state.returnScroll = window.scrollY || 0;
+  state.stack.replaceChildren();
+  active.forEach((item, index) => {
+    state.stack.append(buildEventPanel(item, index));
+  });
+  reindexEventCascade();
   state.overlay.hidden = false;
   document.body.classList.add("is-event-open");
   refreshViewportUi();
   document.addEventListener("keydown", state.onKey);
-  const closeBtn = state.overlay.querySelector(".event-overlay__close");
-  if (closeBtn) closeBtn.focus();
-}
-
-function closeEventOverlay(done) {
-  const state = eventOverlayState;
-  if (!state) return;
-  if (!done && state.queue.length) {
-    showNextEventOverlay();
-    return;
-  }
-  state.queue = [];
-  state.overlay.hidden = true;
-  document.body.classList.remove("is-event-open");
-  document.removeEventListener("keydown", state.onKey);
-  state.body.replaceChildren();
-  window.scrollTo(0, state.returnScroll || 0);
-}
-
-function openEventOverlays(items) {
-  const active = (items || []).filter((item) => item && item.expiresAt && isEventActive(item.expiresAt));
-  if (!active.length) return;
-  const state = ensureEventOverlay();
-  state.queue = active.slice();
-  showNextEventOverlay();
+  window.requestAnimationFrame(() => {
+    reindexEventCascade();
+    const topClose = state.stack.querySelector(
+      ".event-overlay__panel:last-child .event-overlay__close"
+    );
+    if (topClose) topClose.focus();
+  });
 }
 
 /** Thông báo: đọc _list.csv (dòng cuối → đầu), fetch body song song. */
