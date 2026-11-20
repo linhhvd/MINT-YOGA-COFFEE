@@ -669,10 +669,17 @@ function parseListDate(raw) {
   return date;
 }
 
+/** Màu sự kiện trong CSV: G / P / O (green, purple, orange). */
+function parseEventColor(raw) {
+  const c = String(raw || "").trim().toUpperCase();
+  return c === "G" || c === "P" || c === "O" ? c : null;
+}
+
 /**
  * Thông báo `_list.csv`:
  * - Thường: `title;ngày;file.txt`
- * - Sự kiện: `title;ngày;file.txt;ngày hết hạn` (d/m/y)
+ * - Popup thông báo (kem): `title;ngày;file.txt;ngày hết hạn`
+ * - Popup sự kiện: `title;ngày;file.txt;ngày hết hạn;G|P|O`
  * Title có thể chứa `;`.
  */
 function parseListCsv(text) {
@@ -686,11 +693,27 @@ function parseListCsv(text) {
       if (parts.length < 3) return null;
       const last = parts[parts.length - 1].trim();
       const secondLast = parts[parts.length - 2].trim();
+      const thirdLast = parts.length >= 3 ? parts[parts.length - 3].trim() : "";
       let name;
       let dateRaw;
       let title;
       let expiresAt = null;
-      if (parts.length >= 4 && /\.txt$/i.test(secondLast) && parseListDate(last)) {
+      let eventColor = null;
+      const color = parseEventColor(last);
+      if (
+        parts.length >= 5 &&
+        color &&
+        parseListDate(secondLast) &&
+        /\.txt$/i.test(thirdLast)
+      ) {
+        // title;ngày;file.txt;hết hạn;G|P|O
+        name = thirdLast;
+        dateRaw = parts[parts.length - 4].trim();
+        title = parts.slice(0, -4).join(";").trim();
+        expiresAt = parseListDate(secondLast);
+        eventColor = color;
+      } else if (parts.length >= 4 && /\.txt$/i.test(secondLast) && parseListDate(last)) {
+        // title;ngày;file.txt;hết hạn → popup Thông báo (kem)
         name = secondLast;
         dateRaw = parts[parts.length - 3].trim();
         title = parts.slice(0, -3).join(";").trim();
@@ -703,7 +726,13 @@ function parseListCsv(text) {
         return null;
       }
       if (!name) return null;
-      return { name, title, createdAt: parseListDate(dateRaw), expiresAt };
+      return {
+        name,
+        title,
+        createdAt: parseListDate(dateRaw),
+        expiresAt,
+        eventColor,
+      };
     })
     .filter(Boolean);
 }
@@ -795,10 +824,10 @@ function reindexEventCascade() {
   const baseH = Math.max(0, maxStack - cascadeExtra);
 
   // Đo nội dung tự nhiên để biết có cần căn giữa (is-fit) không.
+  // data-kind / data-color giữ theo CSV (không đổi theo index).
   panels.forEach((panel, index) => {
     panel.style.setProperty("--cascade-i", String(index));
     panel.style.setProperty("--event-peek", "0px");
-    panel.dataset.tone = String(index % 3);
     panel.classList.remove("is-fit");
     panel.style.height = "auto";
     panel.style.maxHeight = "none";
@@ -820,14 +849,19 @@ function reindexEventCascade() {
 
 function buildEventPanel(item, index) {
   const panel = document.createElement("article");
+  const color = parseEventColor(item.eventColor);
+  const isEvent = Boolean(color);
   panel.className = "event-overlay__panel";
+  panel.dataset.kind = isEvent ? "event" : "notice";
+  if (color) panel.dataset.color = color;
   panel.setAttribute("role", index === 0 ? "dialog" : "document");
   panel.setAttribute("aria-modal", index === 0 ? "true" : "false");
   const titleId = `event-overlay-title-${index}`;
+  const kicker = isEvent ? "Sự kiện" : "Thông báo";
   panel.innerHTML = `
-    <button class="event-overlay__close" type="button" aria-label="Đóng sự kiện" data-event-dismiss="1"></button>
+    <button class="event-overlay__close" type="button" aria-label="Đóng ${kicker.toLowerCase()}" data-event-dismiss="1"></button>
     <div class="event-overlay__main">
-      <p class="event-overlay__kicker">Sự kiện</p>
+      <p class="event-overlay__kicker">${kicker}</p>
       <h2 class="event-overlay__title" id="${titleId}"></h2>
       <p class="event-overlay__date"></p>
       <div class="event-overlay__body news__md"></div>
@@ -948,6 +982,7 @@ async function loadNewsFromList(section) {
           title: row.title,
           createdAt: row.createdAt,
           expiresAt: row.expiresAt || null,
+          eventColor: row.eventColor || null,
           body,
           bodyMissing,
           images: [],

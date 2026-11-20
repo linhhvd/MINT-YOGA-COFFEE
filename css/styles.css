@@ -1242,8 +1242,14 @@ body.is-event-open {
   --event-tone: #3d2168;
   --event-tone-hi: #6a3f9e;
   --event-tone-lo: #1e0e38;
+  --event-glow: rgba(160, 100, 230, 0.18);
+  --event-hi: rgba(255, 245, 255, 0.38);
+  --event-mid: rgba(180, 120, 255, 0.28);
+  --event-lo-glow: rgba(120, 60, 200, 0.2);
   --event-ink: #f7f0ff;
   --event-muted: rgba(247, 240, 255, 0.72);
+  --event-accent: #f0c27a;
+  --event-link: #ffd18a;
   position: absolute;
   left: 0;
   right: 0;
@@ -1260,15 +1266,15 @@ body.is-event-open {
   padding: calc(1.4rem + var(--event-peek)) 1.25rem 1.5rem;
   border-radius: 1rem;
   color: var(--event-ink);
-  /* Tím đậm + highlight chiếu từ góc trên trái. */
+  /* Chiếu sáng góc trên + gradient theo màu G/P/O. */
   background:
-    radial-gradient(ellipse 90% 65% at 20% 10%, rgba(255, 245, 255, 0.38), transparent 48%),
-    radial-gradient(ellipse 55% 45% at 55% 35%, rgba(180, 120, 255, 0.28), transparent 55%),
-    radial-gradient(ellipse 70% 55% at 90% 85%, rgba(120, 60, 200, 0.2), transparent 50%),
+    radial-gradient(ellipse 90% 65% at 20% 10%, var(--event-hi), transparent 48%),
+    radial-gradient(ellipse 55% 45% at 55% 35%, var(--event-mid), transparent 55%),
+    radial-gradient(ellipse 70% 55% at 90% 85%, var(--event-lo-glow), transparent 50%),
     linear-gradient(155deg, var(--event-tone-hi) 0%, var(--event-tone) 48%, var(--event-tone-lo) 100%);
   box-shadow:
     0 0.9rem 2.2rem rgba(8, 2, 22, 0.55),
-    0 0 1.6rem rgba(160, 100, 230, 0.18),
+    0 0 1.6rem var(--event-glow),
     0 0 0 1px rgba(255, 255, 255, 0.12) inset,
     0 -0.4rem 1.5rem rgba(255, 230, 255, 0.14) inset;
   z-index: calc(var(--cascade-i, 0) + 1);
@@ -1290,23 +1296,66 @@ body.is-event-open {
   justify-content: center;
 }
 
-/* Tím đậm kiểu TPBank — mỗi card một tone + chiếu sáng riêng. */
-.event-overlay__panel[data-tone="0"] {
+/* Sự kiện: P tím / G xanh mint / O cam — cùng kiểu chiếu sáng. */
+.event-overlay__panel[data-color="P"] {
   --event-tone: #4a2a78;
   --event-tone-hi: #7a4ab8;
   --event-tone-lo: #241044;
+  --event-glow: rgba(160, 100, 230, 0.22);
+  --event-hi: rgba(255, 245, 255, 0.38);
+  --event-mid: rgba(180, 120, 255, 0.28);
+  --event-lo-glow: rgba(120, 60, 200, 0.22);
+  --event-accent: #f0c27a;
+  --event-link: #ffd18a;
 }
 
-.event-overlay__panel[data-tone="1"] {
-  --event-tone: #3c2166;
-  --event-tone-hi: #6840a0;
-  --event-tone-lo: #1a0c36;
+.event-overlay__panel[data-color="G"] {
+  --event-tone: #1a5c52;
+  --event-tone-hi: #2f9a88;
+  --event-tone-lo: #0b2c28;
+  --event-glow: rgba(60, 180, 150, 0.22);
+  --event-hi: rgba(230, 255, 248, 0.36);
+  --event-mid: rgba(80, 200, 170, 0.26);
+  --event-lo-glow: rgba(20, 120, 100, 0.22);
+  --event-accent: #f0d48a;
+  --event-link: #ffe4a8;
 }
 
-.event-overlay__panel[data-tone="2"] {
-  --event-tone: #301854;
-  --event-tone-hi: #583688;
-  --event-tone-lo: #120828;
+.event-overlay__panel[data-color="O"] {
+  --event-tone: #a84e1c;
+  --event-tone-hi: #d87838;
+  --event-tone-lo: #4a1c0a;
+  --event-glow: rgba(230, 140, 60, 0.24);
+  --event-hi: rgba(255, 245, 230, 0.4);
+  --event-mid: rgba(255, 170, 90, 0.28);
+  --event-lo-glow: rgba(180, 80, 20, 0.22);
+  --event-accent: #ffe0a8;
+  --event-link: #ffe8b8;
+}
+
+/* Hết hạn không có màu → popup Thông báo, kem như card tin. */
+.event-overlay__panel[data-kind="notice"] {
+  --event-ink: var(--ink);
+  --event-muted: var(--muted);
+  --event-accent: var(--teal);
+  --event-link: var(--teal);
+  background: var(--paper);
+  box-shadow:
+    0 0.85rem 2rem rgba(28, 44, 41, 0.16),
+    0 0 0 1px rgba(28, 44, 41, 0.06) inset;
+}
+
+.event-overlay__panel[data-kind="notice"] .event-overlay__close {
+  background: rgba(20, 56, 51, 0.08);
+  box-shadow: none;
+}
+
+.event-overlay__panel[data-kind="notice"] .event-overlay__title {
+  text-shadow: none;
+}
+
+.event-overlay__panel[data-kind="notice"] .event-overlay__body blockquote {
+  border-left-color: rgba(17, 94, 89, 0.35);
 }
 
 /* 1 card: vẫn absolute full chiều cao viewport (giống panel bài viết). */
@@ -1351,7 +1400,7 @@ body.is-event-open {
 }
 
 .event-overlay__close:focus-visible {
-  outline: 2px solid #f0c27a;
+  outline: 2px solid var(--event-accent, #f0c27a);
   outline-offset: 2px;
 }
 
@@ -1362,7 +1411,7 @@ body.is-event-open {
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #f0c27a;
+  color: var(--event-accent, #f0c27a);
 }
 
 .event-overlay__title {
@@ -1395,11 +1444,11 @@ body.is-event-open {
 }
 
 .event-overlay__body a {
-  color: #ffd18a;
+  color: var(--event-link, #ffd18a);
 }
 
 .event-overlay__body blockquote {
-  border-left-color: rgba(240, 194, 122, 0.55);
+  border-left-color: color-mix(in srgb, var(--event-accent, #f0c27a) 55%, transparent);
   color: var(--event-muted);
 }
 
