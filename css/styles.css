@@ -504,6 +504,13 @@ h3 {
   aspect-ratio: 16 / 9;
 }
 
+.studio .video {
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--studio-video-h);
+  aspect-ratio: auto;
+}
+
 .video iframe {
   width: 100%;
   height: 100%;
@@ -2055,17 +2062,39 @@ body.is-event-open {
 }
 
 .studio {
+  /* Cao cố định theo case 1 cột / 2 cột — không theo viewport. */
+  --studio-video-h: 13.5rem;
+  --studio-card-h: 13.5rem;
+  --studio-media-gap: 1rem;
+  --studio-grid-gap: 1.2rem;
+  --studio-letter-h: 24rem;
+  --studio-band-h: calc(
+    var(--studio-letter-h) + var(--studio-grid-gap) + var(--studio-video-h) + var(--studio-media-gap) +
+      var(--studio-card-h)
+  );
   padding-top: 1.2rem;
 }
 
 .studio__grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.2rem;
+  gap: var(--studio-grid-gap);
   align-items: start;
+  box-sizing: border-box;
+  height: var(--studio-band-h);
+  max-height: var(--studio-band-h);
 }
 
 @media (min-width: 1024px) {
+  .studio {
+    --studio-video-h: 14rem;
+    --studio-card-h: 16rem;
+    --studio-letter-h: calc(
+      var(--studio-video-h) + var(--studio-media-gap) + var(--studio-card-h)
+    );
+    --studio-band-h: var(--studio-letter-h);
+  }
+
   .studio__grid {
     grid-template-columns: 1.15fr 0.85fr;
     align-items: stretch;
@@ -2081,6 +2110,21 @@ body.is-event-open {
   flex-direction: column;
   gap: 0.9rem;
   box-sizing: border-box;
+  height: var(--studio-letter-h);
+  max-height: var(--studio-letter-h);
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(183, 228, 218, 0.35) transparent;
+}
+
+.studio__panel::-webkit-scrollbar {
+  width: 4px;
+}
+
+.studio__panel::-webkit-scrollbar-thumb {
+  background: rgba(183, 228, 218, 0.35);
+  border-radius: 999px;
 }
 
 .studio__panel .eyebrow {
@@ -2108,21 +2152,21 @@ body.is-event-open {
 
 .studio__media {
   display: grid;
-  gap: 1rem;
+  gap: var(--studio-media-gap);
   align-content: start;
+  box-sizing: border-box;
+  min-height: 0;
 }
 
-/* Rộng: thư cao ngang cột phải (video + card ảnh); chữ giãn khoảng chào / thân mến. */
+/* Rộng: thư cao = video + card (đã cố định rem); chữ giãn khoảng chào / thân mến. */
 @media (min-width: 1024px) {
   .studio__panel {
-    height: 100%;
-    min-height: 100%;
     gap: 1rem;
   }
 
   .studio__media {
-    height: 100%;
-    align-content: stretch;
+    height: var(--studio-letter-h);
+    align-content: start;
   }
 
   .studio__panel > .studio__hello {
@@ -2149,6 +2193,12 @@ body.is-event-open {
   overflow: hidden;
 }
 
+.studio .activity-card {
+  height: var(--studio-card-h);
+  max-height: var(--studio-card-h);
+  aspect-ratio: auto;
+}
+
 .activity-card:focus-visible {
   outline: 2px solid var(--teal);
   outline-offset: 3px;
@@ -2157,22 +2207,28 @@ body.is-event-open {
 .activity-card__grid {
   display: grid;
   grid-template-columns: repeat(var(--activity-cols, 2), minmax(0, 1fr));
-  grid-template-rows: repeat(var(--activity-rows, 2), auto);
+  grid-template-rows: repeat(var(--activity-rows, 2), minmax(0, 1fr));
   gap: 0.35rem;
   width: 100%;
   height: 100%;
-  align-content: center;
+  min-height: 0;
+  align-content: stretch;
 }
 
-/* Ô chứa thumb luôn vuông; ảnh cover — cạnh ngắn khớp cạnh ô, fill kín. */
+/* Ô thumb fill lưới; ảnh cover. */
 .activity-card__cell {
   box-sizing: border-box;
-  aspect-ratio: 1 / 1;
   width: 100%;
   min-width: 0;
+  min-height: 0;
   border-radius: 0.45rem;
   overflow: hidden;
   background: #d7e4df;
+}
+
+.studio .activity-card__cell {
+  aspect-ratio: auto;
+  height: 100%;
 }
 
 .activity-card__cell img {
@@ -2181,12 +2237,6 @@ body.is-event-open {
   height: 100%;
   object-fit: cover;
   object-position: center;
-}
-
-@media (min-width: 1024px) {
-  .activity-card {
-    aspect-ratio: 4 / 3;
-  }
 }
 
 .lich-status,
