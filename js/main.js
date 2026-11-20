@@ -1154,9 +1154,22 @@ function essayPlainText(body) {
 
 /** Cắt excerpt theo chiều cao ô text (fill hết phần text; dư mới …). Không đụng phần ảnh. */
 function fitEssayExcerptClamp(excerptEl) {
-  if (!excerptEl) return;
+  if (!excerptEl || excerptEl.classList.contains("missing-file")) return;
+  const full =
+    excerptEl.dataset.fullText != null
+      ? excerptEl.dataset.fullText
+      : String(excerptEl.textContent || "");
+  excerptEl.dataset.fullText = full;
+
   excerptEl.style.removeProperty("-webkit-line-clamp");
   excerptEl.style.removeProperty("line-clamp");
+  excerptEl.style.removeProperty("max-height");
+  excerptEl.style.removeProperty("-webkit-box-orient");
+  excerptEl.style.display = "block";
+  excerptEl.style.overflow = "hidden";
+  excerptEl.style.height = "100%";
+  excerptEl.textContent = full;
+
   const style = getComputedStyle(excerptEl);
   let lineHeight = parseFloat(style.lineHeight);
   if (!Number.isFinite(lineHeight) || lineHeight <= 0) {
@@ -1164,13 +1177,31 @@ function fitEssayExcerptClamp(excerptEl) {
   }
   const avail = excerptEl.clientHeight;
   if (avail <= 0) return;
-  // round: fill gần hết ô text; overflow:hidden cắt phần dư rất nhỏ.
-  const lines = Math.max(1, Math.round(avail / lineHeight));
-  excerptEl.style.display = "-webkit-box";
-  excerptEl.style.webkitBoxOrient = "vertical";
-  excerptEl.style.overflow = "hidden";
-  excerptEl.style.webkitLineClamp = String(lines);
-  excerptEl.style.lineClamp = String(lines);
+
+  const lines = Math.max(1, Math.floor((avail - 0.5) / lineHeight));
+  // -1px tránh anti-alias / subpixel lộ mép dòng dưới.
+  const clipH = Math.max(1, Math.floor(lines * lineHeight) - 1);
+  excerptEl.style.height = `${clipH}px`;
+  excerptEl.style.maxHeight = `${clipH}px`;
+
+  if (excerptEl.scrollHeight <= clipH) return;
+
+  // Cắt chuỗi + “…” trong đúng clipH — tránh rác mép dòng của -webkit-line-clamp.
+  let lo = 0;
+  let hi = full.length;
+  let best = 0;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    excerptEl.textContent = `${full.slice(0, mid).trimEnd()}…`;
+    if (excerptEl.scrollHeight <= clipH) {
+      best = mid;
+      lo = mid + 1;
+    } else {
+      hi = mid - 1;
+    }
+  }
+  const cut = full.slice(0, best).trimEnd();
+  excerptEl.textContent = best < full.length ? `${cut}…` : cut;
 }
 
 function fitAllEssayExcerpts() {
@@ -1402,8 +1433,11 @@ function renderEssaySection(section, items) {
     if (item.bodyMissing) {
       excerptEl.classList.add("missing-file");
       excerptEl.textContent = "<not found>";
+      delete excerptEl.dataset.fullText;
     } else {
-      excerptEl.textContent = essayPlainText(item.body) || "…";
+      const plain = essayPlainText(item.body) || "…";
+      excerptEl.dataset.fullText = plain;
+      excerptEl.textContent = plain;
     }
     if (thumbName) {
       const img = card.querySelector(".essay-card__thumb img");
