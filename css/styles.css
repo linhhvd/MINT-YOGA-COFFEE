@@ -2328,6 +2328,11 @@ body.is-event-open {
     max-height: none;
   }
 
+  /* Card cột phải khi mở: body tối đa ~10 dòng; thừa cuộn trong card. */
+  .news__rest .card .card__body {
+    max-height: calc(var(--news-lead-line) * 10);
+  }
+
   .news__rest {
     box-sizing: border-box;
     height: var(--news-col-h);
