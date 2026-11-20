@@ -770,25 +770,48 @@ function reindexEventCascade() {
     return;
   }
 
-  const stepRaw = parseFloat(getComputedStyle(state.stack).getPropertyValue("--event-cascade-step"));
-  const step = Number.isFinite(stepRaw) && stepRaw > 0 ? stepRaw : 8;
-  // Max = vùng overlay (giống panel bài viết / ảnh: max-height 100% trong khung).
+  const stepToken = getComputedStyle(state.stack).getPropertyValue("--event-cascade-step").trim();
+  const remMatch = stepToken.match(/^([\d.]+)rem$/i);
+  const pxMatch = stepToken.match(/^([\d.]+)px$/i);
+  let step = 8;
+  if (remMatch) {
+    const rootPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    step = parseFloat(remMatch[1]) * rootPx;
+  } else if (pxMatch) {
+    step = parseFloat(pxMatch[1]);
+  }
+  if (!Number.isFinite(step) || step <= 0) step = 8;
   const maxStack = Math.max(0, state.overlay.clientHeight);
   const cascadeExtra = (panels.length - 1) * step;
-  const maxPanel = Math.max(0, maxStack - cascadeExtra);
+  const maxBase = Math.max(0, maxStack - cascadeExtra);
 
+  // Reset để đo chiều cao nội dung tự nhiên.
   panels.forEach((panel, index) => {
     panel.style.setProperty("--cascade-i", String(index));
+    panel.style.setProperty("--event-peek", "0px");
     panel.dataset.tone = String(index % 3);
+    panel.classList.remove("is-fit");
+    panel.style.height = "auto";
     panel.style.maxHeight = "none";
+    panel.style.bottom = "0";
+    panel.style.top = "auto";
   });
-  // Đo chiều cao theo nội dung, rồi kẹp max.
-  const natural = Math.max(...panels.map((p) => p.scrollHeight), 0);
-  const panelH = Math.min(natural, maxPanel);
-  panels.forEach((panel) => {
-    panel.style.maxHeight = `${Math.ceil(panelH)}px`;
+
+  const naturals = panels.map((p) => p.scrollHeight);
+  const baseH = Math.min(Math.max(...naturals, 0), maxBase);
+
+  panels.forEach((panel, index) => {
+    const peek = (panels.length - 1 - index) * step;
+    const h = Math.ceil(baseH + peek);
+    panel.style.setProperty("--event-peek", `${peek}px`);
+    panel.style.height = `${h}px`;
+    panel.style.maxHeight = `${h}px`;
+    // Không tràn → căn giữa dọc (so với base, không kể mép hở).
+    const contentH = naturals[index];
+    panel.classList.toggle("is-fit", contentH <= baseH + 1);
   });
-  const stackH = Math.min(Math.ceil(panelH + cascadeExtra), maxStack);
+
+  const stackH = Math.min(Math.ceil(baseH + cascadeExtra), maxStack);
   state.stack.style.maxHeight = `${maxStack}px`;
   state.stack.style.height = `${stackH}px`;
   state.stack.style.minHeight = `${stackH}px`;
@@ -802,10 +825,12 @@ function buildEventPanel(item, index) {
   const titleId = `event-overlay-title-${index}`;
   panel.innerHTML = `
     <button class="event-overlay__close" type="button" aria-label="Đóng sự kiện" data-event-dismiss="1"></button>
-    <p class="event-overlay__kicker">Sự kiện</p>
-    <h2 class="event-overlay__title" id="${titleId}"></h2>
-    <p class="event-overlay__date"></p>
-    <div class="event-overlay__body news__md"></div>
+    <div class="event-overlay__main">
+      <p class="event-overlay__kicker">Sự kiện</p>
+      <h2 class="event-overlay__title" id="${titleId}"></h2>
+      <p class="event-overlay__date"></p>
+      <div class="event-overlay__body news__md"></div>
+    </div>
   `;
   panel.querySelector(".event-overlay__title").textContent = item.title || item.name;
   const dateEl = panel.querySelector(".event-overlay__date");
@@ -832,6 +857,8 @@ function dismissEventPanel(panel) {
 function closeEventOverlay() {
   const state = eventOverlayState;
   if (!state) return;
+  window.clearTimeout(eventOverlayDelayTimer);
+  eventOverlayDelayTimer = 0;
   state.overlay.hidden = true;
   document.body.classList.remove("is-event-open");
   document.removeEventListener("keydown", state.onKey);
@@ -846,10 +873,12 @@ function closeEventOverlay() {
 }
 
 const EVENT_OVERLAY_MAX = 3;
+const EVENT_OVERLAY_DELAY_MS = 5000;
+let eventOverlayDelayTimer = 0;
 
 /**
  * Sự kiện còn hạn → popup cascade (tối đa 3 mới nhất).
- * DOM: cũ nhất trước, sát header (hở chút); mới hơn chồng thấp hơn, z cao hơn.
+ * Đáy thẳng hàng; cũ hở trên sát header; mới hơn z cao hơn.
  */
 function openEventOverlays(items) {
   // items đã newest-first từ loadNewsFromList.
@@ -857,7 +886,7 @@ function openEventOverlays(items) {
     (item) => item && item.expiresAt && isEventActive(item.expiresAt)
   );
   const limited = newestFirst.slice(0, EVENT_OVERLAY_MAX);
-  // Đảo: cũ nhất trong nhóm → đầu cascade (sát header).
+  // Đảo: cũ nhất trong nhóm → đầu cascade (hở sát header).
   const active = limited.slice().reverse();
   if (!active.length) return;
   const state = ensureEventOverlay();
@@ -878,6 +907,17 @@ function openEventOverlays(items) {
     );
     if (topClose) topClose.focus();
   });
+}
+
+function scheduleEventOverlays(items) {
+  window.clearTimeout(eventOverlayDelayTimer);
+  const newestFirst = (items || []).filter(
+    (item) => item && item.expiresAt && isEventActive(item.expiresAt)
+  );
+  if (!newestFirst.length) return;
+  eventOverlayDelayTimer = window.setTimeout(() => {
+    openEventOverlays(items);
+  }, EVENT_OVERLAY_DELAY_MS);
 }
 
 /** Thông báo: đọc _list.csv (dòng cuối → đầu), fetch body song song. */
@@ -913,7 +953,7 @@ async function loadNewsFromList(section) {
       })
     );
     renderTxtSection(section, items);
-    openEventOverlays(items);
+    scheduleEventOverlays(items);
   } catch (error) {
     if (status) status.textContent = section.failText;
   }
