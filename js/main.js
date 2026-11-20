@@ -737,28 +737,20 @@ function ensureEventOverlay() {
   overlay.className = "event-overlay";
   overlay.hidden = true;
   overlay.innerHTML = `
-    <div class="event-overlay__scrim" data-event-close-all="1"></div>
+    <div class="event-overlay__scrim"></div>
     <div class="event-overlay__stack" data-count="0"></div>
   `;
   document.body.append(overlay);
-  const onKey = (event) => {
-    if (event.key === "Escape") closeEventOverlay();
-  };
+  // Chỉ đóng bằng nút X trên từng card (không scrim / Escape).
   overlay.addEventListener("click", (event) => {
-    if (event.target.closest("[data-event-close-all]")) {
-      closeEventOverlay();
-      return;
-    }
     const dismiss = event.target.closest("[data-event-dismiss]");
-    if (dismiss) {
-      const panel = dismiss.closest(".event-overlay__panel");
-      if (panel) dismissEventPanel(panel);
-    }
+    if (!dismiss) return;
+    const panel = dismiss.closest(".event-overlay__panel");
+    if (panel) dismissEventPanel(panel);
   });
   eventOverlayState = {
     overlay,
     stack: overlay.querySelector(".event-overlay__stack"),
-    onKey,
     returnScroll: 0,
   };
   return eventOverlayState;
@@ -873,7 +865,6 @@ function closeEventOverlay() {
   state.overlay.style.maxHeight = "";
   state.overlay.style.top = "";
   document.body.classList.remove("is-event-open");
-  document.removeEventListener("keydown", state.onKey);
   if (state.stack) {
     state.stack.replaceChildren();
     state.stack.dataset.count = "0";
@@ -911,7 +902,6 @@ function openEventOverlays(items) {
   state.overlay.hidden = false;
   document.body.classList.add("is-event-open");
   refreshViewportUi();
-  document.addEventListener("keydown", state.onKey);
   window.requestAnimationFrame(() => {
     reindexEventCascade();
     const topClose = state.stack.querySelector(

@@ -1219,7 +1219,6 @@ body.is-event-open {
     radial-gradient(ellipse 65% 50% at 50% 40%, rgba(150, 90, 220, 0.62), transparent 58%),
     radial-gradient(circle at 50% 36%, #5a2e92 0%, transparent 40%),
     linear-gradient(165deg, #2c1054 0%, #180830 48%, #0c0418 100%);
-  cursor: pointer;
 }
 
 /* Cascade: full khung viewport như panel bài viết/ảnh.
