@@ -2280,7 +2280,7 @@ body.is-event-open {
 }
 
 /* TB + rộng: thông báo lead cố định bên trái, 2 cột đều nhau.
-   Cao ≈ 15 dòng chữ body; trần = viewport − header − hở nhỏ (--news-lead-max-h). */
+   Cao cố định ≈ 15 dòng chữ body (không giới hạn theo viewport). */
 @media (min-width: 391px) {
   .news > .card--lead {
     --news-lead-line: calc(1.05rem * 1.7);
@@ -2292,11 +2292,7 @@ body.is-event-open {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    height: min(
-      calc(var(--news-lead-line) * 15 + var(--news-lead-chrome)),
-      var(--news-lead-max-h, calc(100svh - var(--header) - 1.25rem))
-    );
-    max-height: var(--news-lead-max-h, calc(100svh - var(--header) - 1.25rem));
+    height: calc(var(--news-lead-line) * 15 + var(--news-lead-chrome));
     box-shadow: none;
   }
 
