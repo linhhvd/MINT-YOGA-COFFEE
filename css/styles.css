@@ -912,6 +912,7 @@ h3 {
 .essay-card__copy {
   display: grid;
   grid-template-rows: minmax(0, 1fr);
+  align-content: start;
   min-height: 0;
   min-width: 0;
   flex: 1 1 0;
@@ -927,11 +928,9 @@ h3 {
   color: var(--muted);
   min-height: 0;
   height: 100%;
+  max-height: 100%;
   overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 20;
-  line-clamp: 20;
+  display: block;
 }
 
 /* Ảnh giữ phần riêng (không shrink vì text dài). */
