@@ -209,6 +209,14 @@ function refreshViewportUi() {
   onScroll();
   fitFooterAddress();
   placeEssayOverlay();
+  if (
+    essayOverlayState &&
+    !essayOverlayState.overlay.hidden &&
+    essayOverlayState.currentItem &&
+    typeof fillEssayOverlayContent === "function"
+  ) {
+    fillEssayOverlayContent(essayOverlayState.currentItem);
+  }
   if (typeof placeEventOverlay === "function") placeEventOverlay();
   if (typeof placeActivityOverlay === "function") placeActivityOverlay();
   if (typeof fitAllEssayExcerpts === "function") {
@@ -304,7 +312,7 @@ const NEWS_SECTION = {
 
 const ESSAY_SECTION = {
   dir: "data/bài viết",
-  apiUrl: `https://api.github.com/repos/${TXT_REPO}/contents/data/b%C3%A0i%20vi%E1%BA%BFt?ref=main`,
+  listFile: "_list.csv",
   rootSelector: "#essays-root",
   statusId: "bai-viet-status",
   emptyText: "Chưa có bài viết.",
@@ -497,7 +505,7 @@ async function loadSchedule() {
 
 loadSchedule();
 loadNewsFromList(NEWS_SECTION);
-loadTxtSection(ESSAY_SECTION);
+loadEssaysFromList(ESSAY_SECTION);
 
 function parseTxtCard(text) {
   const normalized = String(text || "").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
@@ -960,6 +968,86 @@ function scheduleEventOverlays(items) {
   }, EVENT_OVERLAY_DELAY_MS);
 }
 
+function isEssayAssetName(name) {
+  return /\.(txt|jpe?g|png|gif)$/i.test(String(name || "").trim());
+}
+
+/**
+ * Bài viết `_list.csv`:
+ * `title;ngày;file;file;…` — file .txt / .jpg|.jpeg|.png|.gif, không giới hạn số.
+ */
+function parseEssayListCsv(text) {
+  return String(text || "")
+    .replace(/^\uFEFF/, "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const parts = line.split(";").map((p) => p.trim());
+      if (parts.length < 3) return null;
+      const files = [];
+      while (parts.length && isEssayAssetName(parts[parts.length - 1])) {
+        files.unshift(parts.pop());
+      }
+      if (!files.length || parts.length < 2) return null;
+      const dateRaw = parts.pop();
+      const title = parts.join(";").trim();
+      const createdAt = parseListDate(dateRaw);
+      if (!title || !createdAt) return null;
+      return { title, createdAt, files };
+    })
+    .filter(Boolean);
+}
+
+async function fetchEssayAsset(dir, name) {
+  const kind = TXT_IMAGE_EXT.test(name) ? "img" : "txt";
+  try {
+    const response = await fetch(`${encodeURI(`${dir}/${name}`)}?t=${Date.now()}`);
+    if (!response.ok) return { name, kind, missing: true };
+    if (kind === "img") {
+      return { name, kind, missing: false, url: `${assetUrl(dir, name)}?t=${Date.now()}` };
+    }
+    const body = String(await response.text()).replace(/^\uFEFF/, "").trim();
+    return { name, kind, missing: false, body };
+  } catch (error) {
+    return { name, kind, missing: true };
+  }
+}
+
+/** Bài viết: đọc _list.csv (dòng cuối → đầu), fetch mọi file song song. */
+async function loadEssaysFromList(section) {
+  const status = document.querySelector(`#${section.statusId}`);
+  try {
+    const listName = section.listFile || "_list.csv";
+    const listRes = await fetch(`${encodeURI(`${section.dir}/${listName}`)}?t=${Date.now()}`);
+    if (!listRes.ok) throw new Error(String(listRes.status));
+    const rows = parseEssayListCsv(await listRes.text());
+    const ordered = rows.slice().reverse();
+    const items = await Promise.all(
+      ordered.map(async (row) => {
+        const assets = await Promise.all(
+          row.files.map((name) => fetchEssayAsset(section.dir, name))
+        );
+        const firstTxt = assets.find((a) => a.kind === "txt");
+        const firstImg = assets.find((a) => a.kind === "img");
+        return {
+          name: row.files[0] || row.title,
+          title: row.title,
+          createdAt: row.createdAt,
+          assets,
+          body: firstTxt && !firstTxt.missing ? firstTxt.body : "",
+          bodyMissing: Boolean(firstTxt && firstTxt.missing) || !firstTxt,
+          images: firstImg && !firstImg.missing ? [firstImg.name] : [],
+          firstImgMissing: Boolean(firstImg && firstImg.missing),
+        };
+      })
+    );
+    renderEssaySection(section, items);
+  } catch (error) {
+    if (status) status.textContent = section.failText;
+  }
+}
+
 /** Thông báo: đọc _list.csv (dòng cuối → đầu), fetch body song song. */
 async function loadNewsFromList(section) {
   const status = document.querySelector(`#${section.statusId}`);
@@ -1141,27 +1229,99 @@ function ensureEssayOverlay() {
     photos: overlay.querySelector(".essay-overlay__photos"),
     onKey,
     returnScroll: 0,
+    currentItem: null,
   };
   return essayOverlayState;
+}
+
+function appendEssayAssetBlock(container, asset) {
+  if (!container || !asset) return;
+  if (asset.kind === "txt") {
+    if (asset.missing) {
+      appendMissingPlaceholder(container, "text");
+      return;
+    }
+    const wrap = document.createElement("div");
+    wrap.className = "essay-overlay__block";
+    appendMarkdownBody(wrap, asset.body || "");
+    container.append(wrap);
+    return;
+  }
+  if (asset.missing) {
+    appendMissingPlaceholder(container, "img");
+    return;
+  }
+  const wrap = document.createElement("div");
+  wrap.className = "essay__photos";
+  const figure = document.createElement("figure");
+  figure.className = "essay__photo";
+  const img = document.createElement("img");
+  img.src = asset.url || "";
+  img.alt = "";
+  img.loading = "lazy";
+  figure.append(img);
+  wrap.append(figure);
+  container.append(wrap);
+}
+
+/** Hẹp (1 cột): file theo thứ tự CSV. TB+rộng (2 cột): trái txt, phải ảnh. */
+function fillEssayOverlayContent(item) {
+  const state = essayOverlayState;
+  if (!state) return;
+  const assets = Array.isArray(item.assets) ? item.assets : [];
+  const texts = assets.filter((a) => a.kind === "txt");
+  const images = assets.filter((a) => a.kind === "img");
+  const oneColumn = narrowLayout.matches;
+  const hasImages = images.length > 0;
+
+  state.body.replaceChildren();
+  state.photos.replaceChildren();
+  state.overlay.classList.remove(
+    "essay-overlay--has-images",
+    "essay-overlay--text-only",
+    "essay-overlay--sequential"
+  );
+
+  if (oneColumn || !hasImages) {
+    state.photos.hidden = true;
+    state.overlay.classList.add(hasImages ? "essay-overlay--sequential" : "essay-overlay--text-only");
+    const stream = oneColumn && hasImages ? assets : texts.length ? texts : assets;
+    stream.forEach((asset, index) => {
+      if (index > 0 && asset.kind === "txt" && stream[index - 1].kind === "txt") {
+        const gap = document.createElement("p");
+        gap.className = "essay-overlay__gap";
+        gap.innerHTML = "&nbsp;";
+        state.body.append(gap);
+      }
+      appendEssayAssetBlock(state.body, asset);
+    });
+    return;
+  }
+
+  state.photos.hidden = false;
+  state.overlay.classList.add("essay-overlay--has-images");
+  texts.forEach((asset, index) => {
+    if (index > 0) {
+      const gap = document.createElement("p");
+      gap.className = "essay-overlay__gap";
+      gap.innerHTML = "&nbsp;";
+      state.body.append(gap);
+    }
+    appendEssayAssetBlock(state.body, asset);
+  });
+  images.forEach((asset) => appendEssayAssetBlock(state.photos, asset));
 }
 
 function openEssayOverlay(item, section) {
   const state = ensureEssayOverlay();
   state.returnScroll = window.scrollY || 0;
+  state.currentItem = item;
+  state.section = section;
   state.title.textContent = item.title || item.name;
-  const dateText = formatTxtDate(item.createdAt);
-  state.date.textContent = dateText;
-  state.date.hidden = !dateText;
-  state.body.replaceChildren();
-  appendMarkdownBody(state.body, item.body);
-  state.photos.replaceChildren();
-  const hasImages = !!(item.images && item.images.length);
-  state.overlay.classList.toggle("essay-overlay--has-images", hasImages);
-  state.overlay.classList.toggle("essay-overlay--text-only", !hasImages);
-  state.photos.hidden = !hasImages;
-  if (hasImages) {
-    appendCardImages(state.photos, section.dir, item.images);
-  }
+  const posted = formatPostedLabel(item.createdAt);
+  state.date.textContent = posted;
+  state.date.hidden = !posted;
+  fillEssayOverlayContent(item);
   state.overlay.hidden = false;
   document.body.classList.add("is-essay-open");
   refreshViewportUi();
@@ -1174,13 +1334,18 @@ function closeEssayOverlay() {
   const state = essayOverlayState;
   if (!state || state.overlay.hidden) return;
   state.overlay.hidden = true;
-  state.overlay.classList.remove("essay-overlay--has-images", "essay-overlay--text-only");
+  state.overlay.classList.remove(
+    "essay-overlay--has-images",
+    "essay-overlay--text-only",
+    "essay-overlay--sequential"
+  );
   state.overlay.style.height = "";
   document.body.classList.remove("is-essay-open");
   document.removeEventListener("keydown", state.onKey);
   state.body.replaceChildren();
   state.photos.replaceChildren();
   state.photos.hidden = true;
+  state.currentItem = null;
   window.scrollTo(0, state.returnScroll);
 }
 
@@ -1215,7 +1380,9 @@ function renderEssaySection(section, items) {
     if (hasMore && index >= ESSAY_VISIBLE) card.classList.add(section.moreCardClass);
 
     const thumbName = item.images && item.images[0];
+    const showThumb = Boolean(thumbName) || item.firstImgMissing;
     if (thumbName) card.classList.add("essay-card--landscape");
+    else if (item.firstImgMissing) card.classList.add("essay-card--landscape");
     else card.classList.add("essay-card--text");
 
     card.innerHTML = `
@@ -1226,8 +1393,12 @@ function renderEssaySection(section, items) {
         </span>
         <span class="essay-card__body">
           ${
-            thumbName
-              ? `<span class="essay-card__thumb"><img alt="" loading="eager" decoding="async"></span>`
+            showThumb
+              ? `<span class="essay-card__thumb">${
+                  item.firstImgMissing
+                    ? `<span class="missing-file missing-file--img">&lt;img not found&gt;</span>`
+                    : `<img alt="" loading="eager" decoding="async">`
+                }</span>`
               : ""
           }
           <span class="essay-card__copy">
@@ -1238,11 +1409,16 @@ function renderEssaySection(section, items) {
     `;
     card.querySelector(".essay-card__title").textContent = item.title || item.name;
     const dateEl = card.querySelector(".essay-card__date");
-    const dateText = formatTxtDate(item.createdAt);
-    if (dateText) dateEl.textContent = dateText;
+    const posted = formatPostedLabel(item.createdAt);
+    if (posted) dateEl.textContent = posted;
     else dateEl.hidden = true;
     const excerptEl = card.querySelector(".essay-card__excerpt");
-    excerptEl.textContent = essayPlainText(item.body) || "…";
+    if (item.bodyMissing) {
+      excerptEl.classList.add("missing-file");
+      excerptEl.textContent = "<not found>";
+    } else {
+      excerptEl.textContent = essayPlainText(item.body) || "…";
+    }
     if (thumbName) {
       const img = card.querySelector(".essay-card__thumb img");
       img.src = `${assetUrl(section.dir, thumbName)}?t=${Date.now()}`;
