@@ -1214,11 +1214,8 @@ body.is-event-open {
 .event-overlay__scrim {
   position: absolute;
   inset: 0;
-  /* Tím đậm + chiếu sáng giữa (tone logo TPBank). */
-  background:
-    radial-gradient(ellipse 65% 50% at 50% 40%, rgba(150, 90, 220, 0.62), transparent 58%),
-    radial-gradient(circle at 50% 36%, #5a2e92 0%, transparent 40%),
-    linear-gradient(165deg, #2c1054 0%, #180830 48%, #0c0418 100%);
+  /* Cùng kiểu lớp phủ bài viết / ảnh hoạt động. */
+  background: rgba(16, 28, 26, 0.45);
 }
 
 /* Cascade: full khung viewport như panel bài viết/ảnh.
@@ -1310,25 +1307,25 @@ body.is-event-open {
 }
 
 .event-overlay__panel[data-color="G"] {
-  --event-tone: #1a5c52;
+  --event-tone: #1a6b5e;
   --event-tone-hi: #2f9a88;
-  --event-tone-lo: #0b2c28;
-  --event-glow: rgba(60, 180, 150, 0.22);
+  --event-tone-lo: #043530;
+  --event-glow: rgba(45, 160, 140, 0.24);
   --event-hi: rgba(230, 255, 248, 0.36);
-  --event-mid: rgba(80, 200, 170, 0.26);
-  --event-lo-glow: rgba(20, 120, 100, 0.22);
+  --event-mid: rgba(60, 180, 155, 0.28);
+  --event-lo-glow: rgba(8, 90, 78, 0.35);
   --event-accent: #f0d48a;
   --event-link: #ffe4a8;
 }
 
 .event-overlay__panel[data-color="O"] {
-  --event-tone: #a84e1c;
+  --event-tone: #b4531a;
   --event-tone-hi: #d87838;
-  --event-tone-lo: #4a1c0a;
-  --event-glow: rgba(230, 140, 60, 0.24);
-  --event-hi: rgba(255, 245, 230, 0.4);
-  --event-mid: rgba(255, 170, 90, 0.28);
-  --event-lo-glow: rgba(180, 80, 20, 0.22);
+  --event-tone-lo: #050201;
+  --event-glow: rgba(230, 140, 60, 0.22);
+  --event-hi: rgba(255, 245, 230, 0.36);
+  --event-mid: rgba(255, 150, 70, 0.22);
+  --event-lo-glow: rgba(20, 8, 2, 0.45);
   --event-accent: #ffe0a8;
   --event-link: #ffe8b8;
 }
