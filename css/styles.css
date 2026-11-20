@@ -1404,22 +1404,22 @@ body.is-event-open {
   color: var(--event-muted);
 }
 
-/* Trung bình + rộng (≥391): chữ popup sự kiện gấp đôi. */
+/* Trung bình + rộng (≥391): chữ popup ≈ 1.4× hẹp (70% mức gấp đôi trước). */
 @media (min-width: 391px) {
   .event-overlay__kicker {
-    font-size: 1.56rem;
+    font-size: 1.092rem;
   }
 
   .event-overlay__title {
-    font-size: clamp(3.2rem, 8vw, 4.4rem);
+    font-size: clamp(2.24rem, 5.6vw, 3.08rem);
   }
 
   .event-overlay__date {
-    font-size: 1.7rem;
+    font-size: 1.19rem;
   }
 
   .event-overlay__body {
-    font-size: 2rem;
+    font-size: 1.4rem;
   }
 }
 
