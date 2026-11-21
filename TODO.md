@@ -2,6 +2,7 @@
 
 ## Đang làm
 
+- [x] Thông báo: band/xem cũ như bài viết (chữ ngoài, peek ⅓, nhét/lấy)
 - [x] Bài viết: khoảng chữ “Xem cũ…” → đáy section còn ½ (2.25rem)
 - [x] Bài viết: nhét card giữ scroll — lộ ~⅓ card mới
 - [x] Bài viết: band = hàng + ⅓ card (trần 3+⅓); chữ ngoài band; nhấn nhét/lấy card

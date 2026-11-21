@@ -1581,6 +1581,34 @@ function collapseTxtCard(card) {
   if (body) body.hidden = true;
 }
 
+/** Vùng cuộn khi nhét tin cũ: hẹp = band; TB+rộng = cột phải. */
+function newsScrollPane(root) {
+  if (!root) return null;
+  if (window.matchMedia("(min-width: 391px)").matches) {
+    return root.querySelector(`:scope > .news__band > .${NEWS_SECTION.restClass}`);
+  }
+  return root.querySelector(":scope > .news__band");
+}
+
+function bindNewsMoreButton(root, section, more) {
+  more.addEventListener("click", () => {
+    const expanded = !root.classList.contains("is-expanded");
+    const pane = newsScrollPane(root);
+    const keepScroll = expanded && pane ? pane.scrollTop : 0;
+    root.classList.toggle("is-expanded", expanded);
+    more.textContent = expanded ? "Thu gọn..." : section.moreText;
+    more.setAttribute("aria-expanded", String(expanded));
+    if (!expanded) {
+      root.querySelectorAll(`.${section.moreCardClass}`).forEach(collapseTxtCard);
+    }
+    const after = () => {
+      if (!pane) return;
+      pane.scrollTop = expanded ? keepScroll : 0;
+    };
+    window.requestAnimationFrame(() => window.requestAnimationFrame(after));
+  });
+}
+
 function renderTxtSection(section, items) {
   const root = document.querySelector(section.rootSelector);
   if (!root) return;
@@ -1595,10 +1623,12 @@ function renderTxtSection(section, items) {
     return;
   }
 
-  const fragment = document.createDocumentFragment();
   const lead = items[0];
   const rest = items.slice(1);
   const hasMore = items.length > TXT_VISIBLE;
+
+  const band = document.createElement("div");
+  band.className = "news__band";
 
   const leadCard = document.createElement("article");
   leadCard.className = "card card--lead is-open";
@@ -1618,7 +1648,7 @@ function renderTxtSection(section, items) {
   const leadBody = leadCard.querySelector(".card__body");
   fillNewsCardBody(leadBody, lead);
   if (section.withImages) appendCardImages(leadBody, section.dir, lead.images || []);
-  fragment.append(leadCard);
+  band.append(leadCard);
 
   const restWrap = document.createElement("div");
   restWrap.className = section.restClass;
@@ -1646,28 +1676,22 @@ function renderTxtSection(section, items) {
     restWrap.append(card);
   });
 
+  if (rest.length) band.append(restWrap);
+
+  root.classList.remove("is-expanded");
+  root.className = "news";
+  root.replaceChildren(band);
+
   if (hasMore) {
     const more = document.createElement("button");
     more.type = "button";
     more.className = section.moreBtnClass;
     more.textContent = section.moreText;
     more.setAttribute("aria-expanded", "false");
-    more.addEventListener("click", () => {
-      const expanded = !root.classList.contains("is-expanded");
-      root.classList.toggle("is-expanded", expanded);
-      more.textContent = expanded ? "Thu gọn..." : section.moreText;
-      more.setAttribute("aria-expanded", String(expanded));
-      if (!expanded) {
-        root.querySelectorAll(`.${section.moreCardClass}`).forEach(collapseTxtCard);
-      }
-    });
-    restWrap.append(more);
+    bindNewsMoreButton(root, section, more);
+    root.append(more);
   }
 
-  if (rest.length || hasMore) fragment.append(restWrap);
-
-  root.classList.remove("is-expanded");
-  root.replaceChildren(fragment);
   bindAccordion(root, `.${section.restClass} .card`);
 }
 
