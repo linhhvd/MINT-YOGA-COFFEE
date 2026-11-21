@@ -2547,51 +2547,7 @@ body.is-event-open {
   top: calc(50% - var(--bot-cluster) / 2 + var(--bot-size) * var(--bot-foot));
 }
 
-@media (max-width: 390px) {
-  .contact-band {
-    height: 17.05rem;
-    padding: 1.15rem 0;
-  }
-
-  .contact-band .reach {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    grid-template-rows: minmax(0, 1fr) auto;
-    align-items: end;
-    gap: 0;
-  }
-
-  .contact-band .reach__side {
-    display: contents;
-  }
-
-  .contact-band .icon-btn {
-    grid-row: 2;
-    justify-self: center;
-    z-index: 5;
-  }
-
-  .contact-band .icon-btn::after,
-  .contact-band .reach__side:first-child .icon-btn::after,
-  .contact-band .reach__side--right .icon-btn::after {
-    top: auto;
-    bottom: calc(100% + 0.35rem);
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-  }
-
-  .contact-band .reach__side:first-child .icon-btn:first-child::after {
-    left: 0;
-    transform: none;
-  }
-
-  .contact-band .reach__side--right .icon-btn--map::after {
-    left: auto;
-    right: 0;
-    transform: none;
-  }
-}
+/* Hẹp dùng cùng layout TB+rộng: cao band thu chung; 6 nút 2 mép; bot căn giữa dọc. */
 
 .contact-band .eyebrow,
 .contact-band h2,
