@@ -409,8 +409,9 @@ h3 {
   padding: 4.5rem 0;
 }
 
-/* Bài viết: đáy dưới dòng “Xem bài viết cũ…” còn ½ padding section. */
-#bai-viet {
+/* Bài viết / Thông báo: đáy dưới dòng “Xem … cũ…” còn ½ padding section. */
+#bai-viet,
+#thong-bao {
   padding-bottom: 2.25rem;
 }
 
@@ -2369,6 +2370,11 @@ body.is-event-open {
   min-width: 0;
 }
 
+/* Tin mới nhất: viền mint mọi màn. */
+.news__band > .card--lead {
+  border: 2px solid #2dd4bf;
+}
+
 .news__rest {
   display: grid;
   gap: 0.8rem;
@@ -2478,13 +2484,6 @@ body.is-event-open {
 
   .essays__band {
     grid-template-columns: 1fr 1fr;
-  }
-}
-
-/* Trung bình: lead thông báo còn viền mint. Rộng: bỏ viền. */
-@media (min-width: 391px) and (max-width: 1023px) {
-  .news__band > .card--lead {
-    border: 2px solid #2dd4bf;
   }
 }
 
