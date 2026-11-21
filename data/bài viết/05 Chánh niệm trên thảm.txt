@@ -1,0 +1,5 @@
+Đây là bài viết mẫu layout (05) — Chánh niệm trên thảm.
+
+Nội dung tạm để kiểm tra lưới bài viết, band, nút xem cũ và overlay. Bạn có thể xóa các file mẫu này sau khi check xong.
+
+Yoga không chỉ là động tác: còn là nhịp thở, sự chú ý và khoảng nghỉ giữa những lần cố gắng. Hãy giữ lưng dài, vai nhẹ, và để hơi thở dẫn nhịp.

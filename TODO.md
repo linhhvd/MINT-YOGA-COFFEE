@@ -2,6 +2,7 @@
 
 ## Đang làm
 
+- [x] Bài viết: thêm 10 bài mẫu layout (04–13) — có thể xóa sau khi check
 - [x] Về chúng tôi: thư/video/ảnh cao +¼ mọi case
 - [x] Thông báo: viền mint lead mọi màn; đáy section còn ½ như bài viết
 - [x] Thông báo TB+rộng: cửa sổ phải = đúng cao card trái
