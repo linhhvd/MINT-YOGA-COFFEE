@@ -823,31 +823,45 @@ h3 {
   --essay-gap: 1rem;
   --essay-empty-line: 1.7rem;
   --essay-empty-lines: 3;
-  /* Tối đa 3 hàng card + 2 gap + 3 dòng (chỗ “Xem bài viết cũ” / “Thu gọn”). */
+  /* Tối đa 3 hàng card + 2 gap + 3 dòng (chỗ nút đáy band). */
   --essay-band-max: calc(
     3 * var(--essay-card-h) + 2 * var(--essay-gap) +
       var(--essay-empty-lines) * var(--essay-empty-line)
   );
-  display: grid;
-  gap: var(--essay-gap);
+  --essay-more-h: calc(
+    var(--essay-empty-lines) * var(--essay-empty-line)
+  );
 }
 
+/* Band: card cuộn phía trên; nút luôn ở đáy band (không sticky đè card). */
 .essays--grid {
-  grid-template-columns: 1fr;
-  align-items: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
   box-sizing: border-box;
   max-height: var(--essay-band-max);
+  overflow: hidden;
+}
+
+.essays__scroll {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--essay-gap);
+  align-content: start;
+  align-items: stretch;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(17, 94, 89, 0.35) transparent;
 }
 
-.essays--grid::-webkit-scrollbar {
+.essays__scroll::-webkit-scrollbar {
   width: 4px;
 }
 
-.essays--grid::-webkit-scrollbar-thumb {
+.essays__scroll::-webkit-scrollbar-thumb {
   background: rgba(17, 94, 89, 0.35);
   border-radius: 999px;
 }
@@ -1993,7 +2007,7 @@ body.is-event-open {
 /* Hẹp ≤390px: 1 cột; khoảng hở card–mép màn = 1/3 (2.4rem → 0.8rem). */
 @media (max-width: 390px) {
   .news,
-  .essays--grid {
+  .essays__scroll {
     grid-template-columns: 1fr;
   }
 
@@ -2367,19 +2381,18 @@ body.is-event-open {
 }
 
 .essays__more {
-  grid-column: 1 / -1;
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
+  flex: 0 0 auto;
   box-sizing: border-box;
   margin: 0;
-  /* 3 dòng cao: che title card cũ khi cuộn, không đè chữ nút. */
-  min-height: calc(var(--essay-empty-lines, 3) * var(--essay-empty-line, 1.7rem));
+  /* Luôn đáy band; card cũ chen vào vùng cuộn phía trên → đẩy/giữ nút dưới, không đè. */
+  min-height: var(--essay-more-h);
+  height: var(--essay-more-h);
   padding: 0.35rem 0 0.25rem;
   background: #e7e1d4;
   line-height: var(--essay-empty-line, 1.7rem);
   display: flex;
   align-items: flex-start;
+  justify-self: stretch;
 }
 
 .news__more:hover,
@@ -2455,7 +2468,7 @@ body.is-event-open {
     background: transparent;
   }
 
-  .essays--grid {
+  .essays__scroll {
     grid-template-columns: 1fr 1fr;
   }
 }
@@ -2469,7 +2482,7 @@ body.is-event-open {
 
 /* Rộng: bài viết 3 cột. */
 @media (min-width: 1024px) {
-  .essays--grid {
+  .essays__scroll {
     grid-template-columns: 1fr 1fr 1fr;
   }
 }

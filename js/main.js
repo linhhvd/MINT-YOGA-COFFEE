@@ -1403,7 +1403,8 @@ function bindEssayMoreButton(root, section, more) {
 function syncEssayBandMore(section) {
   const root = document.querySelector(section.rootSelector);
   if (!root || !root.classList.contains("essays--grid")) return;
-  const cards = [...root.querySelectorAll(".essay-card")];
+  const scroll = root.querySelector(":scope > .essays__scroll") || root;
+  const cards = [...scroll.querySelectorAll(":scope > .essay-card")];
   if (!cards.length) return;
   const cap = essayVisibleCap();
   const hasMore = cards.length > cap;
@@ -1445,7 +1446,8 @@ function renderEssaySection(section, items) {
     return;
   }
 
-  const fragment = document.createDocumentFragment();
+  const scroll = document.createElement("div");
+  scroll.className = "essays__scroll";
   const cap = essayVisibleCap();
   const hasMore = items.length > cap;
 
@@ -1512,8 +1514,11 @@ function renderEssaySection(section, items) {
     card.querySelector(".essay-card__hit").addEventListener("click", () => {
       openEssayOverlay(item, section);
     });
-    fragment.append(card);
+    scroll.append(card);
   });
+
+  const fragment = document.createDocumentFragment();
+  fragment.append(scroll);
 
   if (hasMore) {
     const more = document.createElement("button");
