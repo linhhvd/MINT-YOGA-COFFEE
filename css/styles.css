@@ -821,47 +821,48 @@ h3 {
 .essays {
   --essay-card-h: 22rem;
   --essay-gap: 1rem;
-  --essay-empty-line: 1.7rem;
-  --essay-empty-lines: 3;
-  /* Tối đa 3 hàng card + 2 gap + 3 dòng (chỗ nút đáy band). */
+  --essay-peek: calc(var(--essay-card-h) / 3);
+  --essay-rows: 1;
+  /* Trần: 3 hàng + 2 gap + ⅓ card. */
   --essay-band-max: calc(
-    3 * var(--essay-card-h) + 2 * var(--essay-gap) +
-      var(--essay-empty-lines) * var(--essay-empty-line)
-  );
-  --essay-more-h: calc(
-    var(--essay-empty-lines) * var(--essay-empty-line)
+    3 * var(--essay-card-h) + 2 * var(--essay-gap) + var(--essay-peek)
   );
 }
 
-/* Band: card cuộn phía trên; nút luôn ở đáy band (không sticky đè card). */
+/* Khối ngoài: band + dòng chữ sát dưới (chữ không nằm trong band). */
 .essays--grid {
   display: flex;
   flex-direction: column;
   gap: 0;
   box-sizing: border-box;
-  max-height: var(--essay-band-max);
-  overflow: hidden;
 }
 
-.essays__scroll {
+/* Band: cao = hàng đang hiện + ⅓ card; quá 3 hàng → cuộn. */
+.essays__band {
+  /* JS set --essay-rows (1–3). Cao = hàng + gap giữa + ⅓ card. */
+  --essay-band-h: calc(
+    var(--essay-rows) * var(--essay-card-h) + (var(--essay-rows) - 1) * var(--essay-gap) +
+      var(--essay-peek)
+  );
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--essay-gap);
   align-content: start;
   align-items: stretch;
-  flex: 1 1 auto;
-  min-height: 0;
+  box-sizing: border-box;
+  height: var(--essay-band-h);
+  max-height: var(--essay-band-max);
   overflow-x: hidden;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(17, 94, 89, 0.35) transparent;
 }
 
-.essays__scroll::-webkit-scrollbar {
+.essays__band::-webkit-scrollbar {
   width: 4px;
 }
 
-.essays__scroll::-webkit-scrollbar-thumb {
+.essays__band::-webkit-scrollbar-thumb {
   background: rgba(17, 94, 89, 0.35);
   border-radius: 999px;
 }
@@ -2007,7 +2008,7 @@ body.is-event-open {
 /* Hẹp ≤390px: 1 cột; khoảng hở card–mép màn = 1/3 (2.4rem → 0.8rem). */
 @media (max-width: 390px) {
   .news,
-  .essays__scroll {
+  .essays__band {
     grid-template-columns: 1fr;
   }
 
@@ -2384,15 +2385,10 @@ body.is-event-open {
   flex: 0 0 auto;
   box-sizing: border-box;
   margin: 0;
-  /* Luôn đáy band; card cũ chen vào vùng cuộn phía trên → đẩy/giữ nút dưới, không đè. */
-  min-height: var(--essay-more-h);
-  height: var(--essay-more-h);
-  padding: 0.35rem 0 0.25rem;
-  background: #e7e1d4;
-  line-height: var(--essay-empty-line, 1.7rem);
-  display: flex;
-  align-items: flex-start;
-  justify-self: stretch;
+  padding: 0.45rem 0 0;
+  /* Ngoài band, sát ngay dưới. */
+  background: none;
+  line-height: 1.45;
 }
 
 .news__more:hover,
@@ -2468,7 +2464,7 @@ body.is-event-open {
     background: transparent;
   }
 
-  .essays__scroll {
+  .essays__band {
     grid-template-columns: 1fr 1fr;
   }
 }
@@ -2482,7 +2478,7 @@ body.is-event-open {
 
 /* Rộng: bài viết 3 cột. */
 @media (min-width: 1024px) {
-  .essays__scroll {
+  .essays__band {
     grid-template-columns: 1fr 1fr 1fr;
   }
 }
