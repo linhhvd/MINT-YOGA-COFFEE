@@ -20,7 +20,7 @@ Chỉ **layout các phần trong trang** khác theo case. Khi yêu cầu chỉnh
 - **Thông báo:** 3 mới nhất; chữ “Xem thông báo cũ hơn…” / “Thu gọn…” ngoài band (như bài viết); nhấn nhét/lấy tin cũ. Lead viền mint mọi màn. Hẹp 1 cột (1 card mở). TB+rộng 2 cột (lead trái luôn mở; cửa sổ phải = đúng cao card trái; phải tối đa 1 card mở; tin cũ thêm vào cột phải).
 - **Bài viết:** hẹp 1 / TB 2 / rộng 3 cột; band = hàng + ⅓ card (trần 3+⅓); chữ ngoài band. Overlay giữ nguyên.
 - **Lịch:** hẹp+TB xếp từng ngày; rộng bảng tuần như hiện tại.
-- **Chat:** hẹp = layout phone hiện tại; TB+rộng = layout desktop hiện tại.
+- **Chat / liên lạc (band thu):** mọi màn cùng cao; 6 nút 2 mép như TB; bot + label căn giữa dọc. Band nở giữ như hiện tại.
 - **Về chúng tôi:** bỏ mục Hoạt động riêng. Hẹp+TB 1 cột (thư → video → card ảnh). Rộng 2 cột (trái thư; phải video + card ảnh). Ảnh trong `data/ảnh hoạt động`. Card thumbnail random, đổi mỗi 15s (4 / 8 / 12). Overlay xem hết ảnh; đứng/ngang theo **chiều cao vs rộng cửa sổ trang**.
 
 ## Kiểm tra

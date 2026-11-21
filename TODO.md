@@ -2,6 +2,7 @@
 
 ## Đang làm
 
+- [x] Liên lạc: band thu thống nhất mọi màn (cao TB, nút 2 mép, bot giữa dọc)
 - [x] Bài viết: thêm 10 bài mẫu layout (04–13) — có thể xóa sau khi check
 - [x] Về chúng tôi: thư/video/ảnh cao +¼ mọi case
 - [x] Thông báo: viền mint lead mọi màn; đáy section còn ½ như bài viết

@@ -170,7 +170,8 @@ function setupBotToggle() {
     if (tall) return applyTallBandVar();
     const probe = document.createElement("div");
     probe.style.cssText = "position:fixed;left:0;top:0;visibility:hidden;pointer-events:none;box-sizing:border-box;";
-    probe.style.height = phoneLayout() ? "17.05rem" : "calc(20.45rem * 0.75)";
+    /* Band thu: cùng cao mọi màn (khớp CSS .contact-band). */
+    probe.style.height = "calc(20.45rem * 0.75)";
     document.body.appendChild(probe);
     const height = probe.offsetHeight;
     probe.remove();
