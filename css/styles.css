@@ -2062,27 +2062,7 @@ body.is-event-open {
     width: calc(100% - 1rem);
   }
 
-  .reach {
-    --icon: 2.45rem;
-    --side-gap: 0.35rem;
-    --bot-size: 5rem;
-    gap: 0.35rem;
-  }
-
-  .icon-btn {
-    width: 2.45rem;
-    height: 2.45rem;
-  }
-
-  .icon-btn::after {
-    max-width: 9rem;
-    font-size: 0.72rem;
-    padding: 0.2rem 0.45rem;
-  }
-
-  .reach__side {
-    gap: 0.35rem;
-  }
+  /* Liên lạc: hẹp giữ cùng cỡ nút / bot / khoảng cách với TB+rộng (không thu nhỏ). */
 
   .card--lead h3 {
     font-size: 1.55rem;
