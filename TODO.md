@@ -2,6 +2,7 @@
 
 ## Đang làm
 
+- [x] Về chúng tôi: thư/video/ảnh cao +¼ mọi case
 - [x] Thông báo: viền mint lead mọi màn; đáy section còn ½ như bài viết
 - [x] Thông báo TB+rộng: cửa sổ phải = đúng cao card trái
 - [x] Thông báo: band/xem cũ như bài viết (chữ ngoài, peek ⅓, nhét/lấy)

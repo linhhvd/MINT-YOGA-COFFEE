@@ -2110,12 +2110,13 @@ body.is-event-open {
 }
 
 .studio {
-  /* Cao cố định theo case 1 cột / 2 cột — không theo viewport. */
-  --studio-video-h: 13.5rem;
-  --studio-card-h: 13.5rem;
+  /* Cao cố định theo case 1 cột / 2 cột — không theo viewport.
+     Thư +¼ so với trước; video/ảnh scale cùng tỉ lệ. */
+  --studio-video-h: 16.875rem;
+  --studio-card-h: 16.875rem;
   --studio-media-gap: 1rem;
   --studio-grid-gap: 1.2rem;
-  --studio-letter-h: 24rem;
+  --studio-letter-h: 30rem;
   --studio-band-h: calc(
     var(--studio-letter-h) + var(--studio-grid-gap) + var(--studio-video-h) + var(--studio-media-gap) +
       var(--studio-card-h)
@@ -2135,8 +2136,9 @@ body.is-event-open {
 
 @media (min-width: 1024px) {
   .studio {
-    --studio-video-h: 14rem;
-    --studio-card-h: 16rem;
+    /* Video/ảnh +¼; thư vẫn = video + gap + card. */
+    --studio-video-h: 17.5rem;
+    --studio-card-h: 20rem;
     --studio-letter-h: calc(
       var(--studio-video-h) + var(--studio-media-gap) + var(--studio-card-h)
     );
