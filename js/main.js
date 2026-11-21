@@ -14,12 +14,22 @@ function activateHref(href) {
 }
 
 /**
- * Chỉ can thiệp tel:. Zalo/Messenger để <a href="https://…"> native —
- * không thử zalo:// rồi fallback https (iOS hiện Open 2 lần, lần 1 sai contact).
+ * Tel: synthetic <a>.click().
+ * Zalo: để https://zalo.me/… native (scheme+fallback gây Open 2 lần).
+ * Messenger iOS: m.me hay mở Safari — dùng fb-messenger://, không fallback https.
  */
 document.querySelectorAll('[data-contact="tel"]').forEach((el) => {
   el.addEventListener("click", () => {
     activateHref(el.getAttribute("href"));
+  });
+});
+
+document.querySelectorAll('[data-contact="messenger"]').forEach((el) => {
+  el.addEventListener("click", (event) => {
+    if (!/iPhone|iPad|iPod/i.test(navigator.userAgent || "")) return;
+    event.preventDefault();
+    const page = el.getAttribute("data-page") || "108281021105168";
+    activateHref(`fb-messenger://user-thread/${page}`);
   });
 });
 
