@@ -294,11 +294,27 @@ function bindAccordion(root, restSelector) {
 const SCHEDULE_FILE = "data/lịch học.csv";
 const TXT_REPO = "linhhvd/MINT-YOGA-COFFEE";
 const TXT_VISIBLE = 3;
-/** Số card vừa 3 hàng lưới bài viết: hẹp 1 cột → 3; TB 2 cột → 6; rộng 3 cột → 9. */
+/** Cột lưới bài viết: hẹp 1 / TB 2 / rộng 3. */
+function essayCols() {
+  if (window.matchMedia("(min-width: 1024px)").matches) return 3;
+  if (window.matchMedia("(min-width: 391px)").matches) return 2;
+  return 1;
+}
+
+/** Số card vừa 3 hàng: hẹp 3 / TB 6 / rộng 9. */
 function essayVisibleCap() {
-  if (window.matchMedia("(min-width: 1024px)").matches) return 9;
-  if (window.matchMedia("(min-width: 391px)").matches) return 6;
-  return 3;
+  return essayCols() * 3;
+}
+
+/** Cao band = min(hàng đang hiện, 3) — CSS cộng thêm ⅓ card. */
+function syncEssayBandHeight(root) {
+  const band = root && root.querySelector(":scope > .essays__band");
+  if (!band) return;
+  const cards = [...band.querySelectorAll(":scope > .essay-card")].filter(
+    (card) => getComputedStyle(card).display !== "none"
+  );
+  const rows = Math.min(3, Math.max(1, Math.ceil(cards.length / essayCols())));
+  band.style.setProperty("--essay-rows", String(cards.length ? rows : 1));
 }
 
 const NEWS_SECTION = {
@@ -1395,33 +1411,34 @@ function bindEssayMoreButton(root, section, more) {
     root.classList.toggle("is-expanded", expanded);
     more.textContent = expanded ? "Thu gọn..." : section.moreText;
     more.setAttribute("aria-expanded", String(expanded));
-    const reveal = () => {
+    const after = () => {
       fitAllEssayExcerpts();
-      const scroll = root.querySelector(":scope > .essays__scroll");
-      if (!scroll) return;
+      syncEssayBandHeight(root);
+      const band = root.querySelector(":scope > .essays__band");
+      if (!band) return;
       if (!expanded) {
-        scroll.scrollTop = 0;
+        band.scrollTop = 0;
         return;
       }
-      // Card cũ vừa bỏ display:none — đo trong scroll, kéo vào tầm nhìn.
-      const firstMore = scroll.querySelector(`:scope > .${section.moreCardClass}`);
+      // Nhét card dư → cuộn tới card mới nếu band đã trần (scroll).
+      const firstMore = band.querySelector(`:scope > .${section.moreCardClass}`);
       if (!firstMore) return;
       const y =
         firstMore.getBoundingClientRect().top -
-        scroll.getBoundingClientRect().top +
-        scroll.scrollTop;
-      scroll.scrollTop = Math.max(0, y - 8);
+        band.getBoundingClientRect().top +
+        band.scrollTop;
+      band.scrollTop = Math.max(0, y - 8);
     };
-    window.requestAnimationFrame(() => window.requestAnimationFrame(reveal));
+    window.requestAnimationFrame(() => window.requestAnimationFrame(after));
   });
 }
 
-/** Đánh dấu card dư ngoài 3 hàng; hiện/ẩn nút Xem bài viết cũ theo bề ngang. */
+/** Đánh dấu card dư ngoài 3 hàng; chữ chỉ hiện khi có hàng 4+. */
 function syncEssayBandMore(section) {
   const root = document.querySelector(section.rootSelector);
   if (!root || !root.classList.contains("essays--grid")) return;
-  const scroll = root.querySelector(":scope > .essays__scroll") || root;
-  const cards = [...scroll.querySelectorAll(":scope > .essay-card")];
+  const band = root.querySelector(":scope > .essays__band") || root;
+  const cards = [...band.querySelectorAll(":scope > .essay-card")];
   if (!cards.length) return;
   const cap = essayVisibleCap();
   const hasMore = cards.length > cap;
@@ -1447,6 +1464,7 @@ function syncEssayBandMore(section) {
     if (more) more.remove();
     root.classList.remove("is-expanded");
   }
+  syncEssayBandHeight(root);
 }
 
 function renderEssaySection(section, items) {
@@ -1463,8 +1481,8 @@ function renderEssaySection(section, items) {
     return;
   }
 
-  const scroll = document.createElement("div");
-  scroll.className = "essays__scroll";
+  const band = document.createElement("div");
+  band.className = "essays__band";
   const cap = essayVisibleCap();
   const hasMore = items.length > cap;
 
@@ -1531,11 +1549,11 @@ function renderEssaySection(section, items) {
     card.querySelector(".essay-card__hit").addEventListener("click", () => {
       openEssayOverlay(item, section);
     });
-    scroll.append(card);
+    band.append(card);
   });
 
   const fragment = document.createDocumentFragment();
-  fragment.append(scroll);
+  fragment.append(band);
 
   if (hasMore) {
     const more = document.createElement("button");
@@ -1552,7 +1570,11 @@ function renderEssaySection(section, items) {
   root.replaceChildren(fragment);
   window.requestAnimationFrame(() => {
     fitAllEssayExcerpts();
-    window.requestAnimationFrame(fitAllEssayExcerpts);
+    syncEssayBandHeight(root);
+    window.requestAnimationFrame(() => {
+      fitAllEssayExcerpts();
+      syncEssayBandHeight(root);
+    });
   });
 }
 
