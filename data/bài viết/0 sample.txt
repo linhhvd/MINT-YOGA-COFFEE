@@ -1,0 +1,26 @@
+Hướng dẫn gõ Markdown (file mẫu — không cần đưa vào _list.csv)
+
+Title bài lấy từ _list.csv. Cả file .txt này là nội dung body.
+
+--- Đậm / nghiêng ---
+**chữ đậm**
+*chữ nghiêng*
+***đậm và nghiêng***
+
+--- List ---
+- mục một
+- mục hai
+1. bước một
+2. bước hai
+
+--- Gạch đứng đầu dòng (blockquote) ---
+> Dòng trích / ghi chú có vạch dọc bên trái
+
+--- Màu ---
+{xanh}xanh mint{/xanh}
+{do}đỏ{/do}
+{cam}cam{/cam}
+{tim}tím{/tim}
+{mo}mờ / xám{/mo}
+
+Ví dụ: Ưu đãi {do}giảm 20%{/do}. Liên hệ {xanh}cô Thủy Tiên{/xanh}.
