@@ -2,7 +2,8 @@
 
 ## Đang làm
 
-- [ ] iPhone: #125 làm hỏng tel: (JS location.href) + Zalo ra App Store — bỏ JS, tel:+84, zalo.me/84…; chờ check lại
+- [ ] iPhone contact: user báo #126 vẫn không đổi — nghi test nhầm mintyogacoffee.com (Google Sites); harden v3 (CSS bg + scheme Zalo); footer tel
+- [x] iPhone: #126 bỏ JS location.href (merged)
 - [x] Markdown: `0 sample.txt` hướng dẫn ở bài viết + thông báo
 - [x] Markdown màu ngắn: {xanh}…{/xanh} (do|cam|tim|mo)
 - [x] Liên lạc hẹp: nút/gap/bot cùng cỡ TB+rộng
