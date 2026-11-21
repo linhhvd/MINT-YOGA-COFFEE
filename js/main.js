@@ -338,7 +338,7 @@ const ESSAY_SECTION = {
   statusId: "bai-viet-status",
   emptyText: "Chưa có bài viết.",
   failText: "Chưa tải được bài viết.",
-  moreText: "Xem bài viết cũ...",
+  moreText: "Xem thêm bài viết...",
   moreCardClass: "essays__card--more",
   moreBtnClass: "essays__more",
   idPrefix: "bv",
