@@ -2412,7 +2412,7 @@ body.is-event-open {
   outline-offset: 3px;
 }
 
-/* TB + rộng: 2 cột đều; lead ≈ 15 dòng; cột phải cao hơn thêm ⅓ thẻ đóng (peek). */
+/* TB + rộng: 2 cột đều; cửa sổ phải = đúng cao card trái (≈ 15 dòng). */
 @media (min-width: 391px) {
   .news {
     --news-lead-line: calc(1.05rem * 1.7);
@@ -2454,8 +2454,8 @@ body.is-event-open {
 
   .news__rest {
     box-sizing: border-box;
-    height: calc(var(--news-col-h) + var(--news-peek));
-    max-height: calc(var(--news-col-h) + var(--news-peek));
+    height: var(--news-col-h);
+    max-height: var(--news-col-h);
     overflow-x: hidden;
     overflow-y: auto;
     align-content: start;

@@ -17,7 +17,7 @@ Chỉ **layout các phần trong trang** khác theo case. Khi yêu cầu chỉnh
 
 ## Layout đã chốt
 
-- **Thông báo:** 3 mới nhất; chữ “Xem thông báo cũ hơn…” / “Thu gọn…” ngoài band (như bài viết); nhấn nhét/lấy tin cũ + peek ⅓ thẻ đóng. Hẹp 1 cột (1 card mở). TB+rộng 2 cột (lead trái luôn mở + viền xanh; phải tối đa 1 card mở; tin cũ thêm vào cột phải).
+- **Thông báo:** 3 mới nhất; chữ “Xem thông báo cũ hơn…” / “Thu gọn…” ngoài band (như bài viết); nhấn nhét/lấy tin cũ. Hẹp 1 cột (1 card mở). TB+rộng 2 cột (lead trái luôn mở + viền xanh; cửa sổ phải = đúng cao card trái; phải tối đa 1 card mở; tin cũ thêm vào cột phải).
 - **Bài viết:** hẹp 1 / TB 2 / rộng 3 cột; band = hàng + ⅓ card (trần 3+⅓); chữ ngoài band. Overlay giữ nguyên.
 - **Lịch:** hẹp+TB xếp từng ngày; rộng bảng tuần như hiện tại.
 - **Chat:** hẹp = layout phone hiện tại; TB+rộng = layout desktop hiện tại.
