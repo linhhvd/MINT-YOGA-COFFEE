@@ -799,7 +799,7 @@ h3 {
 
 /* Màu chữ Markdown: gõ {xanh}…{/xanh} (do|cam|tim|mo). */
 .news__md .md-xanh {
-  color: var(--teal);
+  color: #0d9488; /* mint tươi */
 }
 
 .news__md .md-do {
@@ -811,7 +811,7 @@ h3 {
 }
 
 .news__md .md-tim {
-  color: #6b4a8a;
+  color: #9333ea; /* tím tươi */
 }
 
 .news__md .md-mo {
