@@ -64,7 +64,7 @@ function isScheduleQuestion(folded) {
 function formatSchedule(rows) {
   if (!rows.length) return BOT_FALLBACK;
   const headers = rows[0].slice(1).map((cell) => cell.trim());
-  const lines = ["Lịch đang niêm yết:"];
+  const lines = [`Bây giờ: ${vietnamNowLabel()}`, "Lịch đang niêm yết:"];
   rows.slice(1).forEach((line) => {
     const label = (line[0] || "").trim();
     const cells = headers.map((_, index) => (line[index + 1] || "").trim());
@@ -88,10 +88,33 @@ function answerFromKnowledge(question) {
   return BOT_FALLBACK;
 }
 
+/** Chuỗi giờ Việt Nam để bot biết “hôm nay / thứ mấy”. */
+function vietnamNowIso() {
+  return new Date().toISOString();
+}
+
+function vietnamNowLabel(date = new Date()) {
+  try {
+    return new Intl.DateTimeFormat("vi-VN", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      weekday: "long",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    }).format(date);
+  } catch (error) {
+    return date.toISOString();
+  }
+}
+
 function botRequestUrl(question) {
   let prior = session.slice(-6);
+  const now = vietnamNowIso();
   const build = (history) =>
-    `${BOT_URL}?q=${encodeURIComponent(question)}&h=${encodeURIComponent(JSON.stringify(history))}`;
+    `${BOT_URL}?q=${encodeURIComponent(question)}&h=${encodeURIComponent(JSON.stringify(history))}&now=${encodeURIComponent(now)}`;
   let url = build(prior);
   while (prior.length && url.length > 6000) {
     prior = prior.slice(1);

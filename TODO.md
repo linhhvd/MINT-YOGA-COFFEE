@@ -2,7 +2,8 @@
 
 ## Đang làm
 
-- [ ] Messenger iOS: m.me mở Safari — dùng fb-messenger://user-thread/… (không fallback https)
+- [ ] Mint bot: đưa BÂY GIỜ (VN) vào prompt — cần dán `bot/Code.gs` mới + Deploy lại web app
+- [x] Messenger iOS: m.me mở Safari — #129 merged (fb-messenger://user-thread/…)
 - [x] Zalo iOS: Open 2 lần / lần 1 sai contact — #128 merged (chỉ https://zalo.me/…)
 - [x] iPhone contact v3 (#127): CSS bg + footer tel — đã OK trên github.io
 - [x] iPhone: #126 bỏ JS location.href (merged)

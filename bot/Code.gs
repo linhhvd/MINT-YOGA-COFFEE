@@ -24,13 +24,40 @@ function doGet(e) {
   let answer = FALLBACK;
   if (question) {
     try {
-      answer = askGemini(question, readHistory(e));
+      answer = askGemini(question, readHistory(e), readClientNow(e));
     } catch (error) {
       answer = FALLBACK;
     }
   }
   return ContentService.createTextOutput(JSON.stringify({ answer: answer }))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/** now từ trình duyệt (ISO); nếu thiếu/hỏng thì dùng giờ server theo Asia/Ho_Chi_Minh. */
+function readClientNow(e) {
+  const raw = String((e && e.parameter && e.parameter.now) || "").trim();
+  if (!raw) return null;
+  const parsed = new Date(raw);
+  if (isNaN(parsed.getTime())) return null;
+  return parsed;
+}
+
+function formatVietnamNow(date) {
+  const tz = "Asia/Ho_Chi_Minh";
+  const when = date || new Date();
+  const weekdayMap = {
+    "1": "Thứ hai",
+    "2": "Thứ ba",
+    "3": "Thứ tư",
+    "4": "Thứ năm",
+    "5": "Thứ sáu",
+    "6": "Thứ bảy",
+    "7": "Chủ nhật"
+  };
+  const weekday = weekdayMap[Utilities.formatDate(when, tz, "u")] || "";
+  const datePart = Utilities.formatDate(when, tz, "dd/MM/yyyy");
+  const timePart = Utilities.formatDate(when, tz, "HH:mm");
+  return weekday + ", " + datePart + ", " + timePart + " (giờ Việt Nam)";
 }
 
 function readHistory(e) {
@@ -124,7 +151,7 @@ function readAnswer(body) {
     .trim();
 }
 
-function askGemini(question, history) {
+function askGemini(question, history, clientNow) {
   const keys = geminiKeysInOrder();
   if (!keys.length) return FALLBACK;
 
@@ -134,10 +161,14 @@ function askGemini(question, history) {
       return (turn.role === "user" ? "Khách" : "Mint bot") + ": " + turn.text;
     })
     .join("\n");
+  const nowText = formatVietnamNow(clientNow);
   const prompt = [
     knowledge.prompt ||
       "Bạn là Mint Bot của phòng tập Mint Yoga & Coffee. Chỉ trả lời dựa trên thông tin được cung cấp. Không bịa. Nếu không có thông tin, nói đúng câu: " +
       FALLBACK,
+    "",
+    "BÂY GIỜ (bắt buộc dùng khi hiểu hôm nay / ngày mai / thứ mấy / còn lớp nào):",
+    nowText,
     "",
     "LỊCH HỌC MỚI NHẤT (file lịch học.csv, ưu tiên hơn bảng lịch trong mục 4 nếu khác nhau):",
     knowledge.schedule || "(chưa tải được)",
