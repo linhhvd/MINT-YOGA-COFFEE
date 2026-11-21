@@ -130,7 +130,9 @@ function setupBotToggle() {
   const panel = document.querySelector("#mint-bot");
   const chat = panel?.querySelector(".mint-bot__chat");
   const labelBtn = panel?.querySelector(".mint-bot__label");
-  const icon = document.querySelector(".icon-btn");
+  // Chỉ đo kích thước nút; không gắn handler vào nút điện thoại.
+  const icon = document.querySelector(".reach__side .icon-btn--phone")
+    || document.querySelector(".reach__side .icon-btn");
   if (!toggle || !mid || !reach || !panel || !chat || !icon) return;
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

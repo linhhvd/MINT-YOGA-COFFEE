@@ -1,6 +1,21 @@
 const toggle = document.querySelector(".nav-toggle");
 const nav = document.querySelector("#site-nav");
 
+/* iPhone Safari: chạm img trong <a> / universal link đôi khi không mở app.
+   Chỉ ép điều hướng cho tel + Zalo + Messenger (cùng tab, không _blank). */
+document.querySelectorAll(".reach__side:first-child a.icon-btn[href]").forEach((anchor) => {
+  anchor.addEventListener(
+    "click",
+    (event) => {
+      const href = anchor.getAttribute("href");
+      if (!href) return;
+      event.preventDefault();
+      window.location.href = href;
+    },
+    { passive: false }
+  );
+});
+
 if (toggle && nav) {
   const setMenu = (open) => {
     nav.classList.toggle("is-open", open);
