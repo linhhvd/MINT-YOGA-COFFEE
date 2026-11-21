@@ -2,6 +2,7 @@
 
 ## Đang làm
 
+- [x] Thông báo: viền mint lead mọi màn; đáy section còn ½ như bài viết
 - [x] Thông báo TB+rộng: cửa sổ phải = đúng cao card trái
 - [x] Thông báo: band/xem cũ như bài viết (chữ ngoài, peek ⅓, nhét/lấy)
 - [x] Bài viết: khoảng chữ “Xem cũ…” → đáy section còn ½ (2.25rem)
