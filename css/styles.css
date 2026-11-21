@@ -1837,11 +1837,18 @@ body.is-event-open {
   flex-wrap: nowrap;
 }
 
+.footer-brand {
+  flex: none;
+  line-height: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
 .footer-logo {
   /* Bằng logo header trắng rộng (2.938rem). */
   height: 2.938rem;
   width: auto;
-  flex: none;
+  display: block;
 }
 
 .footer-note {
