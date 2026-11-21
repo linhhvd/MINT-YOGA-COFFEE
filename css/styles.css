@@ -409,6 +409,11 @@ h3 {
   padding: 4.5rem 0;
 }
 
+/* Bài viết: đáy dưới dòng “Xem bài viết cũ…” còn ½ padding section. */
+#bai-viet {
+  padding-bottom: 2.25rem;
+}
+
 .section--deep {
   background: var(--bg-deep);
 }
