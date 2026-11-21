@@ -2,7 +2,7 @@
 
 ## Đang làm
 
-- [ ] iPhone: nút điện thoại / Zalo / Messenger không mở — đã sửa pointer-events + cùng tab + tel; chờ user check lại trên máy
+- [ ] iPhone: #125 làm hỏng tel: (JS location.href) + Zalo ra App Store — bỏ JS, tel:+84, zalo.me/84…; chờ check lại
 - [x] Markdown: `0 sample.txt` hướng dẫn ở bài viết + thông báo
 - [x] Markdown màu ngắn: {xanh}…{/xanh} (do|cam|tim|mo)
 - [x] Liên lạc hẹp: nút/gap/bot cùng cỡ TB+rộng
