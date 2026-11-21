@@ -2,6 +2,7 @@
 
 ## Đang làm
 
+- [x] Bài viết: nhét card giữ scroll — lộ ~⅓ card mới
 - [x] Bài viết: band = hàng + ⅓ card (trần 3+⅓); chữ ngoài band; nhấn nhét/lấy card
 - [x] Bài viết: bấm xem cũ → cuộn tới card mới hiện
 - [x] Bài viết: nút đáy band ngoài vùng cuộn — card cũ không đè chữ

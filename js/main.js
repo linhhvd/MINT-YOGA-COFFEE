@@ -1408,26 +1408,17 @@ if (header) {
 function bindEssayMoreButton(root, section, more) {
   more.addEventListener("click", () => {
     const expanded = !root.classList.contains("is-expanded");
+    const band = root.querySelector(":scope > .essays__band");
+    // Giữ scroll khi nhét card → lộ ~⅓ card mới (peek); user tự cuộn tiếp.
+    const keepScroll = expanded && band ? band.scrollTop : 0;
     root.classList.toggle("is-expanded", expanded);
     more.textContent = expanded ? "Thu gọn..." : section.moreText;
     more.setAttribute("aria-expanded", String(expanded));
     const after = () => {
       fitAllEssayExcerpts();
       syncEssayBandHeight(root);
-      const band = root.querySelector(":scope > .essays__band");
       if (!band) return;
-      if (!expanded) {
-        band.scrollTop = 0;
-        return;
-      }
-      // Nhét card dư → cuộn tới card mới nếu band đã trần (scroll).
-      const firstMore = band.querySelector(`:scope > .${section.moreCardClass}`);
-      if (!firstMore) return;
-      const y =
-        firstMore.getBoundingClientRect().top -
-        band.getBoundingClientRect().top +
-        band.scrollTop;
-      band.scrollTop = Math.max(0, y - 8);
+      band.scrollTop = expanded ? keepScroll : 0;
     };
     window.requestAnimationFrame(() => window.requestAnimationFrame(after));
   });
