@@ -226,7 +226,7 @@ function setupBotToggle() {
     const measuredIcon = icon.getBoundingClientRect().width;
     const iconW = measuredIcon > 0
       ? measuredIcon
-      : remToPx(getComputedStyle(reach), "--icon", phone ? 2.45 : 3.35);
+      : remToPx(getComputedStyle(reach), "--icon", 3.35);
     if (band.classList.contains("is-tall") || panel.classList.contains("is-open")) {
       applyTallBandVar();
     }
