@@ -1846,6 +1846,8 @@ body.is-event-open {
 
 .footer-note {
   margin: 0;
+  /* Cách mép phải thêm ~2 ký tự (địa chỉ + cô Thủy Tiên). */
+  padding-right: 2ch;
   text-align: right;
   line-height: 1.3;
   font-size: 0.92rem;
