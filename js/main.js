@@ -1395,7 +1395,24 @@ function bindEssayMoreButton(root, section, more) {
     root.classList.toggle("is-expanded", expanded);
     more.textContent = expanded ? "Thu gọn..." : section.moreText;
     more.setAttribute("aria-expanded", String(expanded));
-    window.requestAnimationFrame(() => fitAllEssayExcerpts());
+    const reveal = () => {
+      fitAllEssayExcerpts();
+      const scroll = root.querySelector(":scope > .essays__scroll");
+      if (!scroll) return;
+      if (!expanded) {
+        scroll.scrollTop = 0;
+        return;
+      }
+      // Card cũ vừa bỏ display:none — đo trong scroll, kéo vào tầm nhìn.
+      const firstMore = scroll.querySelector(`:scope > .${section.moreCardClass}`);
+      if (!firstMore) return;
+      const y =
+        firstMore.getBoundingClientRect().top -
+        scroll.getBoundingClientRect().top +
+        scroll.scrollTop;
+      scroll.scrollTop = Math.max(0, y - 8);
+    };
+    window.requestAnimationFrame(() => window.requestAnimationFrame(reveal));
   });
 }
 
