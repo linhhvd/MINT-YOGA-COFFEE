@@ -2,6 +2,8 @@
 
 ## Đang làm
 
+- [x] Markdown: `0 sample.txt` hướng dẫn ở bài viết + thông báo
+- [x] Markdown màu ngắn: {xanh}…{/xanh} (do|cam|tim|mo)
 - [x] Liên lạc hẹp: nút/gap/bot cùng cỡ TB+rộng
 - [x] Liên lạc: band thu thống nhất mọi màn (cao TB, nút 2 mép, bot giữa dọc)
 - [x] Bài viết: thêm 10 bài mẫu layout (04–13) — có thể xóa sau khi check

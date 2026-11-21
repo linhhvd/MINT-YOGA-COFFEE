@@ -536,6 +536,17 @@ function parseTxtCard(text) {
   return { title, body };
 }
 
+/** Class màu nội bộ — map từ quy ước ngắn {xanh}…{/xanh}. */
+const MD_COLOR_CLASSES = new Set(["md-xanh", "md-do", "md-cam", "md-tim", "md-mo"]);
+
+/** {xanh|do|cam|tim|mo}…{/…} → span class md-*. */
+function expandMdColorShortcuts(text) {
+  return String(text || "").replace(
+    /\{(xanh|do|cam|tim|mo)\}([\s\S]*?)\{\/\1\}/gi,
+    (_, name, inner) => `<span class="md-${String(name).toLowerCase()}">${inner}</span>`
+  );
+}
+
 function appendMarkdownBody(container, body) {
   if (!body) return;
   container.classList.add("news__md");
@@ -546,8 +557,16 @@ function appendMarkdownBody(container, body) {
     if (typeof markedLib.setOptions === "function") {
       markedLib.setOptions({ breaks: true, gfm: true });
     }
-    container.innerHTML = purify.sanitize(markedLib.parse(body), {
+    const withColor = expandMdColorShortcuts(body);
+    container.innerHTML = purify.sanitize(markedLib.parse(withColor), {
       USE_PROFILES: { html: true },
+      ADD_ATTR: ["class"],
+    });
+    // Chỉ giữ class màu đã quy ước; bỏ class lạ.
+    container.querySelectorAll("[class]").forEach((el) => {
+      const keep = [...el.classList].filter((name) => MD_COLOR_CLASSES.has(name));
+      if (keep.length) el.className = keep.join(" ");
+      else el.removeAttribute("class");
     });
     container.querySelectorAll("a[href]").forEach((link) => {
       link.setAttribute("target", "_blank");
