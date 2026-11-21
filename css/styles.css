@@ -797,8 +797,7 @@ h3 {
   font-style: italic;
 }
 
-/* Màu chữ trong Markdown (.txt thông báo / bài viết / popup).
-   Gõ: <span class="md-xanh">…</span> — xanh | do | cam | tim | mo */
+/* Màu chữ Markdown: gõ {xanh}…{/xanh} (do|cam|tim|mo). */
 .news__md .md-xanh {
   color: var(--teal);
 }
