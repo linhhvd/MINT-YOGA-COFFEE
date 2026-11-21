@@ -1671,6 +1671,10 @@ body.is-event-open {
   cursor: pointer;
   border-radius: 50%;
   background: #f3efe6;
+  /* iPhone: tránh delay/chặn chạm trên nút. */
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .icon-btn::after {
@@ -1722,6 +1726,8 @@ body.is-event-open {
   width: 82%;
   height: 82%;
   object-fit: contain;
+  /* iPhone Safari: chạm vào img trong <a> đôi khi không mở link. */
+  pointer-events: none;
 }
 
 .icon-btn--phone img {
