@@ -822,9 +822,11 @@ h3 {
   --essay-card-h: 22rem;
   --essay-gap: 1rem;
   --essay-empty-line: 1.7rem;
-  /* Tối đa 3 hàng card + 2 gap + 1 dòng trống (chỗ “Xem bài viết cũ”). */
+  --essay-empty-lines: 3;
+  /* Tối đa 3 hàng card + 2 gap + 3 dòng (chỗ “Xem bài viết cũ” / “Thu gọn”). */
   --essay-band-max: calc(
-    3 * var(--essay-card-h) + 2 * var(--essay-gap) + var(--essay-empty-line)
+    3 * var(--essay-card-h) + 2 * var(--essay-gap) +
+      var(--essay-empty-lines) * var(--essay-empty-line)
   );
   display: grid;
   gap: var(--essay-gap);
@@ -2368,11 +2370,16 @@ body.is-event-open {
   grid-column: 1 / -1;
   position: sticky;
   bottom: 0;
-  z-index: 1;
+  z-index: 2;
+  box-sizing: border-box;
   margin: 0;
-  padding: 0.35rem 0 0.15rem;
+  /* 3 dòng cao: che title card cũ khi cuộn, không đè chữ nút. */
+  min-height: calc(var(--essay-empty-lines, 3) * var(--essay-empty-line, 1.7rem));
+  padding: 0.35rem 0 0.25rem;
   background: #e7e1d4;
   line-height: var(--essay-empty-line, 1.7rem);
+  display: flex;
+  align-items: flex-start;
 }
 
 .news__more:hover,
