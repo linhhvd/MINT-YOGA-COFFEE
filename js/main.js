@@ -536,6 +536,9 @@ function parseTxtCard(text) {
   return { title, body };
 }
 
+/** Class màu trong Markdown — chỉ giữ các tên này (dễ nhớ tiếng Việt). */
+const MD_COLOR_CLASSES = new Set(["md-xanh", "md-do", "md-cam", "md-tim", "md-mo"]);
+
 function appendMarkdownBody(container, body) {
   if (!body) return;
   container.classList.add("news__md");
@@ -548,6 +551,13 @@ function appendMarkdownBody(container, body) {
     }
     container.innerHTML = purify.sanitize(markedLib.parse(body), {
       USE_PROFILES: { html: true },
+      ADD_ATTR: ["class"],
+    });
+    // Chỉ giữ class màu đã quy ước; bỏ class lạ.
+    container.querySelectorAll("[class]").forEach((el) => {
+      const keep = [...el.classList].filter((name) => MD_COLOR_CLASSES.has(name));
+      if (keep.length) el.className = keep.join(" ");
+      else el.removeAttribute("class");
     });
     container.querySelectorAll("a[href]").forEach((link) => {
       link.setAttribute("target", "_blank");

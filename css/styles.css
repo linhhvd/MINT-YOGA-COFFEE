@@ -797,6 +797,28 @@ h3 {
   font-style: italic;
 }
 
+/* Màu chữ trong Markdown (.txt thông báo / bài viết / popup).
+   Gõ: <span class="md-xanh">…</span> — xanh | do | cam | tim | mo */
+.news__md .md-xanh {
+  color: var(--teal);
+}
+
+.news__md .md-do {
+  color: #b93a3a;
+}
+
+.news__md .md-cam {
+  color: #c45c26;
+}
+
+.news__md .md-tim {
+  color: #6b4a8a;
+}
+
+.news__md .md-mo {
+  color: var(--muted);
+}
+
 @media (min-width: 391px) {
   .card--lead .card__toggle {
     cursor: default;
