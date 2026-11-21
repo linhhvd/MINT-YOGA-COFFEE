@@ -2,6 +2,7 @@
 
 ## Đang làm
 
+- [x] Bài viết: nới band max 3 hàng + 3 dòng; sticky Thu gọn không đè title card cũ
 - [x] Bài viết `_list.csv` + not-found style (PR)
 - [x] Dựng source trang tĩnh
 - [x] Kiểm tra trên trình duyệt (desktop 1280 và điện thoại)
