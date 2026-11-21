@@ -2,7 +2,8 @@
 
 ## Đang làm
 
-- [ ] Zalo iOS: Open 2 lần / lần 1 sai contact — bỏ scheme+fallback, chỉ https://zalo.me/…
+- [ ] Messenger iOS: m.me mở Safari — dùng fb-messenger://user-thread/… (không fallback https)
+- [x] Zalo iOS: Open 2 lần / lần 1 sai contact — #128 merged (chỉ https://zalo.me/…)
 - [x] iPhone contact v3 (#127): CSS bg + footer tel — đã OK trên github.io
 - [x] iPhone: #126 bỏ JS location.href (merged)
 - [x] Markdown: `0 sample.txt` hướng dẫn ở bài viết + thông báo
