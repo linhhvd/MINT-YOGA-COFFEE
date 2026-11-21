@@ -1,6 +1,72 @@
 const toggle = document.querySelector(".nav-toggle");
 const nav = document.querySelector("#site-nav");
 
+/** Mở URL trong cùng stack cử chỉ người dùng (iOS tel: / custom scheme). */
+function activateHref(href) {
+  if (!href) return;
+  const a = document.createElement("a");
+  a.href = href;
+  a.setAttribute("rel", "noopener");
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+const isAppleMobile = () => /iPhone|iPad|iPod/i.test(navigator.userAgent || "");
+
+/**
+ * Nút liên lạc trái: tel / Zalo / Messenger.
+ * iOS: synthetic <a>.click() cho tel; Zalo/Messenger thử scheme app rồi fallback https.
+ */
+document.querySelectorAll("[data-contact]").forEach((el) => {
+  el.addEventListener("click", (event) => {
+    const kind = el.getAttribute("data-contact");
+    const href = el.getAttribute("href");
+    if (!kind || !href) return;
+
+    if (kind === "tel") {
+      /* Để trình duyệt xử lý <a href="tel:"> — không preventDefault.
+         Đồng thời kích hoạt synthetic click (một số iOS chỉ nhận một trong hai). */
+      activateHref(href);
+      return;
+    }
+
+    if (kind === "zalo") {
+      event.preventDefault();
+      const phone = el.getAttribute("data-phone") || "84981238486";
+      if (!isAppleMobile()) {
+        activateHref(href);
+        return;
+      }
+      const started = Date.now();
+      window.location.href = `zalo://conversation?phone=${phone}`;
+      window.setTimeout(() => {
+        if (document.hidden) return;
+        if (Date.now() - started > 2500) return;
+        window.location.href = href;
+      }, 1000);
+      return;
+    }
+
+    if (kind === "messenger") {
+      event.preventDefault();
+      const page = el.getAttribute("data-page") || "108281021105168";
+      if (!isAppleMobile()) {
+        activateHref(href);
+        return;
+      }
+      const started = Date.now();
+      window.location.href = `fb-messenger://user-thread/${page}`;
+      window.setTimeout(() => {
+        if (document.hidden) return;
+        if (Date.now() - started > 2500) return;
+        window.location.href = href;
+      }, 1000);
+    }
+  });
+});
+
 if (toggle && nav) {
   const setMenu = (open) => {
     nav.classList.toggle("is-open", open);
